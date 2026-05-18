@@ -1,0 +1,14 @@
+{
+  "pr_url": "https://github.com/OmkumarSolanki/notes-cli/pull/12",
+  "pr_title": "demo: graceful no-applicable-agents path — md only",
+  "pr_author": "OmkumarSolanki",
+  "review_started_at": "2026-05-18T20:41:51Z",
+  "review_completed_at": "2026-05-18T20:41:53Z",
+  "duration_seconds": 2.0,
+  "files_changed": 2,
+  "findings": [],
+  "summary": "No applicable agents for this PR. v1 reviews Python repositories only (this PR contains: 2 .md). Run on a PR that touches .py files to get a full review.",
+  "agents_succeeded": [],
+  "agents_failed": [],
+  "trace_id": "7ef939cc-fe1b-449b-b342-2d3b5a8a2b66"
+}

@@ -1,0 +1,23 @@
+from pydantic import BaseModel, Field
+
+from reviewer.models.findings import Finding
+
+
+class AgentFailure(BaseModel):
+    agent: str
+    error: str
+
+
+class ReviewReport(BaseModel):
+    pr_url: str
+    pr_title: str
+    pr_author: str
+    review_started_at: str
+    review_completed_at: str
+    duration_seconds: float
+    files_changed: int
+    findings: list[Finding] = Field(default_factory=list)
+    summary: str
+    agents_succeeded: list[str] = Field(default_factory=list)
+    agents_failed: list[AgentFailure] = Field(default_factory=list)
+    trace_id: str

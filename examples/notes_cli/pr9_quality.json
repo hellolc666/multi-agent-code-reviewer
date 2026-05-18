@@ -1,0 +1,88 @@
+{
+  "pr_url": "https://github.com/OmkumarSolanki/notes-cli/pull/9",
+  "pr_title": "demo: quality review target — search with code smells",
+  "pr_author": "OmkumarSolanki",
+  "review_started_at": "2026-05-18T20:37:15Z",
+  "review_completed_at": "2026-05-18T20:37:56Z",
+  "duration_seconds": 41.0,
+  "files_changed": 1,
+  "findings": [
+    {
+      "id": "quality-2",
+      "agent": "quality",
+      "category": "quality",
+      "severity": "medium",
+      "file_path": "notes/search.py",
+      "line_start": 72,
+      "line_end": 81,
+      "title": "Age filter silently rejects valid naive ISO timestamps",
+      "explanation": "The `age:` filter parses `created_at` for every matching token and compares it to an aware UTC `now`. If `created_at` is a valid ISO timestamp without timezone information, subtracting it from an aware datetime raises `TypeError`, which is swallowed and turns the note into a non-match. This can silently exclude valid notes depending on timestamp format.",
+      "suggestion": "Normalize timestamp handling explicitly: require timezone-aware `created_at` values, or treat naive timestamps as UTC with `created = created.replace(tzinfo=dt.UTC)`. Catch only expected parsing errors such as `ValueError`, not every exception.",
+      "confidence": 0.78,
+      "tool_source": "llm-analysis"
+    },
+    {
+      "id": "quality-5",
+      "agent": "quality",
+      "category": "quality",
+      "severity": "low",
+      "file_path": "notes/search.py",
+      "line_start": 10,
+      "line_end": 11,
+      "title": "Unused imports are suppressed for hypothetical future use",
+      "explanation": "The module keeps unused `os` and `sys` imports with `noqa` comments saying they may be needed later. This suppresses linting for dead code and adds noise to a new module.",
+      "suggestion": "Remove unused imports until they are actually needed instead of suppressing Ruff diagnostics preemptively.",
+      "confidence": 0.96,
+      "tool_source": "llm-analysis"
+    },
+    {
+      "id": "quality-1",
+      "agent": "quality",
+      "category": "quality",
+      "severity": "low",
+      "file_path": "notes/search.py",
+      "line_start": 39,
+      "line_end": 125,
+      "title": "Search function is overly complex and duplicates parsing logic",
+      "explanation": "`search` has high cyclomatic complexity and combines query parsing, per-token validation, date parsing, length comparison, and filtering in one nested loop. It also repeats similar `len:` parsing/comparison branches, making future query operators harder to add safely.",
+      "suggestion": "Parse the query once into small predicate functions or filter objects, and extract handlers for `text`, `tag`, `age`, and `len`. For `len`, parse the operator and threshold once, then dispatch via `operator.gt/lt/eq`.",
+      "confidence": 0.93,
+      "tool_source": "llm-analysis"
+    },
+    {
+      "id": "quality-3",
+      "agent": "quality",
+      "category": "quality",
+      "severity": "low",
+      "file_path": "notes/search.py",
+      "line_start": 76,
+      "line_end": 112,
+      "title": "Broad exception handlers hide unexpected failures",
+      "explanation": "The code catches `Exception` for date and integer parsing. This hides unexpected programming errors, makes debugging harder, and can convert unrelated failures into simple non-matches.",
+      "suggestion": "Catch specific exceptions such as `ValueError` for `int()` and `datetime.fromisoformat()`, and avoid wrapping unrelated comparison logic in the same `try` block.",
+      "confidence": 0.88,
+      "tool_source": "llm-analysis"
+    },
+    {
+      "id": "quality-4",
+      "agent": "quality",
+      "category": "quality",
+      "severity": "low",
+      "file_path": "notes/search.py",
+      "line_start": 128,
+      "line_end": 138,
+      "title": "Deduplication uses an inefficient and fragile JSON key list",
+      "explanation": "`dedup_results` stores serialized keys in a list, so membership checks are O(n) and the whole function is O(n²). `json.dumps([n.id, n.text])` is also an indirect way to build a deduplication key and may fail or behave unexpectedly if fields are not JSON-serializable.",
+      "suggestion": "Use a set of tuple keys, for example `seen: set[tuple[str, str]] = set()` and `key = (n.id, n.text)`, then check/add the key in O(1). If note IDs are unique, consider deduplicating by `n.id` alone.",
+      "confidence": 0.9,
+      "tool_source": "llm-analysis"
+    }
+  ],
+  "summary": "The main concern is a medium-severity quality issue where the age filter can silently reject valid naive ISO timestamps. Other findings are low-severity maintainability and robustness issues in search parsing, exception handling, imports, and deduplication.",
+  "agents_succeeded": [
+    "security",
+    "quality"
+  ],
+  "agents_failed": [],
+  "trace_id": "3796ed23-364c-4013-bfba-2d0575dfc0f8"
+}

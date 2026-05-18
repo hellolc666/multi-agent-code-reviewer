@@ -1,0 +1,21 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+build/
+dist/
+.venv/
+venv/
+.env
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+*.log
+.DS_Store
+
+# Personal docs — kept locally, never pushed
+USER_GUIDE.md
+status.md
+CLAUDE.md
+02_Multi_Agent_Code_Reviewer_BUILD_SPEC.md
+02_Multi_Agent_Code_Reviewer_INTERVIEW_PREP.md
