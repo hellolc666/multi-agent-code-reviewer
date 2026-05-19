@@ -22,3 +22,19 @@ warnings.filterwarnings(
     category=UserWarning,
     module=r"pydantic\.main",
 )
+
+# Cosmetic LangChain pending-deprecation warning emitted on first
+# ``langgraph.checkpoint.serde.jsonplus`` import. Behavior unchanged; we filter
+# narrowly so legitimate LangChain deprecations still surface.
+warnings.filterwarnings(
+    "ignore",
+    message=r".*allowed_objects.*will change in a future version.*",
+)
+
+# Cosmetic LangChain pending-deprecation warning emitted on first
+# ``langgraph.checkpoint.serde.jsonplus`` import. Behavior unchanged; we filter
+# narrowly so legitimate LangChain deprecations still surface.
+warnings.filterwarnings(
+    "ignore",
+    message=r".*allowed_objects.*will change in a future version.*",
+)
