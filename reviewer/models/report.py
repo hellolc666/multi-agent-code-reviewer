@@ -33,3 +33,8 @@ class ReviewReport(BaseModel):
     review_plan: dict = Field(default_factory=dict)
     planner_errors: list[dict] = Field(default_factory=list)
     status: str = "completed"
+    raw_findings: list[Finding] = Field(default_factory=list)
+    verified_findings: list[dict] = Field(default_factory=list)
+    verification_incomplete: bool = False
+    judge_enabled: bool = True
+    verification_conflicts: list[dict] = Field(default_factory=list)

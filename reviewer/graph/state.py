@@ -36,6 +36,11 @@ class ReviewState(TypedDict, total=False):
     review_options: dict
     review_plan: dict
     planner_errors: list[dict]
+    raw_findings: list[Finding]
+    verified_findings: list[dict]
+    verification_incomplete: bool
+    judge_enabled: bool
+    verification_conflicts: list[dict]
     pr_url: str
     pr_metadata: dict
     pr_diff: str

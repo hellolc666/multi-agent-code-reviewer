@@ -22,6 +22,7 @@ from langgraph.types import Send
 
 from reviewer.agents.correctness import correctness_agent_node
 from reviewer.agents.docs import docs_agent_node
+from reviewer.agents.judge import judge_findings_node
 from reviewer.agents.quality import quality_agent_node
 from reviewer.agents.security import security_agent_node
 from reviewer.agents.test_mapping import test_mapping_agent_node
@@ -81,6 +82,7 @@ def build_review_graph(*, fetch_node=None, aggregate_node=None, planner_node=Non
     graph.add_node("docs_agent", docs_agent_node)
     graph.add_node("correctness_agent", correctness_agent_node)
     graph.add_node("aggregate", aggregate_node or aggregate_findings_node)
+    graph.add_node("judge", judge_findings_node)
 
     graph.add_edge(START, "fetch_pr")
     graph.add_edge("fetch_pr", "plan_review")
@@ -88,7 +90,8 @@ def build_review_graph(*, fetch_node=None, aggregate_node=None, planner_node=Non
         "plan_review", dispatch_specialists, [*AGENT_NODES, "aggregate"]
     )
     for agent in AGENT_NODES:
-        graph.add_edge(agent, "aggregate")
+        graph.add_edge(agent, "judge")
+    graph.add_edge("judge", "aggregate")
     graph.add_edge("aggregate", END)
 
     return graph.compile()

@@ -45,6 +45,8 @@ class Finding(BaseModel):
     confidence: float = Field(..., ge=0.0, le=1.0)
     trigger_condition: str | None = None
     evidence_snippet: str | None = None
+    source: Literal["llm", "static_seed"] = "llm"
+    verification_status: Literal["candidate", "confirmed", "rejected", "uncertain"] = "candidate"
     tool_source: str | None = Field(
         None, description="e.g. 'semgrep-rule-xyz' or 'llm-analysis'"
     )

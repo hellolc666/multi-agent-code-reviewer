@@ -72,3 +72,15 @@
 - `python -m ruff check reviewer tests` / `git diff --check`：PASS。
 - 初次回归发现旧测试两处固定四节点断言，已更新并完整重跑。
 - Qwen/GitHub/Semgrep 在线：NOT_RUN；仍有上游 LangGraph 警告。接下来实现 Judge。
+
+## 阶段 4：PASS（2026-10-24）
+
+- 新增 judge.py、verification.py，图在五 Reviewer 汇合后运行独立 Judge。
+- 确定性路径/RIGHT 行/真实片段验证 + LLM 反证；保留 raw/confirmed/rejected/uncertain，
+  重复来源、上下文锚点发布限制、冲突、失败时 verification_incomplete。
+- Aggregator 默认只展示 confirmed；没有 confirmed 时摘要明确列出待复核/驳回，
+  judge_enabled=false 可保留未验证候选用于消融，不伪造确认。
+- 新增 test_judge.py 14 个用例；包含误否定可观测性和 gold 不进入 Judge 投影。
+- `python -m pytest -q --tb=short -p no:cacheprovider`：PASS，**378 passed / 4 skipped**，14.40s。
+- `python -m ruff check reviewer tests`：PASS；文档 JUDGE.md 说明接口及静态验证限制。
+- Qwen/GitHub 在线：NOT_RUN；下一阶段为统一预算、失败治理、追踪与受控发布。

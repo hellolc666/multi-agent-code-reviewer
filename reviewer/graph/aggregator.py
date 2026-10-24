@@ -176,6 +176,14 @@ async def aggregate_findings_node(state: ReviewState) -> dict[str, Any]:
     raw = list(state.get("findings", []))
     deduped = deduplicate(raw)
     ordered = sort_findings(deduped)
+    if "verified_findings" in state and state.get("judge_enabled", True):
+        ordered = sort_findings(
+            [
+                Finding.model_validate(record["finding"])
+                for record in state["verified_findings"]
+                if record["status"] == "confirmed"
+            ]
+        )
 
     agents_failed = list(state.get("agents_failed", []))
     agents_succeeded = list(state.get("agents_succeeded", []))
@@ -183,6 +191,13 @@ async def aggregate_findings_node(state: ReviewState) -> dict[str, Any]:
 
     if not agents_to_run and not agents_succeeded and not agents_failed:
         summary = _no_agents_summary(state.get("changed_files", []))
+    elif "verified_findings" in state and not ordered and raw:
+        counts = Counter(r["status"] for r in state["verified_findings"])
+        summary = (
+            "No confirmed findings. "
+            f"{counts['uncertain']} uncertain; {counts['rejected']} rejected. "
+            "Inspect raw candidates and verification reasons."
+        )
     else:
         summary = await _generate_summary(ordered, agents_failed)
 
@@ -215,6 +230,11 @@ async def aggregate_findings_node(state: ReviewState) -> dict[str, Any]:
         execution_mode=state.get("execution_mode", "live"),
         review_plan=state.get("review_plan", {}),
         planner_errors=state.get("planner_errors", []),
+        raw_findings=state.get("raw_findings", raw),
+        verified_findings=state.get("verified_findings", []),
+        verification_incomplete=state.get("verification_incomplete", False),
+        judge_enabled=state.get("judge_enabled", True),
+        verification_conflicts=state.get("verification_conflicts", []),
         status=(
             "partial"
             if agents_failed and agents_succeeded

@@ -509,9 +509,11 @@ async def test_qwen_runner_end_to_end_with_mock_http_and_fixture(monkeypatch):
         "correctness",
     }
     assert report["agents_failed"] == []
-    assert report["summary"] == "Offline mock report."
+    assert report["summary"].startswith("No confirmed findings.")
+    assert report["raw_findings"]
+    assert report["findings"] == []
     assert calls.count("FindingList") == 5
-    assert calls.count("_SummaryResponse") == 1
+    assert calls.count("_SummaryResponse") == 0
     assert calls.count("EvidenceTurn") == 2
 
 
