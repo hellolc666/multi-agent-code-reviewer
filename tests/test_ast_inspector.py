@@ -115,7 +115,7 @@ def test_cyclomatic_complexity(source, expected):
 
 def test_cyclomatic_complexity_on_fixture_classify_user():
     """The fixture's ``classify_user`` is intentionally branchy (>= 5)."""
-    src = (FIXTURE_REPO / "app" / "auth.py").read_text()
+    src = (FIXTURE_REPO / "app" / "auth.py").read_text(encoding="utf-8")
     fns = find_functions(src)
     classify = next(f for f in fns if f.name == "classify_user")
     assert classify.complexity >= 5
@@ -227,7 +227,7 @@ class _Private:
 
 
 def test_find_classes_on_fixture_session():
-    src = (FIXTURE_REPO / "app" / "auth.py").read_text()
+    src = (FIXTURE_REPO / "app" / "auth.py").read_text(encoding="utf-8")
     classes = find_classes(src)
     session = next(c for c in classes if c.name == "Session")
     method_names = {m.name for m in session.methods}
@@ -301,7 +301,7 @@ def test_find_references_returns_dataclass_instances():
 
 def test_find_references_on_fixture_test_file():
     """The fixture test file imports + calls ``login`` from app.auth."""
-    src = (FIXTURE_REPO / "tests" / "test_auth.py").read_text()
+    src = (FIXTURE_REPO / "tests" / "test_auth.py").read_text(encoding="utf-8")
     refs = find_references(src, {"login", "Session"})
     by_kind_name = {(r.name, r.kind) for r in refs}
     assert ("login", "import_from") in by_kind_name
