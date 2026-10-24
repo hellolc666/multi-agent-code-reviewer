@@ -29,6 +29,7 @@ from reviewer.agents.base import FindingList, analyze_with_schema
 from reviewer.graph.state import AGENT_NODE_TO_LABEL, ReviewState
 from reviewer.models.findings import Category, Finding, Severity
 from reviewer.tools.ast_inspector import find_classes, find_functions, find_references
+from reviewer.tools.context import CodeContext
 
 log = logging.getLogger(__name__)
 
@@ -73,8 +74,8 @@ def _read_test_dirs(repo_path: Path) -> tuple[str, ...]:
     if not pp.exists():
         return DEFAULT_TEST_DIRS
     try:
-        data = tomllib.loads(pp.read_text(encoding="utf-8"))
-    except (OSError, tomllib.TOMLDecodeError):
+        data = tomllib.loads(CodeContext(repo_path).text("pyproject.toml"))
+    except (ValueError, OSError, tomllib.TOMLDecodeError):
         return DEFAULT_TEST_DIRS
     cfg = data.get("tool", {}).get("reviewer", {}) or {}
     dirs = cfg.get("test_dirs")
@@ -120,16 +121,22 @@ def _changed_entities(state: ReviewState) -> dict[str, list[tuple[str, str, int]
 def _collect_test_sources(repo_path: Path, test_dirs: tuple[str, ...]) -> list[tuple[Path, str]]:
     """Read every test_*.py / *_test.py under each ``test_dirs`` entry."""
     out: list[tuple[Path, str]] = []
+    context = CodeContext(repo_path)
     for d in test_dirs:
-        root = repo_path / d
+        try:
+            root = context.resolve(d)
+        except (OSError, ValueError):
+            continue
         if not root.exists():
             continue
         for p in root.rglob("*.py"):
             if not _is_test_file(p):
                 continue
             try:
-                out.append((p, p.read_text(encoding="utf-8", errors="replace")))
-            except OSError:
+                out.append((p, context.text(p.relative_to(repo_path).as_posix())))
+                if len(out) >= 200:
+                    return out
+            except (OSError, ValueError):
                 continue
     return out
 

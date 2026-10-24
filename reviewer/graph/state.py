@@ -25,6 +25,13 @@ class AgentFailureRecord(TypedDict):
 
 
 class ReviewState(TypedDict, total=False):
+    review_input: dict
+    context_tools_enabled: bool
+    tool_limits: dict
+    tool_evidence: Annotated[list[dict], add]
+    budget_events: Annotated[list[dict], add]
+    source_errors: list[dict]
+    execution_mode: str
     pr_url: str
     pr_metadata: dict
     pr_diff: str

@@ -15,12 +15,14 @@ a normal patch from this node so the rest of the graph completes.
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 from pathlib import Path
 from typing import Any
 
 from reviewer import config
 from reviewer.agents.base import FindingList, analyze_with_schema
+from reviewer.agents.evidence import collect_evidence
 from reviewer.graph.state import AGENT_NODE_TO_LABEL, ReviewState
 from reviewer.models.findings import Category, Finding, Severity
 from reviewer.tools.semgrep_runner import SemgrepFinding, run_semgrep
@@ -143,7 +145,10 @@ async def _run(state: ReviewState) -> dict[str, Any]:
         semgrep_findings = []
 
     # Step 2: LLM enrichment + extra detection.
+    evidence, budget_events = await collect_evidence(state, SECURITY_LABEL)
     prompt = _build_security_prompt(state.get("pr_diff", ""), semgrep_findings)
+    if evidence:
+        prompt += "\nRead-only evidence:\n" + json.dumps(evidence)
     try:
         result = await analyze_with_schema(
             prompt, FindingList, system=SECURITY_SYSTEM_PROMPT
@@ -167,4 +172,6 @@ async def _run(state: ReviewState) -> dict[str, Any]:
     return {
         "findings": normalized,
         "agents_succeeded": [SECURITY_LABEL],
+        "tool_evidence": evidence,
+        "budget_events": budget_events,
     }

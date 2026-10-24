@@ -212,6 +212,15 @@ async def aggregate_findings_node(state: ReviewState) -> dict[str, Any]:
         agents_succeeded=list(dict.fromkeys(state.get("agents_succeeded", []))),
         agents_failed=_to_failure_models(agents_failed),
         trace_id=state.get("trace_id") or str(uuid.uuid4()),
+        input_mode=state.get("review_input", {}).get("mode", "github"),
+        head_sha=metadata.get("head_sha"),
+        diff_sha256=state.get("review_input", {}).get("diff_sha256"),
+        reviewed_files=[f["path"] for f in state.get("changed_files", [])],
+        coverage=state.get("review_input", {}).get("coverage", {}),
+        tool_evidence=state.get("tool_evidence", []),
+        budget_events=state.get("budget_events", []),
+        source_errors=state.get("source_errors", []),
+        execution_mode=state.get("execution_mode", "live"),
     )
     return {"final_report": report.model_dump(mode="json")}
 

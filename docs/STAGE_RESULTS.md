@@ -44,3 +44,19 @@
 - 遗留：上游 Agent 静态种子状态、API 发布保护、共享预算需后续阶段解决；
   LangGraph pending deprecation warning 保留。下一阶段是本地 Diff 与上下文沙箱。
 - 分支 `feature/multi-agent-v2`，阶段通过后创建本地提交；完整 SHA 见 git log。
+
+## 阶段 2：PASS（离线验收，2026-10-24）
+
+- 新增 `models/inputs.py`、`tools/context.py`、`tools/diff_input.py`、
+  `agents/evidence.py`、`offline.py`、`tests/test_diff_context.py` 和 `LOCAL_DIFF.md`。
+- runner 的 GitHub/本地输入共享 `_execute_review`；CLI 新增 review-diff/--live；
+  graph/report 记录输入指纹、覆盖、证据与预算事件。Security 接入有限证据循环。
+- 收紧 GitHub/test_dirs 静态读取边界与 Ruff 隔离配置，mock 不调用模型/工具子进程。
+- 首次准备副本测试因 Windows 默认 pytest 临时目录权限冲突出现 setup ERROR；
+  换用任务专用 --basetemp 后完整测试 PASS：**355 passed / 4 skipped**，14.37s。
+  新增 17 个用例，其中真实 symlink 创建因 Windows 权限跳过；3 个上游 live 跳过。
+- `python -m ruff check reviewer tests`：PASS。
+- 本阶段完整测试包括本地 CLI、文件指纹、跨文件引用、路径逃逸、超长/二进制/非 UTF-8、
+  rename/delete/binary、坏 hunk、证据重复请求预算，以及全部旧回归。
+- 原 SDK e2e fixture 增补 EvidenceTurn 响应；tracing 测试显式 live（仍 Mock graph）。
+- 真实 Qwen/GitHub/Semgrep：NOT_RUN；没有发布和远程推送。独立阶段提交后继续阶段 3。

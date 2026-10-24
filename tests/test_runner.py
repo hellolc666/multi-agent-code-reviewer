@@ -27,7 +27,8 @@ def test_resolve_only_none():
 
 def test_resolve_only_short_labels():
     assert _resolve_only(["security", "quality"]) == [
-        "security_agent", "quality_agent",
+        "security_agent",
+        "quality_agent",
     ]
 
 
@@ -37,7 +38,8 @@ def test_resolve_only_node_names_pass_through():
 
 def test_resolve_only_dedupes_and_drops_unknown():
     assert _resolve_only(["security", "security", "bogus", "quality"]) == [
-        "security_agent", "quality_agent",
+        "security_agent",
+        "quality_agent",
     ]
 
 
@@ -94,7 +96,9 @@ def test_format_comment_body_groups_by_severity():
 
 def test_format_comment_body_includes_failures():
     report = {
-        "summary": "x", "files_changed": 1, "findings": [],
+        "summary": "x",
+        "files_changed": 1,
+        "findings": [],
         "agents_succeeded": ["security"],
         "agents_failed": [{"agent": "docs", "error": "timeout"}],
     }
@@ -113,15 +117,22 @@ def fake_bundle(tmp_path: Path):
     repo.mkdir()
     (repo / "app").mkdir()
     (repo / "app" / "auth.py").write_text(
-        "def login(p, s):\n    return p == s\n", encoding="utf-8",
+        "def login(p, s):\n    return p == s\n",
+        encoding="utf-8",
     )
 
     bundle = PRBundle(
         pr_url="https://github.com/x/y/pull/42",
         metadata=PRMetadata(
-            owner="x", repo="y", number=42, title="Fix",
-            author="alice", head_sha="deadbeef", head_ref="feature",
-            base_ref="main", head_repo_clone_url="https://github.com/x/y.git",
+            owner="x",
+            repo="y",
+            number=42,
+            title="Fix",
+            author="alice",
+            head_sha="deadbeef",
+            head_ref="feature",
+            base_ref="main",
+            head_repo_clone_url="https://github.com/x/y.git",
         ),
         pr_diff="diff --git a/app/auth.py b/app/auth.py\n",
         changed_files=[],
@@ -188,9 +199,7 @@ async def test_run_review_seeds_state_and_returns_report(patched_pipeline):
 
 @pytest.mark.asyncio
 async def test_run_review_uses_planner_override_when_only_set(patched_pipeline):
-    await run_review(
-        "https://github.com/x/y/pull/42", only=["security", "quality"]
-    )
+    await run_review("https://github.com/x/y/pull/42", only=["security", "quality"])
     assert patched_pipeline["planner_override"] is True
 
 
@@ -210,9 +219,7 @@ async def test_run_review_post_comments_skipped_without_token(
 
 
 @pytest.mark.asyncio
-async def test_run_review_posts_pr_comment_when_token_present(
-    patched_pipeline, monkeypatch
-):
+async def test_run_review_posts_pr_comment_when_token_present(patched_pipeline, monkeypatch):
     captured: dict = {}
 
     def fake_post(pr_url, github_token, body):
@@ -233,9 +240,7 @@ async def test_run_review_posts_pr_comment_when_token_present(
 
 
 @pytest.mark.asyncio
-async def test_run_review_post_comment_failure_is_swallowed(
-    patched_pipeline, monkeypatch
-):
+async def test_run_review_post_comment_failure_is_swallowed(patched_pipeline, monkeypatch):
     def boom(*a, **kw):  # noqa: ARG001
         raise RuntimeError("network error")
 
@@ -251,9 +256,7 @@ async def test_run_review_post_comment_failure_is_swallowed(
 
 
 @pytest.mark.asyncio
-async def test_run_review_attaches_langsmith_tags_when_enabled(
-    patched_pipeline, monkeypatch
-):
+async def test_run_review_attaches_langsmith_tags_when_enabled(patched_pipeline, monkeypatch):
     """When LangSmith is configured, tags + metadata flow into graph.ainvoke."""
     monkeypatch.setenv("LANGCHAIN_API_KEY", "abc")
     monkeypatch.setenv("LANGCHAIN_TRACING_V2", "true")
@@ -263,7 +266,7 @@ async def test_run_review_attaches_langsmith_tags_when_enabled(
 
     langsmith_setup.reset_warning_for_tests()
 
-    await run_review("https://github.com/x/y/pull/42")
+    await run_review("https://github.com/x/y/pull/42", live=True)
     cfg = patched_pipeline["config"]
     assert cfg["run_name"] == "pr_review"
     # PR URL + author + repo are tagged
@@ -274,9 +277,7 @@ async def test_run_review_attaches_langsmith_tags_when_enabled(
 
 
 @pytest.mark.asyncio
-async def test_run_review_no_langsmith_tags_when_disabled(
-    patched_pipeline, monkeypatch
-):
+async def test_run_review_no_langsmith_tags_when_disabled(patched_pipeline, monkeypatch):
     monkeypatch.delenv("LANGCHAIN_API_KEY", raising=False)
     monkeypatch.delenv("LANGCHAIN_TRACING_V2", raising=False)
 
@@ -362,6 +363,4 @@ def test_format_comment_body_uses_at_mention_when_author_known():
         }
     )
     first_line = body.splitlines()[0]
-    assert first_line == (
-        "## ⚠️ This is an automated comment — NOT written by @OmkumarSolanki"
-    )
+    assert first_line == ("## ⚠️ This is an automated comment — NOT written by @OmkumarSolanki")

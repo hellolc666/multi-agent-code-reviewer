@@ -25,6 +25,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from reviewer.offline import offline_mode
+from reviewer.tools.context import CodeContext
+
 DEFAULT_CONFIG = "p/python"
 SEMGREP_BIN = "semgrep"
 
@@ -140,6 +143,11 @@ async def run_semgrep(
     """
     if not target_files:
         return []
+    if offline_mode.get():
+        return []
+    context = CodeContext(repo_path)
+    for target in target_files:
+        context.resolve(target)
 
     cmd = [executable, "--config", config, "--json", "--quiet", "--metrics=off"]
     if extra_args:

@@ -453,7 +453,11 @@ async def test_qwen_runner_end_to_end_with_mock_http_and_fixture(monkeypatch):
         payload = json.loads(request.content)
         name = payload["tools"][0]["function"]["name"]
         calls.append(name)
-        value = {"findings": []} if name == "FindingList" else {"summary": "Offline mock report."}
+        value = {
+            "FindingList": {"findings": []},
+            "EvidenceTurn": {"requests": []},
+            "_SummaryResponse": {"summary": "Offline mock report."},
+        }[name]
         return httpx.Response(
             200,
             json={
@@ -502,6 +506,7 @@ async def test_qwen_runner_end_to_end_with_mock_http_and_fixture(monkeypatch):
     assert report["summary"] == "Offline mock report."
     assert calls.count("FindingList") == 4
     assert calls.count("_SummaryResponse") == 1
+    assert calls.count("EvidenceTurn") == 1
 
 
 def test_smoke_without_live_never_constructs_client(monkeypatch, capsys):

@@ -22,7 +22,7 @@ import typer
 from dotenv import load_dotenv
 
 from reviewer import __version__
-from reviewer.runner import run_review
+from reviewer.runner import run_review, run_review_diff
 
 CLI_HELP = """\
 Multi-agent code reviewer for GitHub pull requests.
@@ -134,6 +134,7 @@ def review(
         metavar="PR_URL",
         help="GitHub pull-request URL (e.g. https://github.com/owner/repo/pull/42).",
     ),
+    live: bool = typer.Option(False, "--live", help="Allow paid model/static-tool requests."),
     output: Path | None = typer.Option(  # noqa: B008
         None,
         "--output",
@@ -189,6 +190,7 @@ def review(
                 github_token=token,
                 only=only_list,
                 post_comments=post_comments,
+                **({"live": True} if live else {}),
             )
         )
     except KeyboardInterrupt:
@@ -205,6 +207,35 @@ def review(
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_text(payload, encoding="utf-8")
         typer.echo(f"wrote {output}", err=True)
+    else:
+        typer.echo(payload)
+
+
+@app.command("review-diff")
+def review_diff(
+    diff: Path = typer.Option(..., "--diff", exists=True, dir_okay=False),  # noqa: B008
+    repo_path: Path = typer.Option(..., "--repo-path", exists=True, file_okay=False),  # noqa: B008
+    output: Path | None = typer.Option(None, "--output", "-o"),  # noqa: B008
+    live: bool = typer.Option(False, "--live", help="Allow paid API requests."),
+    only: str | None = typer.Option(None, "--only"),
+):
+    """Review a local git unified diff; offline mock by default, no GitHub token."""
+    try:
+        result = asyncio.run(
+            run_review_diff(
+                diff,
+                repo_path,
+                only=only.split(",") if only else None,
+                live=live,
+            )
+        )
+    except (ValueError, OSError) as exc:
+        typer.echo(f"error: {type(exc).__name__}: invalid diff/repository", err=True)
+        raise typer.Exit(1) from None
+    payload = json.dumps(result, indent=2, ensure_ascii=False)
+    if output:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(payload, encoding="utf-8")
     else:
         typer.echo(payload)
 

@@ -28,6 +28,7 @@ from github.PullRequest import PullRequest
 
 from reviewer.reliability.circuit_breaker import CircuitBreaker
 from reviewer.reliability.retry import async_retry
+from reviewer.tools.context import CodeContext
 
 GITHUB_API = "https://api.github.com"
 PR_URL_RE = re.compile(
@@ -107,10 +108,9 @@ class PRBundle:
         for f in self.changed_files:
             if f.change_type == "removed":
                 continue
-            abs_path = root / f.path
             try:
-                content = abs_path.read_text(encoding="utf-8", errors="replace")
-            except (FileNotFoundError, IsADirectoryError):
+                content = CodeContext(root).text(f.path)
+            except (OSError, ValueError):
                 content = ""
             out.append({"path": f.path, "content": content, "change_type": f.change_type})
         return out

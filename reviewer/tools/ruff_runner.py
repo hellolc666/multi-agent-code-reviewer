@@ -23,6 +23,9 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from reviewer.offline import offline_mode
+from reviewer.tools.context import CodeContext
+
 RUFF_BIN = "ruff"
 
 # Ruff exits 0 when no findings, 1 when findings are present, >=2 on real error.
@@ -135,8 +138,19 @@ async def run_ruff(
     """
     if not target_files:
         return []
+    if offline_mode.get():
+        return []
+    context = CodeContext(repo_path)
+    for target in target_files:
+        context.resolve(target)
 
-    cmd = [_resolve_executable(executable), "check", "--output-format=json", "--no-cache"]
+    cmd = [
+        _resolve_executable(executable),
+        "check",
+        "--isolated",
+        "--output-format=json",
+        "--no-cache",
+    ]
     if select:
         cmd.extend(["--select", ",".join(select)])
     if extra_args:
@@ -172,8 +186,7 @@ async def run_ruff(
 
     if proc.returncode not in _RUFF_OK_EXITS:
         raise RuffError(
-            f"ruff exited {proc.returncode}: "
-            f"{stderr.decode('utf-8', errors='replace').strip()}"
+            f"ruff exited {proc.returncode}: {stderr.decode('utf-8', errors='replace').strip()}"
         )
 
     return _parse_ruff_json(stdout.decode("utf-8", errors="replace"))

@@ -82,13 +82,9 @@ def _format_comment_body(report: dict[str, Any]) -> str:
     # PR author), so we call that out explicitly with an @mention to make it
     # obvious to anyone scanning the PR thread.
     if pr_author:
-        attribution_warning = (
-            f"## ⚠️ This is an automated comment — NOT written by @{pr_author}"
-        )
+        attribution_warning = f"## ⚠️ This is an automated comment — NOT written by @{pr_author}"
     else:
-        attribution_warning = (
-            "## ⚠️ This is an automated comment — NOT written by the PR author"
-        )
+        attribution_warning = "## ⚠️ This is an automated comment — NOT written by the PR author"
 
     lines = [
         attribution_warning,
@@ -116,9 +112,7 @@ def _format_comment_body(report: dict[str, Any]) -> str:
     if failed:
         lines.append(
             "- **Agents failed:** "
-            + ", ".join(
-                f"{rec.get('agent')} ({rec.get('error')})" for rec in failed
-            )
+            + ", ".join(f"{rec.get('agent')} ({rec.get('error')})" for rec in failed)
         )
     lines.append("")
 
@@ -171,67 +165,101 @@ def _forced_planner(nodes: list[str]):
     return _node
 
 
+async def _execute_review(
+    value,
+    diff,
+    root,
+    *,
+    pr_url="",
+    metadata=None,
+    only=None,
+    live=False,
+    tracing=None,
+    context_tools=True,
+):
+    """The only graph execution path, shared by GitHub and local diff inputs."""
+    from reviewer.offline import MockLLM, model_override, offline_mode, review_active
+    from reviewer.tools.diff_input import changed_sources
+
+    sources, errors = changed_sources(value, root)
+    metadata = {"started_at": _utcnow_iso(), **(metadata or {})}
+    seed: ReviewState = {
+        "pr_url": pr_url,
+        "pr_metadata": metadata,
+        "pr_diff": diff,
+        "changed_files": sources,
+        "test_files": [],
+        "repo_path": str(root),
+        "trace_id": str(uuid.uuid4()),
+        "review_input": value.model_dump(mode="json"),
+        "context_tools_enabled": context_tools,
+        "source_errors": errors,
+        "execution_mode": "live" if live else "mock",
+    }
+    forced = _resolve_only(only)
+    graph = (
+        build_review_graph(planner_node=_forced_planner(forced))
+        if forced is not None
+        else build_review_graph()
+    )
+    config = {"run_name": "pr_review"}
+    if tracing and tracing.get("enabled"):
+        config.update(tags=tracing.get("tags", []), metadata=tracing.get("metadata", {}))
+    model_token = model_override.set(None if live else MockLLM())
+    offline_token = offline_mode.set(not live)
+    active_token = review_active.set(True)
+    try:
+        result = await graph.ainvoke(seed, config=config)
+    finally:
+        review_active.reset(active_token)
+        offline_mode.reset(offline_token)
+        model_override.reset(model_token)
+    report = result.get("final_report") or {}
+    return report
+
+
 async def run_review(
     pr_url: str,
     *,
     github_token: str | None = None,
     only: list[str] | None = None,
     post_comments: bool = False,
+    live: bool = False,
 ) -> dict[str, Any]:
-    """Run the full review pipeline and return the ``ReviewReport`` as a dict."""
-    started_at = _utcnow_iso()
-    trace_id = str(uuid.uuid4())
-
-    forced_nodes = _resolve_only(only)
+    """Fetch GitHub input, execute the common pipeline; publishing is explicit."""
+    from reviewer.tools.diff_input import make_input
 
     async with fetch_pr(pr_url, github_token=github_token) as bundle:
-        tracing_cfg = langsmith_setup.configure_tracing(
-            pr_url=pr_url,
-            pr_author=bundle.metadata.author,
-            repo_name=f"{bundle.metadata.owner}/{bundle.metadata.repo}",
+        fallback = [{"path": f.path, "change_type": f.change_type} for f in bundle.changed_files]
+        value, diff = make_input(
+            bundle.pr_diff,
+            mode="github",
+            head_sha=bundle.metadata.head_sha,
+            fallback_files=fallback,
         )
-
-        seed: ReviewState = {
-            "pr_url": pr_url,
-            "pr_metadata": {
+        tracing = (
+            langsmith_setup.configure_tracing(
+                pr_url=pr_url,
+                pr_author=bundle.metadata.author,
+                repo_name=f"{bundle.metadata.owner}/{bundle.metadata.repo}",
+            )
+            if live
+            else None
+        )
+        report = await _execute_review(
+            value,
+            diff,
+            bundle.repo_path,
+            pr_url=pr_url,
+            only=only,
+            live=live,
+            metadata={
                 "title": bundle.metadata.title,
                 "author": bundle.metadata.author,
                 "head_sha": bundle.metadata.head_sha,
-                "started_at": started_at,
             },
-            "pr_diff": bundle.pr_diff,
-            "changed_files": bundle.to_state_changed_files(),
-            "test_files": [],
-            "repo_path": str(bundle.repo_path),
-            "trace_id": trace_id,
-        }
-
-        if forced_nodes is not None:
-            log.info("--only override: %s", forced_nodes)
-            graph = build_review_graph(planner_node=_forced_planner(forced_nodes))
-        else:
-            graph = build_review_graph()
-
-        run_config: dict[str, Any] = {"run_name": "pr_review"}
-        if tracing_cfg.get("enabled"):
-            run_config["tags"] = tracing_cfg.get("tags", [])
-            run_config["metadata"] = tracing_cfg.get("metadata", {})
-
-        result = await graph.ainvoke(seed, config=run_config)
-
-    # Surface the no-applicable-agents case loudly. The graph still produced a
-    # structured ``final_report`` via the aggregator's empty-path; this is just
-    # operator visibility so the user isn't confused by an empty findings list.
-    agents_to_run_final = result.get("agents_to_run") or []
-    agents_succeeded_final = result.get("agents_succeeded") or []
-    if not agents_to_run_final and not agents_succeeded_final:
-        log.warning(
-            "no applicable agents for this PR (v1 supports Python only); "
-            "see the report's `summary` field for details"
+            tracing=tracing,
         )
-
-    report = result.get("final_report") or {}
-
     if post_comments and report:
         if not github_token:
             log.warning("post_comments requested but no github_token; skipping")
@@ -240,7 +268,44 @@ async def run_review(
                 await asyncio.to_thread(
                     _post_pr_comment, pr_url, github_token, _format_comment_body(report)
                 )
-            except Exception as e:  # noqa: BLE001
-                log.error("failed to post PR comment: %s", e)
+            except Exception as exc:
+                log.error("failed to post PR comment: %s", type(exc).__name__)
+    return report
 
+
+async def run_review_diff(
+    diff_path,
+    repo_path,
+    *,
+    output=None,
+    only=None,
+    live=False,
+    context_tools=True,
+):
+    """Review an explicitly supplied UTF-8 patch against a read-only checkout."""
+    from pathlib import Path
+
+    from reviewer.tools.diff_input import make_input
+
+    with Path(diff_path).open("rb") as stream:
+        data = stream.read(4 * 1024 * 1024 + 1)
+    if len(data) > 4 * 1024 * 1024:
+        raise ValueError("diff exceeds 4 MiB input limit")
+    value, diff = make_input(data.decode("utf-8"), mode="diff")
+    # Hash exactly supplied bytes, including CRLF.
+    import hashlib
+
+    value.diff_sha256 = hashlib.sha256(data).hexdigest()
+    report = await _execute_review(
+        value,
+        diff,
+        Path(repo_path).resolve(strict=True),
+        only=only,
+        live=live,
+        context_tools=context_tools,
+    )
+    if output:
+        import json
+
+        Path(output).write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
     return report
