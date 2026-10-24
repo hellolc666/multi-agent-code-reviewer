@@ -110,6 +110,7 @@ def _build_quality_prompt(
 
 def _ruff_to_seed_finding(rf: RuffFinding, idx: int) -> Finding:
     return Finding(
+        source="static_seed",
         id=f"QUAL-RF-{idx + 1:03d}",
         agent=QUALITY_LABEL,
         category=Category.QUALITY,
@@ -151,8 +152,8 @@ async def quality_agent_node(state: ReviewState) -> dict[str, Any]:
             ]
         }
     except Exception as e:  # noqa: BLE001
-        log.exception("quality agent crashed: %s", e)
-        return {"agents_failed": [{"agent": QUALITY_LABEL, "error": str(e)}]}
+        log.error("quality agent crashed: %s", type(e).__name__)
+        return {"agents_failed": [{"agent": QUALITY_LABEL, "error": type(e).__name__}]}
 
 
 async def _run(state: ReviewState) -> dict[str, Any]:
@@ -165,7 +166,7 @@ async def _run(state: ReviewState) -> dict[str, Any]:
     try:
         ruff_findings = await run_ruff(repo_path, targets)
     except Exception as e:  # noqa: BLE001
-        log.warning("ruff failed; continuing with LLM-only analysis: %s", e)
+        log.warning("ruff failed; continuing with LLM-only analysis: %s", type(e).__name__)
         ruff_findings = []
 
     table = _complexity_table(state)
@@ -177,7 +178,7 @@ async def _run(state: ReviewState) -> dict[str, Any]:
         )
         llm_findings = list(result.findings) if isinstance(result, FindingList) else []
     except Exception as e:  # noqa: BLE001
-        log.warning("quality LLM call failed; falling back to Ruff seeds: %s", e)
+        log.warning("quality LLM call failed; falling back to Ruff seeds: %s", type(e).__name__)
         llm_findings = [
             _ruff_to_seed_finding(rf, i) for i, rf in enumerate(ruff_findings)
         ]

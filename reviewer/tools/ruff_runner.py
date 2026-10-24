@@ -24,6 +24,7 @@ from pathlib import Path
 from typing import Any
 
 from reviewer.offline import offline_mode
+from reviewer.reliability.harness import observed_tool
 from reviewer.tools.context import CodeContext
 
 RUFF_BIN = "ruff"
@@ -103,6 +104,7 @@ def _resolve_executable(executable: str) -> str:
     return found or executable
 
 
+@observed_tool("ruff")
 async def run_ruff(
     repo_path: Path,
     target_files: list[str] | None = None,

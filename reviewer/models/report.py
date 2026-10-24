@@ -6,6 +6,7 @@ from reviewer.models.findings import Finding
 class AgentFailure(BaseModel):
     agent: str
     error: str
+    stage: str | None = None
 
 
 class ReviewReport(BaseModel):
@@ -38,3 +39,11 @@ class ReviewReport(BaseModel):
     verification_incomplete: bool = False
     judge_enabled: bool = True
     verification_conflicts: list[dict] = Field(default_factory=list)
+    run_id: str | None = None
+    review_version: str = "2.0.0"
+    prompt_version: str = "review-v2.0"
+    budget: dict = Field(default_factory=dict)
+    usage: dict = Field(default_factory=dict)
+    trace: list[dict] = Field(default_factory=list)
+    unreviewed_dimensions: list[str] = Field(default_factory=list)
+    publication: dict = Field(default_factory=lambda: {"status": "dry_run"})

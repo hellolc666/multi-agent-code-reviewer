@@ -58,13 +58,13 @@ def test_review_passes_through_options(patched_run_review):
         json={
             "pr_url": "https://github.com/x/y/pull/1",
             "agents": ["security", "quality"],
-            "post_comments": True,
+            "post_comments": False,
             "github_token": "tok-from-body",
         },
     )
     assert resp.status_code == 200
     assert patched_run_review["only"] == ["security", "quality"]
-    assert patched_run_review["post_comments"] is True
+    assert patched_run_review["post_comments"] is False
     assert patched_run_review["github_token"] == "tok-from-body"
 
 

@@ -8,6 +8,7 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from reviewer.agents.base import analyze_with_schema
 from reviewer.models.inputs import ReviewInput
+from reviewer.reliability.harness import BudgetExceeded, current_run
 from reviewer.tools.context import CodeContext
 
 UNTRUSTED_SYSTEM = (
@@ -39,10 +40,21 @@ async def collect_evidence(state: dict, agent: str) -> tuple[list[dict], list[di
         return [], []
     value = ReviewInput.model_validate(state["review_input"])
     limits = state.get("tool_limits", {})
+    runtime = current_run.get()
+    if runtime:
+        limits = {
+            "calls": runtime.budget.max_tool_calls,
+            "rounds": runtime.budget.max_tool_rounds,
+            "characters": min(16000, runtime.budget.max_context_characters),
+        }
     max_calls = min(6, max(0, int(limits.get("calls", 6))))
     rounds = min(3, max(0, int(limits.get("rounds", 2))))
     max_chars = min(24000, max(256, int(limits.get("characters", 16000))))
-    context = CodeContext(state["repo_path"], value.files, max_output=min(8192, max_chars))
+    context = CodeContext(
+        state["repo_path"],
+        value.files,
+        max_output=min(runtime.budget.max_tool_characters if runtime else 8192, max_chars),
+    )
     records, events, seen = [], [], set()
     for _round in range(rounds):
         turn = await analyze_with_schema(
@@ -67,7 +79,16 @@ async def collect_evidence(state: dict, agent: str) -> tuple[list[dict], list[di
                 )
                 return records, events
             seen.add(key)
+            if runtime:
+                count = runtime.tool_calls.get(agent, 0)
+                if count >= runtime.budget.max_tool_calls:
+                    raise BudgetExceeded("tool_calls")
+                runtime.tool_calls[agent] = count + 1
             result = context.call(request.name, request.arguments)
+            if runtime:
+                runtime.event(
+                    "tool", "completed" if result["ok"] else "error", agent=agent, tool=request.name
+                )
             record = {
                 "agent": agent,
                 "tool": request.name,

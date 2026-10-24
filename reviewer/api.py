@@ -29,12 +29,11 @@ class ReviewRequest(BaseModel):
     """Request body for ``POST /review``."""
 
     pr_url: str = Field(..., description="GitHub PR URL.")
+    live: bool = False
+    options: dict | None = None
     agents: list[str] | None = Field(
         default=None,
-        description=(
-            "Optional whitelist of agents (short labels). "
-            "If set, overrides the planner."
-        ),
+        description=("Optional whitelist of agents (short labels). If set, overrides the planner."),
     )
     post_comments: bool = Field(
         default=False, description="Post a Markdown summary comment to the PR."
@@ -67,6 +66,11 @@ async def health() -> HealthResponse:
 
 @app.post("/review")
 async def review(request: ReviewRequest) -> dict[str, Any]:
+    if request.post_comments:
+        raise HTTPException(
+            status_code=403,
+            detail="API publishing disabled; review JSON then use CLI publish explicitly",
+        )
     token = request.github_token or os.environ.get("GITHUB_TOKEN") or None
     try:
         report = await run_review(
@@ -74,17 +78,15 @@ async def review(request: ReviewRequest) -> dict[str, Any]:
             github_token=token,
             only=request.agents,
             post_comments=request.post_comments,
+            **({"live": True} if request.live else {}),
+            **({"options": request.options} if request.options is not None else {}),
         )
     except ValueError as e:
         # PR-URL parse failures, etc.
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)
-        ) from e
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
     except Exception as e:  # noqa: BLE001
         log.exception("review failed for %s", request.pr_url)
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
-        ) from e
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
 
     if not report:
         raise HTTPException(

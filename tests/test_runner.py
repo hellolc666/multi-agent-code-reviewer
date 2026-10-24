@@ -129,7 +129,7 @@ def fake_bundle(tmp_path: Path):
             number=42,
             title="Fix",
             author="alice",
-            head_sha="deadbeef",
+            head_sha="aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
             head_ref="feature",
             base_ref="main",
             head_repo_clone_url="https://github.com/x/y.git",
@@ -171,6 +171,10 @@ def patched_pipeline(monkeypatch, fake_bundle):
                     "agents_succeeded": ["security"],
                     "agents_failed": [],
                     "trace_id": state["trace_id"],
+                    "head_sha": state["pr_metadata"]["head_sha"],
+                    "execution_mode": state["execution_mode"],
+                    "input_mode": "github",
+                    "judge_enabled": True,
                 }
             }
 
@@ -222,7 +226,7 @@ async def test_run_review_post_comments_skipped_without_token(
 async def test_run_review_posts_pr_comment_when_token_present(patched_pipeline, monkeypatch):
     captured: dict = {}
 
-    def fake_post(pr_url, github_token, body):
+    def fake_post(pr_url, github_token, body, **kwargs):
         captured["url"] = pr_url
         captured["token"] = github_token
         captured["body"] = body
@@ -233,10 +237,12 @@ async def test_run_review_posts_pr_comment_when_token_present(patched_pipeline, 
         "https://github.com/x/y/pull/42",
         github_token="tk",
         post_comments=True,
+        live=True,
     )
     assert captured["url"] == "https://github.com/x/y/pull/42"
     assert captured["token"] == "tk"
-    assert captured["body"].startswith("## ⚠️ This is an automated comment")
+    assert captured["body"].startswith("<!-- multi-agent-pr-review:")
+    assert "## ⚠️ This is an automated comment" in captured["body"]
 
 
 @pytest.mark.asyncio
@@ -251,6 +257,7 @@ async def test_run_review_post_comment_failure_is_swallowed(patched_pipeline, mo
         "https://github.com/x/y/pull/42",
         github_token="tk",
         post_comments=True,
+        live=True,
     )
     assert report["pr_url"]
 

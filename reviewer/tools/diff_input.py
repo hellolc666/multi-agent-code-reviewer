@@ -97,6 +97,8 @@ def parse_diff(diff: str) -> list[DiffFile]:
 def make_input(
     diff: str, *, mode: str, head_sha=None, max_chars=24000, fallback_files=()
 ) -> tuple[ReviewInput, str]:
+    if len(diff.encode("utf-8")) > 4 * 1024 * 1024:
+        raise ValueError("diff exceeds 4 MiB")
     parsed = parse_diff(diff)
     # Provider file lists preserve binary/renamed/removed entries when a server
     # omits patches. They must never manufacture commentable lines.
@@ -106,6 +108,8 @@ def make_input(
         if path not in by_path:
             by_path[path] = DiffFile(path=path, change_type=item.get("change_type", "modified"))
     parsed = list(by_path.values())
+    if len(parsed) > 200:
+        raise ValueError("review input exceeds 200 files")
     chunks, included, omitted = [], [], []
     size = 0
     prioritized = sorted(

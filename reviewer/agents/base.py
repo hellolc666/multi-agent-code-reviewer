@@ -23,6 +23,7 @@ from reviewer import config
 from reviewer.models.findings import Finding
 from reviewer.offline import model_override, review_active
 from reviewer.reliability.circuit_breaker import CircuitBreaker
+from reviewer.reliability.harness import BudgetExceeded, current_run
 from reviewer.reliability.retry import async_retry
 
 if TYPE_CHECKING:
@@ -154,7 +155,7 @@ def get_llm(
 # ---------------------------------------------------------------------------
 
 
-async def analyze_with_schema(
+async def _analyze_with_schema(
     prompt: str,
     schema: type[_T],
     *,
@@ -178,6 +179,13 @@ async def analyze_with_schema(
         )
         prompt = "UNTRUSTED_REVIEW_DATA_JSON:\n" + json.dumps(prompt, ensure_ascii=True)
     client = llm or get_llm()
+    runtime = current_run.get()
+    if runtime and len(prompt) > runtime.budget.max_context_characters:
+        raise BudgetExceeded("context_character_budget")
+    from langchain_core.language_models.chat_models import BaseChatModel
+
+    capture_raw = runtime is not None and isinstance(client, BaseChatModel)
+    output_options = {"include_raw": True} if capture_raw else {}
     qwen = (getattr(client, "metadata", None) or {}).get("reviewer_provider") == "qwen"
     remaining = config.structured_output_retries()
     messages: list[tuple[str, str]] = []
@@ -188,9 +196,9 @@ async def analyze_with_schema(
     try:
         # Explicit method avoids LangChain's own implicit json_schema fallback.
         structured = (
-            client.with_structured_output(schema, method="function_calling")
+            client.with_structured_output(schema, method="function_calling", **output_options)
             if qwen
-            else client.with_structured_output(schema)
+            else client.with_structured_output(schema, **output_options)
         )
     except Exception as exc:
         if not qwen or not _capability_unsupported(exc):
@@ -210,6 +218,10 @@ async def analyze_with_schema(
                 return result
             request = messages if not repair else [*messages, ("human", _REPAIR_INSTRUCTION)]
             raw = await _resilient_invoke(structured, request)
+            if capture_raw:
+                if raw.get("parsing_error"):
+                    raise raw["parsing_error"]
+                raw = raw.get("parsed")
             _require_explicit_findings(raw, schema)
             return schema.model_validate(raw)
         except Exception as exc:
@@ -231,6 +243,17 @@ async def analyze_with_schema(
             log.warning(
                 "structured_output_repair schema=%s remaining=%d", schema.__name__, remaining
             )
+
+
+async def analyze_with_schema(prompt, schema, *, llm=None, system=None):
+    """Shared validated call, recording final failure without leaking inputs."""
+    try:
+        return await _analyze_with_schema(prompt, schema, llm=llm, system=system)
+    except Exception as exc:
+        runtime = current_run.get()
+        if runtime:
+            runtime.fail("llm", exc)
+        raise
 
 
 class StructuredOutputError(ValueError):
@@ -359,10 +382,17 @@ def _is_transient(exc: Exception) -> bool:
 )
 async def _invoke_retryable(runnable, messages):
     try:
-        return await runnable.ainvoke(messages)
+        runtime = current_run.get()
+        return (
+            await runtime.invoke(runnable, messages)
+            if runtime
+            else await runnable.ainvoke(messages)
+        )
     except Exception as exc:
         if not _is_transient(exc):
             raise
+        if current_run.get():
+            current_run.get().event("retry", "transient_failure", error_type=type(exc).__name__)
         raise _TransientLLMError(type(exc).__name__) from exc
 
 

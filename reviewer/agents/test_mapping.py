@@ -213,6 +213,7 @@ def _row_to_seed_finding(row: CoverageRow, idx: int) -> Finding:
         )
     )
     return Finding(
+        source="static_seed",
         id=f"TEST-MAP-{idx + 1:03d}",
         agent=TEST_MAPPING_LABEL,
         category=Category.TEST_COVERAGE,
@@ -260,8 +261,8 @@ async def test_mapping_agent_node(state: ReviewState) -> dict[str, Any]:
             ]
         }
     except Exception as e:  # noqa: BLE001
-        log.exception("test-mapping agent crashed: %s", e)
-        return {"agents_failed": [{"agent": TEST_MAPPING_LABEL, "error": str(e)}]}
+        log.error("test-mapping agent crashed: %s", type(e).__name__)
+        return {"agents_failed": [{"agent": TEST_MAPPING_LABEL, "error": type(e).__name__}]}
 
 
 async def _run(state: ReviewState) -> dict[str, Any]:
@@ -278,7 +279,7 @@ async def _run(state: ReviewState) -> dict[str, Any]:
         )
         llm_findings = list(result.findings) if isinstance(result, FindingList) else []
     except Exception as e:  # noqa: BLE001
-        log.warning("test-mapping LLM call failed; using AST seeds: %s", e)
+        log.warning("test-mapping LLM call failed; using AST seeds: %s", type(e).__name__)
         llm_findings = [_row_to_seed_finding(r, i) for i, r in enumerate(needs_attention)]
 
     if not llm_findings and needs_attention:

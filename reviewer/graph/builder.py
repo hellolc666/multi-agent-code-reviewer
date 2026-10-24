@@ -29,6 +29,7 @@ from reviewer.agents.test_mapping import test_mapping_agent_node
 from reviewer.graph.aggregator import aggregate_findings_node
 from reviewer.graph.planner import plan_review_node
 from reviewer.graph.state import AGENT_NODES, ReviewState
+from reviewer.reliability.harness import observed_node
 
 
 async def fetch_pr_node(state: ReviewState) -> dict[str, Any]:
@@ -54,9 +55,7 @@ def dispatch_specialists(state: ReviewState) -> list[Send]:
     ``final_report`` unset. The aggregator detects this state and writes a
     clear summary explaining that no agents were applicable.
     """
-    sends = [
-        Send(name, state) for name in state.get("agents_to_run", []) if name in AGENT_NODES
-    ]
+    sends = [Send(name, state) for name in state.get("agents_to_run", []) if name in AGENT_NODES]
     if not sends:
         return [Send("aggregate", state)]
     return sends
@@ -75,20 +74,20 @@ def build_review_graph(*, fetch_node=None, aggregate_node=None, planner_node=Non
     graph = StateGraph(ReviewState)
 
     graph.add_node("fetch_pr", fetch_node or fetch_pr_node)
-    graph.add_node("plan_review", planner_node or plan_review_node)
-    graph.add_node("security_agent", security_agent_node)
-    graph.add_node("quality_agent", quality_agent_node)
-    graph.add_node("test_mapping_agent", test_mapping_agent_node)
-    graph.add_node("docs_agent", docs_agent_node)
-    graph.add_node("correctness_agent", correctness_agent_node)
-    graph.add_node("aggregate", aggregate_node or aggregate_findings_node)
-    graph.add_node("judge", judge_findings_node)
+    graph.add_node("plan_review", observed_node(planner_node or plan_review_node, "planner"))
+    graph.add_node("security_agent", observed_node(security_agent_node, "security"))
+    graph.add_node("quality_agent", observed_node(quality_agent_node, "quality"))
+    graph.add_node("test_mapping_agent", observed_node(test_mapping_agent_node, "test_mapping"))
+    graph.add_node("docs_agent", observed_node(docs_agent_node, "docs"))
+    graph.add_node("correctness_agent", observed_node(correctness_agent_node, "correctness"))
+    graph.add_node(
+        "aggregate", observed_node(aggregate_node or aggregate_findings_node, "aggregate")
+    )
+    graph.add_node("judge", observed_node(judge_findings_node, "judge"))
 
     graph.add_edge(START, "fetch_pr")
     graph.add_edge("fetch_pr", "plan_review")
-    graph.add_conditional_edges(
-        "plan_review", dispatch_specialists, [*AGENT_NODES, "aggregate"]
-    )
+    graph.add_conditional_edges("plan_review", dispatch_specialists, [*AGENT_NODES, "aggregate"])
     for agent in AGENT_NODES:
         graph.add_edge(agent, "judge")
     graph.add_edge("judge", "aggregate")

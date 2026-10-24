@@ -84,3 +84,18 @@
 - `python -m pytest -q --tb=short -p no:cacheprovider`：PASS，**378 passed / 4 skipped**，14.40s。
 - `python -m ruff check reviewer tests`：PASS；文档 JUDGE.md 说明接口及静态验证限制。
 - Qwen/GitHub 在线：NOT_RUN；下一阶段为统一预算、失败治理、追踪与受控发布。
+
+## 阶段 5：PASS（离线验收，2026-10-24）
+
+- 新增 reliability/harness.py、publication.py、HARNESS.md 和预算/发布回归测试。
+- 所有模型尝试共享请求预算与 Semaphore；真实 token 未提供时为 null。
+  总时限含输入获取，失败保留已完成结果；取消传播；静态种子与模型失败分开记录。
+- 新增 publish 预览/显式发布，API 禁止直接发布；检查 head SHA 与远端幂等标识。
+  Git clone 凭证移出参数，固定 head SHA，隔离 git hooks/config。
+- 最终实际项目测试：`python -m pytest -q -p no:cacheprovider`，
+  **394 passed / 4 skipped**，14.77s；新增 16 个用例。
+- 初次准备测试修复 report 预算变量名；项目复跑发现旧 CLI 断言期待异常原文，
+  更新为验证脱敏后全量通过。Ruff 普通权限缓存写入失败，改用 --no-cache。
+- `python -m ruff check --no-cache reviewer tests` / `git diff --check`：PASS。
+- 真实 Qwen/GitHub/Semgrep：NOT_RUN。GitHub 跨进程首次发布和 head 校验后变动
+  非原子，详见 HARNESS.md；无伪造 exactly-once 保证。下一阶段为冻结评测集与消融。

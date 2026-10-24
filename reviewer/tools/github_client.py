@@ -133,16 +133,14 @@ def _is_test_path(path: str, test_dirs: tuple[str, ...] = ("tests", "test")) -> 
     return name.startswith("test_") or name.endswith("_test.py")
 
 
-async def _fetch_raw_diff(
-    client: httpx.AsyncClient, owner: str, repo: str, number: int
-) -> str:
-    return await _GITHUB_BREAKER.call(
-        _fetch_raw_diff_inner, client, owner, repo, number
-    )
+async def _fetch_raw_diff(client: httpx.AsyncClient, owner: str, repo: str, number: int) -> str:
+    return await _GITHUB_BREAKER.call(_fetch_raw_diff_inner, client, owner, repo, number)
 
 
 @async_retry(
-    max_attempts=3, base_delay=1.0, max_delay=10.0,
+    max_attempts=3,
+    base_delay=1.0,
+    max_delay=10.0,
     retry_on=(httpx.TransportError, httpx.TimeoutException, _GitHubTransientError),
 )
 async def _fetch_raw_diff_inner(
@@ -164,13 +162,13 @@ async def _fetch_raw_diff_inner(
 async def _fetch_files(
     client: httpx.AsyncClient, owner: str, repo: str, number: int
 ) -> list[PRFile]:
-    return await _GITHUB_BREAKER.call(
-        _fetch_files_inner, client, owner, repo, number
-    )
+    return await _GITHUB_BREAKER.call(_fetch_files_inner, client, owner, repo, number)
 
 
 @async_retry(
-    max_attempts=3, base_delay=1.0, max_delay=10.0,
+    max_attempts=3,
+    base_delay=1.0,
+    max_delay=10.0,
     retry_on=(httpx.TransportError, httpx.TimeoutException, _GitHubTransientError),
 )
 async def _fetch_files_inner(
@@ -226,33 +224,59 @@ def _fetch_metadata_sync(token: str | None, owner: str, repo: str, number: int) 
     )
 
 
-async def _shallow_clone(
-    clone_url: str, ref: str, token: str | None, dest: Path, sha: str | None = None
-) -> None:
-    """Shallow-clone ``ref`` into ``dest``. Auth via token-in-URL for private repos.
+async def _shallow_clone(clone_url, ref, token, dest, sha=None):
+    """Clone only HTTPS GitHub sources, disable hooks/global filters and pin head."""
+    import base64
+    import os
 
-    ``sha`` is unused by default ``--depth=1`` but kept for future pinning via fetch.
-    """
-    if token and clone_url.startswith("https://"):
-        url = clone_url.replace("https://", f"https://x-access-token:{token}@", 1)
-    else:
-        url = clone_url
-    cmd = ["git", "clone", "--depth=1", "--branch", ref, url, str(dest)]
-    proc = await asyncio.create_subprocess_exec(
-        *cmd, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
+    if not re.fullmatch(
+        r"https://github\.com/[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+(?:\.git)?", clone_url
+    ):
+        raise GitHubClientError("untrusted clone URL")
+    if sha and not re.fullmatch(r"[0-9a-fA-F]{40}", sha):
+        raise GitHubClientError("invalid immutable head SHA")
+    environment = dict(os.environ)
+    environment.update(
+        GIT_TERMINAL_PROMPT="0",
+        GIT_CONFIG_NOSYSTEM="1",
+        GIT_CONFIG_GLOBAL=os.devnull,
+        GIT_ATTR_NOSYSTEM="1",
     )
-    try:
-        stdout, stderr = await proc.communicate()
-    except asyncio.CancelledError:
-        proc.kill()
-        await proc.wait()
-        raise
-    if proc.returncode != 0:
-        safe_url = re.sub(r"x-access-token:[^@]+@", "x-access-token:***@", url)
-        raise GitHubClientError(
-            f"git clone failed for {safe_url} (ref={ref}): "
-            f"{stderr.decode('utf-8', errors='replace').strip()}"
+    if token:
+        # Credentials never appear in argv or the saved remote URL.
+        encoded = base64.b64encode(("x-access-token:" + token).encode()).decode()
+        environment.update(
+            GIT_CONFIG_COUNT="1",
+            GIT_CONFIG_KEY_0="http.https://github.com/.extraheader",
+            GIT_CONFIG_VALUE_0="Authorization: Basic " + encoded,
         )
+
+    async def git(*arguments, cwd=None):
+        proc = await asyncio.create_subprocess_exec(
+            "git",
+            "-c",
+            "core.hooksPath=" + os.devnull,
+            *arguments,
+            cwd=str(cwd) if cwd else None,
+            env=environment,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        try:
+            async with asyncio.timeout(30):
+                _stdout, _stderr = await proc.communicate()
+        except (asyncio.CancelledError, TimeoutError):
+            proc.kill()
+            await proc.wait()
+            raise
+        if proc.returncode:
+            # stderr can echo headers/URLs/source; never log or return it.
+            raise GitHubClientError("git operation failed (details omitted for credential safety)")
+
+    await git("clone", "--depth=1", "--branch", ref, clone_url, str(dest))
+    if sha:
+        await git("fetch", "--depth=1", "origin", sha, cwd=dest)
+        await git("checkout", "--detach", sha, cwd=dest)
 
 
 @asynccontextmanager
@@ -286,9 +310,7 @@ async def fetch_pr(
         diff_task = _fetch_raw_diff(client, owner, repo, number)
         files_task = _fetch_files(client, owner, repo, number)
         meta_task = asyncio.to_thread(_fetch_metadata_sync, github_token, owner, repo, number)
-        pr_diff, changed_files, metadata = await asyncio.gather(
-            diff_task, files_task, meta_task
-        )
+        pr_diff, changed_files, metadata = await asyncio.gather(diff_task, files_task, meta_task)
     finally:
         if owns_client:
             await client.aclose()

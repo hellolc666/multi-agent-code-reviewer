@@ -99,6 +99,7 @@ def _build_docs_prompt(entities: list[UndocumentedEntity]) -> str:
 
 def _entity_to_seed_finding(e: UndocumentedEntity, idx: int) -> Finding:
     return Finding(
+        source="static_seed",
         id=f"DOC-{idx + 1:03d}",
         agent=DOCS_LABEL,
         category=Category.DOCUMENTATION,
@@ -131,8 +132,8 @@ async def docs_agent_node(state: ReviewState) -> dict[str, Any]:
             ]
         }
     except Exception as e:  # noqa: BLE001
-        log.exception("docs agent crashed: %s", e)
-        return {"agents_failed": [{"agent": DOCS_LABEL, "error": str(e)}]}
+        log.error("docs agent crashed: %s", type(e).__name__)
+        return {"agents_failed": [{"agent": DOCS_LABEL, "error": type(e).__name__}]}
 
 
 async def _run(state: ReviewState) -> dict[str, Any]:
@@ -147,7 +148,7 @@ async def _run(state: ReviewState) -> dict[str, Any]:
         )
         llm_findings = list(result.findings) if isinstance(result, FindingList) else []
     except Exception as e:  # noqa: BLE001
-        log.warning("docs LLM call failed; using AST seeds: %s", e)
+        log.warning("docs LLM call failed; using AST seeds: %s", type(e).__name__)
         llm_findings = [_entity_to_seed_finding(e, i) for i, e in enumerate(entities)]
 
     if not llm_findings:

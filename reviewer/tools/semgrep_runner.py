@@ -26,6 +26,7 @@ from pathlib import Path
 from typing import Any
 
 from reviewer.offline import offline_mode
+from reviewer.reliability.harness import observed_tool
 from reviewer.tools.context import CodeContext
 
 DEFAULT_CONFIG = "p/python"
@@ -107,6 +108,7 @@ def _redact(stderr: str) -> str:
     return re.sub(r"(x-access-token:)[^@\s]+", r"\1***", stderr)
 
 
+@observed_tool("semgrep")
 async def run_semgrep(
     repo_path: Path,
     target_files: list[str] | None = None,

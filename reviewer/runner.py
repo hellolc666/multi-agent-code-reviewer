@@ -15,14 +15,13 @@ from __future__ import annotations
 
 import asyncio
 import logging
-import uuid
 from datetime import UTC, datetime
 from typing import Any
 
 from reviewer.graph.builder import build_review_graph
 from reviewer.graph.state import AGENT_NODE_TO_LABEL, ReviewState
 from reviewer.observability import langsmith_setup
-from reviewer.tools.github_client import fetch_pr, parse_pr_url
+from reviewer.tools.github_client import fetch_pr
 
 log = logging.getLogger(__name__)
 
@@ -148,21 +147,102 @@ def _format_comment_body(report: dict[str, Any]) -> str:
     return "\n".join(lines).rstrip() + "\n"
 
 
-def _post_pr_comment(pr_url: str, github_token: str, body: str) -> None:
-    """Post a single issue-comment back to the PR via PyGithub. Synchronous."""
-    from github import Github
+def _post_pr_comment(pr_url, github_token, body, **kwargs):
+    """Compatibility hook; all writes use the shared checked publisher."""
+    from reviewer.publication import post_comment
 
-    owner, repo, number = parse_pr_url(pr_url)
-    gh = Github(github_token)
-    pr = gh.get_repo(f"{owner}/{repo}").get_pull(number)
-    pr.create_issue_comment(body)
+    return post_comment(pr_url, github_token, body, **kwargs)
 
 
 def _forced_planner(nodes: list[str]):
     async def _node(state: ReviewState) -> dict[str, Any]:  # noqa: ARG001
-        return {"agents_to_run": nodes}
+        maximum = state.get("review_options", {}).get("max_reviewers", 5)
+        selected = nodes[:maximum]
+        return {
+            "agents_to_run": selected,
+            "review_plan": {
+                "selected_agents": [AGENT_NODE_TO_LABEL[n] for n in selected],
+                "routing_reasons": {
+                    AGENT_NODE_TO_LABEL[n]: "Explicit --only override" for n in selected
+                },
+                "budget": {"omitted_agents": [AGENT_NODE_TO_LABEL[n] for n in nodes[maximum:]]},
+            },
+        }
 
     return _node
+
+
+def _interrupted_report(runtime, exc):
+    from reviewer.models.report import ReviewReport
+
+    runtime.fail("pipeline", exc)
+    runtime.exhausted = runtime.exhausted or isinstance(exc, TimeoutError)
+    saved = runtime.snapshot
+    metadata = saved.get("pr_metadata", {})
+    value = saved.get("review_input", {})
+    successes = saved.get("agents_succeeded", [])
+    missing = [
+        AGENT_NODE_TO_LABEL.get(n, n)
+        for n in saved.get("agents_to_run", [])
+        if AGENT_NODE_TO_LABEL.get(n, n) not in successes
+    ]
+    raw = saved.get("findings", [])
+    return ReviewReport(
+        pr_url=saved.get("pr_url", ""),
+        pr_title=metadata.get("title", ""),
+        pr_author=metadata.get("author", ""),
+        review_started_at=metadata.get("started_at", _utcnow_iso()),
+        review_completed_at=_utcnow_iso(),
+        duration_seconds=runtime.budget.total_seconds - runtime.remaining(),
+        files_changed=len(saved.get("changed_files", [])),
+        findings=[],
+        raw_findings=raw,
+        verified_findings=[
+            {
+                "finding": f.model_dump(mode="json"),
+                "status": "uncertain",
+                "reason": "pipeline_interrupted",
+                "can_comment": False,
+            }
+            for f in raw
+        ],
+        summary="Review interrupted; partial evidence preserved; verification incomplete.",
+        agents_succeeded=successes,
+        agents_failed=[{"agent": a, "error": type(exc).__name__} for a in missing],
+        trace_id=runtime.run_id,
+        execution_mode=saved.get("execution_mode", "mock"),
+        input_mode=value.get("mode", "github"),
+        diff_sha256=value.get("diff_sha256"),
+        head_sha=value.get("head_sha"),
+        reviewed_files=[f["path"] for f in value.get("files", [])],
+        coverage=value.get("coverage", {}),
+        source_errors=saved.get("source_errors", []),
+        review_plan=saved.get("review_plan", {}),
+        verification_incomplete=True,
+    ).model_dump(mode="json")
+
+
+def _with_deadline(fn):
+    from functools import wraps
+
+    @wraps(fn)
+    async def wrapped(*args, **kwargs):
+        from reviewer.reliability.harness import ReviewBudget, RunHarness
+
+        options = kwargs.get("options") or {}
+        runtime = RunHarness(ReviewBudget.model_validate(options.get("budget", {})))
+        runtime.snapshot = {
+            "pr_url": str(args[0]) if fn.__name__ == "run_review" and args else "",
+            "pr_metadata": {"started_at": _utcnow_iso()},
+            "execution_mode": "live" if kwargs.get("live") else "mock",
+        }
+        try:
+            async with asyncio.timeout(runtime.remaining()):
+                return await fn(*args, **kwargs, _runtime=runtime)
+        except TimeoutError as exc:
+            return _finish_report(_interrupted_report(runtime, exc), runtime, options)
+
+    return wrapped
 
 
 async def _execute_review(
@@ -177,11 +257,21 @@ async def _execute_review(
     tracing=None,
     context_tools=True,
     options=None,
+    runtime=None,
 ):
-    """The only graph execution path, shared by GitHub and local diff inputs."""
+    """The sole graph execution path, with per-run isolation and recovery."""
+    from langsmith import tracing_context
+
     from reviewer.offline import MockLLM, model_override, offline_mode, review_active
+    from reviewer.reliability.harness import ReviewBudget, RunHarness, current_run
     from reviewer.tools.diff_input import changed_sources
 
+    options = dict(options or {})
+    budget = ReviewBudget.model_validate(options.get("budget", {}))
+    runtime = runtime or RunHarness(budget)
+    options["max_reviewers"] = min(
+        options.get("max_reviewers", budget.max_reviewers), budget.max_reviewers
+    )
     sources, errors = changed_sources(value, root)
     metadata = {"started_at": _utcnow_iso(), **(metadata or {})}
     seed: ReviewState = {
@@ -191,13 +281,14 @@ async def _execute_review(
         "changed_files": sources,
         "test_files": [],
         "repo_path": str(root),
-        "trace_id": str(uuid.uuid4()),
+        "trace_id": runtime.run_id,
         "review_input": value.model_dump(mode="json"),
         "context_tools_enabled": context_tools,
         "source_errors": errors,
         "execution_mode": "live" if live else "mock",
-        "review_options": options or {},
+        "review_options": options,
     }
+    runtime.snapshot = dict(seed)
     forced = _resolve_only(only)
     graph = (
         build_review_graph(planner_node=_forced_planner(forced))
@@ -210,16 +301,67 @@ async def _execute_review(
     model_token = model_override.set(None if live else MockLLM())
     offline_token = offline_mode.set(not live)
     active_token = review_active.set(True)
+    runtime_token = current_run.set(runtime)
     try:
-        result = await graph.ainvoke(seed, config=config)
+        # Use our sanitized trace rather than exporting source-bearing LangChain traces.
+        with tracing_context(enabled=False):
+            async with asyncio.timeout(runtime.remaining()):
+                result = await graph.ainvoke(seed, config=config)
+        report = result.get("final_report") or {}
+    except Exception as exc:
+        report = _interrupted_report(runtime, exc)
     finally:
+        current_run.reset(runtime_token)
         review_active.reset(active_token)
         offline_mode.reset(offline_token)
         model_override.reset(model_token)
-    report = result.get("final_report") or {}
+    return _finish_report(report, runtime, options)
+
+
+def _finish_report(report, runtime, options):
+    if not report:
+        return report
+    failures = list(report.get("agents_failed", []))
+    for failure in runtime.failures:
+        if failure not in failures:
+            failures.append(failure)
+    report["agents_failed"] = failures
+    selected = runtime.snapshot.get("agents_to_run", [])
+    incomplete = (
+        failures
+        or report.get("source_errors")
+        or report.get("verification_incomplete")
+        or report.get("coverage", {}).get("omitted")
+        or report.get("budget_events")
+        or report.get("planner_errors")
+        or any(not e.get("ok", True) for e in report.get("tool_evidence", []))
+        or runtime.exhausted
+        or report.get("review_plan", {}).get("budget", {}).get("omitted_agents")
+    )
+    if not selected and not failures and not report.get("agents_succeeded"):
+        status = "skipped"
+    elif incomplete:
+        status = "partial" if report.get("agents_succeeded") else "failed"
+    else:
+        status = "completed"
+    report.update(
+        status=status,
+        run_id=runtime.run_id,
+        review_version="2.0.0",
+        prompt_version="review-v2.0",
+        budget=runtime.budget.model_dump(),
+        usage=runtime.summary(options),
+        trace=runtime.events,
+        unreviewed_dimensions=sorted(
+            {f["agent"] for f in failures}
+            | set(report.get("review_plan", {}).get("budget", {}).get("omitted_agents", []))
+        ),
+        publication={"status": "dry_run"},
+    )
     return report
 
 
+@_with_deadline
 async def run_review(
     pr_url: str,
     *,
@@ -228,6 +370,7 @@ async def run_review(
     post_comments: bool = False,
     live: bool = False,
     options: dict | None = None,
+    _runtime=None,
 ) -> dict[str, Any]:
     """Fetch GitHub input, execute the common pipeline; publishing is explicit."""
     from reviewer.tools.diff_input import make_input
@@ -263,20 +406,26 @@ async def run_review(
             },
             tracing=tracing,
             options=options,
+            runtime=_runtime,
         )
     if post_comments and report:
-        if not github_token:
-            log.warning("post_comments requested but no github_token; skipping")
-        else:
-            try:
-                await asyncio.to_thread(
-                    _post_pr_comment, pr_url, github_token, _format_comment_body(report)
-                )
-            except Exception as exc:
-                log.error("failed to post PR comment: %s", type(exc).__name__)
+        from reviewer.publication import publish_report
+
+        try:
+            report["publication"] = await asyncio.to_thread(
+                publish_report,
+                report,
+                github_token,
+                post_comments=True,
+                poster=_post_pr_comment,
+            )
+        except Exception as exc:
+            report["publication"] = {"status": "blocked_or_failed", "error": type(exc).__name__}
+            log.error("PR publication blocked/failed: %s", type(exc).__name__)
     return report
 
 
+@_with_deadline
 async def run_review_diff(
     diff_path,
     repo_path,
@@ -286,6 +435,7 @@ async def run_review_diff(
     live=False,
     context_tools=True,
     options=None,
+    _runtime=None,
 ):
     """Review an explicitly supplied UTF-8 patch against a read-only checkout."""
     from pathlib import Path
@@ -309,6 +459,7 @@ async def run_review_diff(
         live=live,
         context_tools=context_tools,
         options=options,
+        runtime=_runtime,
     )
     if output:
         import json

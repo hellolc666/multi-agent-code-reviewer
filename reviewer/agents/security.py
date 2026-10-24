@@ -88,6 +88,7 @@ def _semgrep_to_seed_finding(sf: SemgrepFinding, idx: int) -> Finding:
     """
     sev = SEMGREP_TO_SEVERITY.get(sf.severity, Severity.MEDIUM)
     return Finding(
+        source="static_seed",
         id=f"SEC-SG-{idx + 1:03d}",
         agent=SECURITY_LABEL,
         category=Category.SECURITY,
@@ -125,8 +126,8 @@ async def security_agent_node(state: ReviewState) -> dict[str, Any]:
             ]
         }
     except Exception as e:  # noqa: BLE001 — node must never propagate
-        log.exception("security agent crashed: %s", e)
-        return {"agents_failed": [{"agent": SECURITY_LABEL, "error": str(e)}]}
+        log.error("security agent crashed: %s", type(e).__name__)
+        return {"agents_failed": [{"agent": SECURITY_LABEL, "error": type(e).__name__}]}
 
 
 async def _run(state: ReviewState) -> dict[str, Any]:
@@ -141,7 +142,7 @@ async def _run(state: ReviewState) -> dict[str, Any]:
     try:
         semgrep_findings = await run_semgrep(repo_path, targets)
     except Exception as e:  # noqa: BLE001
-        log.warning("semgrep failed; continuing with LLM-only analysis: %s", e)
+        log.warning("semgrep failed; continuing with LLM-only analysis: %s", type(e).__name__)
         semgrep_findings = []
 
     # Step 2: LLM enrichment + extra detection.
@@ -155,7 +156,7 @@ async def _run(state: ReviewState) -> dict[str, Any]:
         )
         llm_findings = list(result.findings) if isinstance(result, FindingList) else []
     except Exception as e:  # noqa: BLE001
-        log.warning("security LLM call failed; falling back to Semgrep seeds: %s", e)
+        log.warning("security LLM call failed; falling back to Semgrep seeds: %s", type(e).__name__)
         llm_findings = [
             _semgrep_to_seed_finding(sf, i) for i, sf in enumerate(semgrep_findings)
         ]

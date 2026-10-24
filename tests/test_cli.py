@@ -124,7 +124,8 @@ def test_cli_review_handles_runner_exception(monkeypatch):
     runner = CliRunner()
     result = runner.invoke(app, ["review", "https://github.com/x/y/pull/1"])
     assert result.exit_code == 1
-    assert "upstream broke" in result.stderr or "upstream broke" in result.stdout
+    assert "RuntimeError" in result.stderr
+    assert "upstream broke" not in result.stderr + result.stdout
 
 
 def test_cli_review_missing_url():

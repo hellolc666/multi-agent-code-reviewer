@@ -96,9 +96,9 @@ def _setup_logging(verbose: bool) -> None:
         format="%(asctime)s %(levelname)s %(name)s: %(message)s",
         stream=sys.stderr,
     )
-    if not verbose:
-        for name in ("httpx", "httpcore", "anthropic", "openai", "langgraph", "langchain"):
-            logging.getLogger(name).setLevel(logging.WARNING)
+    # SDK debug logs can contain request bodies or credentials even in verbose mode.
+    for name in ("httpx", "httpcore", "anthropic", "openai", "langgraph", "langchain"):
+        logging.getLogger(name).setLevel(logging.WARNING)
 
 
 @app.callback()
@@ -197,9 +197,7 @@ def review(
         typer.echo("Interrupted.", err=True)
         raise typer.Exit(code=130) from None
     except Exception as e:  # noqa: BLE001
-        typer.echo(f"error: {e}", err=True)
-        if verbose:
-            logging.getLogger(__name__).exception("review failed")
+        typer.echo(f"error: {type(e).__name__}", err=True)
         raise typer.Exit(code=1) from e
 
     payload = json.dumps(report, indent=2, ensure_ascii=False)
@@ -209,6 +207,30 @@ def review(
         typer.echo(f"wrote {output}", err=True)
     else:
         typer.echo(payload)
+
+
+@app.command("publish")
+def publish(
+    report: Path = typer.Option(..., "--report", exists=True, dir_okay=False),  # noqa: B008
+    post_comments: bool = typer.Option(False, "--post-comments"),
+    allow_update: bool = typer.Option(False, "--allow-update"),
+):
+    """Preview reviewed JSON; explicit --post-comments authorizes GitHub writing."""
+    from reviewer.models.report import ReviewReport
+    from reviewer.publication import publish_report
+
+    try:
+        value = ReviewReport.model_validate_json(report.read_text(encoding="utf-8"))
+        result = publish_report(
+            value.model_dump(mode="json"),
+            os.environ.get("GITHUB_TOKEN"),
+            post_comments=post_comments,
+            allow_update=allow_update,
+        )
+    except Exception as exc:
+        typer.echo(f"publication failed: {type(exc).__name__}", err=True)
+        raise typer.Exit(1) from None
+    typer.echo(json.dumps(result, indent=2, ensure_ascii=False))
 
 
 @app.command("review-diff")

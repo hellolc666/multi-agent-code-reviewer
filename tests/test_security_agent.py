@@ -252,7 +252,7 @@ async def test_security_agent_unexpected_exception_recorded(monkeypatch, tmp_pat
     monkeypatch.setattr(sec_mod, "_run", boom_run)
 
     out = await security_agent_node(_state(tmp_path))
-    assert out == {"agents_failed": [{"agent": SECURITY_LABEL, "error": "boom"}]}
+    assert out == {"agents_failed": [{"agent": SECURITY_LABEL, "error": "ValueError"}]}
 
 
 @pytest.mark.asyncio
