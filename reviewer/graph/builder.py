@@ -20,6 +20,7 @@ from typing import Any
 from langgraph.graph import END, START, StateGraph
 from langgraph.types import Send
 
+from reviewer.agents.correctness import correctness_agent_node
 from reviewer.agents.docs import docs_agent_node
 from reviewer.agents.quality import quality_agent_node
 from reviewer.agents.security import security_agent_node
@@ -78,6 +79,7 @@ def build_review_graph(*, fetch_node=None, aggregate_node=None, planner_node=Non
     graph.add_node("quality_agent", quality_agent_node)
     graph.add_node("test_mapping_agent", test_mapping_agent_node)
     graph.add_node("docs_agent", docs_agent_node)
+    graph.add_node("correctness_agent", correctness_agent_node)
     graph.add_node("aggregate", aggregate_node or aggregate_findings_node)
 
     graph.add_edge(START, "fetch_pr")

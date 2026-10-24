@@ -14,6 +14,7 @@ from pathlib import Path
 import pytest
 from langgraph.types import Send
 
+from reviewer.agents import correctness as correctness_mod
 from reviewer.agents import docs as docs_mod
 from reviewer.agents import quality as q_mod
 from reviewer.agents import security as sec_mod
@@ -90,12 +91,14 @@ def _finding(agent: str, idx: int, file="app/auth.py", line=10) -> Finding:
         "quality": Category.QUALITY,
         "test_mapping": Category.TEST_COVERAGE,
         "docs": Category.DOCUMENTATION,
+        "correctness": Category.CORRECTNESS,
     }
     sev_map = {
         "security": Severity.HIGH,
         "quality": Severity.MEDIUM,
         "test_mapping": Severity.MEDIUM,
         "docs": Severity.LOW,
+        "correctness": Severity.HIGH,
     }
     return Finding(
         id=f"{agent.upper()}-{idx:03d}",
@@ -152,16 +155,26 @@ def patched_tools_and_llm(monkeypatch):
     async def fake_semgrep(*a, **kw):  # noqa: ARG001
         return [
             SemgrepFinding(
-                check_id="py.unsafe-eq", path="app/auth.py", line_start=2,
-                line_end=2, severity="WARNING", message="==", code_snippet="x == y",
+                check_id="py.unsafe-eq",
+                path="app/auth.py",
+                line_start=2,
+                line_end=2,
+                severity="WARNING",
+                message="==",
+                code_snippet="x == y",
             )
         ]
 
     async def fake_ruff(*a, **kw):  # noqa: ARG001
         return [
             RuffFinding(
-                code="F401", path="app/auth.py", line_start=1, line_end=1, column=1,
-                message="unused", fix_applicable=True,
+                code="F401",
+                path="app/auth.py",
+                line_start=1,
+                line_end=1,
+                column=1,
+                message="unused",
+                fix_applicable=True,
             )
         ]
 
@@ -184,6 +197,11 @@ def patched_tools_and_llm(monkeypatch):
     monkeypatch.setattr(tm_mod, "analyze_with_schema", fake_analyze_test_mapping)
     monkeypatch.setattr(docs_mod, "analyze_with_schema", fake_analyze_docs)
 
+    async def fake_correctness(*a, **kw):
+        return FindingList(findings=[_finding("correctness", 1, line=2)])
+
+    monkeypatch.setattr(correctness_mod, "analyze_with_schema", fake_correctness)
+
     # Mock the aggregator's summary call so we don't hit the real LLM
     # (which would burn retry+breaker time with no API key).
     async def fake_summary(findings, agents_failed):  # noqa: ARG001
@@ -200,11 +218,15 @@ async def test_graph_runs_all_four_agents_in_parallel(state_with_pr, patched_too
     # Each agent contributed at least one finding via the ``add`` reducer.
     assert "findings" in result
     by_agent = {f.agent for f in result["findings"]}
-    assert by_agent == {"security", "quality", "test_mapping", "docs"}
+    assert by_agent == {"security", "quality", "test_mapping", "docs", "correctness"}
 
     # All four reported success.
     assert set(result["agents_succeeded"]) == {
-        "security", "quality", "test_mapping", "docs"
+        "security",
+        "quality",
+        "test_mapping",
+        "docs",
+        "correctness",
     }
     assert result.get("agents_failed", []) == []
 
@@ -252,7 +274,7 @@ async def test_graph_partial_failure_still_completes(
     failed = {rec["agent"] for rec in result.get("agents_failed", [])}
     assert "security" in failed
     succeeded = set(result.get("agents_succeeded", []))
-    assert succeeded == {"quality", "test_mapping", "docs"}
+    assert succeeded == {"quality", "test_mapping", "docs", "correctness"}
 
 
 def test_compiled_graph_has_all_nodes():

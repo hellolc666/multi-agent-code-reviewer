@@ -8,6 +8,7 @@ AGENT_NODE_TO_LABEL: dict[str, str] = {
     "quality_agent": "quality",
     "test_mapping_agent": "test_mapping",
     "docs_agent": "docs",
+    "correctness_agent": "correctness",
 }
 
 AGENT_NODES: tuple[str, ...] = tuple(AGENT_NODE_TO_LABEL.keys())
@@ -32,6 +33,9 @@ class ReviewState(TypedDict, total=False):
     budget_events: Annotated[list[dict], add]
     source_errors: list[dict]
     execution_mode: str
+    review_options: dict
+    review_plan: dict
+    planner_errors: list[dict]
     pr_url: str
     pr_metadata: dict
     pr_diff: str

@@ -17,8 +17,7 @@ SAMPLE_FINDING_DATA = {
     "line_end": 25,
     "title": "Password compared with == instead of constant-time comparison",
     "explanation": (
-        "Comparing passwords with == allows timing attacks. "
-        "Use secrets.compare_digest() instead."
+        "Comparing passwords with == allows timing attacks. Use secrets.compare_digest() instead."
     ),
     "suggestion": (
         "Replace `if password == stored_password:` with "
@@ -38,8 +37,7 @@ SAMPLE_REPORT_DATA = {
     "files_changed": 4,
     "findings": [SAMPLE_FINDING_DATA],
     "summary": (
-        "Found 1 high-severity security issue, 2 medium quality issues, "
-        "and 3 missing docstrings."
+        "Found 1 high-severity security issue, 2 medium quality issues, and 3 missing docstrings."
     ),
     "agents_succeeded": ["security", "quality", "test_mapping", "docs"],
     "agents_failed": [],
@@ -110,9 +108,10 @@ def test_review_report_default_lists():
 
 
 def test_severity_rank_ordering():
-    ranks = [SEVERITY_RANK[s] for s in (
-        Severity.CRITICAL, Severity.HIGH, Severity.MEDIUM, Severity.LOW, Severity.INFO
-    )]
+    ranks = [
+        SEVERITY_RANK[s]
+        for s in (Severity.CRITICAL, Severity.HIGH, Severity.MEDIUM, Severity.LOW, Severity.INFO)
+    ]
     assert ranks == sorted(ranks, reverse=True)
     assert SEVERITY_RANK[Severity.CRITICAL] > SEVERITY_RANK[Severity.HIGH]
 
@@ -122,8 +121,14 @@ def test_agent_node_label_mapping():
     assert AGENT_NODE_TO_LABEL["quality_agent"] == "quality"
     assert AGENT_NODE_TO_LABEL["test_mapping_agent"] == "test_mapping"
     assert AGENT_NODE_TO_LABEL["docs_agent"] == "docs"
-    assert set(AGENT_NODE_TO_LABEL.values()) == {"security", "quality", "test_mapping", "docs"}
-    assert len(AGENT_NODES) == 4
+    assert set(AGENT_NODE_TO_LABEL.values()) == {
+        "security",
+        "quality",
+        "test_mapping",
+        "docs",
+        "correctness",
+    }
+    assert len(AGENT_NODES) == 5
 
 
 def test_review_state_typeddict_accepts_keys():

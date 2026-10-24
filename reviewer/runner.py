@@ -176,6 +176,7 @@ async def _execute_review(
     live=False,
     tracing=None,
     context_tools=True,
+    options=None,
 ):
     """The only graph execution path, shared by GitHub and local diff inputs."""
     from reviewer.offline import MockLLM, model_override, offline_mode, review_active
@@ -195,6 +196,7 @@ async def _execute_review(
         "context_tools_enabled": context_tools,
         "source_errors": errors,
         "execution_mode": "live" if live else "mock",
+        "review_options": options or {},
     }
     forced = _resolve_only(only)
     graph = (
@@ -225,6 +227,7 @@ async def run_review(
     only: list[str] | None = None,
     post_comments: bool = False,
     live: bool = False,
+    options: dict | None = None,
 ) -> dict[str, Any]:
     """Fetch GitHub input, execute the common pipeline; publishing is explicit."""
     from reviewer.tools.diff_input import make_input
@@ -259,6 +262,7 @@ async def run_review(
                 "head_sha": bundle.metadata.head_sha,
             },
             tracing=tracing,
+            options=options,
         )
     if post_comments and report:
         if not github_token:
@@ -281,6 +285,7 @@ async def run_review_diff(
     only=None,
     live=False,
     context_tools=True,
+    options=None,
 ):
     """Review an explicitly supplied UTF-8 patch against a read-only checkout."""
     from pathlib import Path
@@ -303,6 +308,7 @@ async def run_review_diff(
         only=only,
         live=live,
         context_tools=context_tools,
+        options=options,
     )
     if output:
         import json

@@ -109,9 +109,7 @@ def _findings_for_summary(findings: list[Finding], limit: int = 30) -> str:
     return "\n".join(lines)
 
 
-def _build_summary_prompt(
-    findings: list[Finding], agents_failed: list[dict]
-) -> str:
+def _build_summary_prompt(findings: list[Finding], agents_failed: list[dict]) -> str:
     failed = (
         "\n".join(f"- {rec.get('agent', '?')}: {rec.get('error', '?')}" for rec in agents_failed)
         if agents_failed
@@ -124,9 +122,7 @@ def _build_summary_prompt(
     )
 
 
-async def _generate_summary(
-    findings: list[Finding], agents_failed: list[dict]
-) -> str:
+async def _generate_summary(findings: list[Finding], agents_failed: list[dict]) -> str:
     """Try the LLM up to ``SUMMARY_MAX_RETRIES + 1`` times; fall back on failure."""
     if not findings and not agents_failed:
         return "Review complete — no issues found across all agents."
@@ -141,9 +137,7 @@ async def _generate_summary(
                 return result.summary.strip()
         except Exception as e:  # noqa: BLE001
             last_error = e
-            log.warning(
-                "summary generation attempt %d failed: %s", attempt + 1, e
-            )
+            log.warning("summary generation attempt %d failed: %s", attempt + 1, e)
     if last_error:
         log.warning("falling back to default summary after %d failures", SUMMARY_MAX_RETRIES + 1)
     return DEFAULT_SUMMARY
@@ -162,9 +156,7 @@ def _to_failure_models(records: list[dict]) -> list[AgentFailure]:
     out: list[AgentFailure] = []
     for r in records or []:
         try:
-            out.append(
-                AgentFailure(agent=str(r.get("agent", "")), error=str(r.get("error", "")))
-            )
+            out.append(AgentFailure(agent=str(r.get("agent", "")), error=str(r.get("error", ""))))
         except Exception:  # noqa: BLE001
             continue
     return out
@@ -221,6 +213,17 @@ async def aggregate_findings_node(state: ReviewState) -> dict[str, Any]:
         budget_events=state.get("budget_events", []),
         source_errors=state.get("source_errors", []),
         execution_mode=state.get("execution_mode", "live"),
+        review_plan=state.get("review_plan", {}),
+        planner_errors=state.get("planner_errors", []),
+        status=(
+            "partial"
+            if agents_failed and agents_succeeded
+            else "failed"
+            if agents_failed
+            else "completed"
+            if agents_succeeded
+            else "skipped"
+        ),
     )
     return {"final_report": report.model_dump(mode="json")}
 

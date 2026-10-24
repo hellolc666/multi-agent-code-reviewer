@@ -60,3 +60,15 @@
   rename/delete/binary、坏 hunk、证据重复请求预算，以及全部旧回归。
 - 原 SDK e2e fixture 增补 EvidenceTurn 响应；tracing 测试显式 live（仍 Mock graph）。
 - 真实 Qwen/GitHub/Semgrep：NOT_RUN；没有发布和远程推送。独立阶段提交后继续阶段 3。
+
+## 阶段 3：PASS（2026-10-24）
+
+- 新增 Correctness（逻辑/边界/状态/资源），复用 FindingList 与证据工具。
+- 新增 Pydantic ReviewPlan；规则风险底座 + 可选 hybrid；路由白名单、理由、预算和
+  被省略维度进入报告；README/测试/认证/SQL/普通函数/大文件路由有区别。
+- 保留原四节点与 LangGraph Send/add reducer，新增第五节点。报告增加 skipped 状态。
+- 新增 test_risk_plan.py 9 个用例；既有五节点图、原模型映射回归相应更新。
+- `python -m pytest -q --tb=short -p no:cacheprovider`：PASS，**364 passed / 4 skipped**，13.78s。
+- `python -m ruff check reviewer tests` / `git diff --check`：PASS。
+- 初次回归发现旧测试两处固定四节点断言，已更新并完整重跑。
+- Qwen/GitHub/Semgrep 在线：NOT_RUN；仍有上游 LangGraph 警告。接下来实现 Judge。

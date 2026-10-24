@@ -3,7 +3,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-AgentLabel = Literal["security", "quality", "test_mapping", "docs"]
+AgentLabel = Literal["security", "quality", "test_mapping", "docs", "correctness"]
 
 
 class Severity(StrEnum):
@@ -24,6 +24,7 @@ SEVERITY_RANK: dict[Severity, int] = {
 
 
 class Category(StrEnum):
+    CORRECTNESS = "correctness"
     SECURITY = "security"
     QUALITY = "quality"
     TEST_COVERAGE = "test_coverage"
@@ -42,6 +43,8 @@ class Finding(BaseModel):
     explanation: str
     suggestion: str
     confidence: float = Field(..., ge=0.0, le=1.0)
+    trigger_condition: str | None = None
+    evidence_snippet: str | None = None
     tool_source: str | None = Field(
         None, description="e.g. 'semgrep-rule-xyz' or 'llm-analysis'"
     )

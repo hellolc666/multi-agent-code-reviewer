@@ -30,3 +30,6 @@ class ReviewReport(BaseModel):
     budget_events: list[dict] = Field(default_factory=list)
     source_errors: list[dict] = Field(default_factory=list)
     execution_mode: str = "live"
+    review_plan: dict = Field(default_factory=dict)
+    planner_errors: list[dict] = Field(default_factory=list)
+    status: str = "completed"

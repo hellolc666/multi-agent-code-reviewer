@@ -501,12 +501,18 @@ async def test_qwen_runner_end_to_end_with_mock_http_and_fixture(monkeypatch):
         )
         monkeypatch.setattr(base, "get_llm", lambda: llm)
         report = await runner_mod.run_review("https://github.com/fixture/repo/pull/1")
-    assert set(report["agents_succeeded"]) == {"security", "quality", "test_mapping", "docs"}
+    assert set(report["agents_succeeded"]) == {
+        "security",
+        "quality",
+        "test_mapping",
+        "docs",
+        "correctness",
+    }
     assert report["agents_failed"] == []
     assert report["summary"] == "Offline mock report."
-    assert calls.count("FindingList") == 4
+    assert calls.count("FindingList") == 5
     assert calls.count("_SummaryResponse") == 1
-    assert calls.count("EvidenceTurn") == 1
+    assert calls.count("EvidenceTurn") == 2
 
 
 def test_smoke_without_live_never_constructs_client(monkeypatch, capsys):
