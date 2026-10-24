@@ -33,7 +33,7 @@ def test_default_constants():
     assert DEFAULT_LLM_PROVIDER == "anthropic"
     assert DEFAULT_LLM_MODEL == "claude-sonnet-4-6"
     assert DEFAULT_OPENAI_MODEL == "gpt-5.5"
-    assert SUPPORTED_LLM_PROVIDERS == ("anthropic", "openai")
+    assert SUPPORTED_LLM_PROVIDERS == ("anthropic", "openai", "qwen")
 
 
 def test_defaults_when_env_unset(monkeypatch):

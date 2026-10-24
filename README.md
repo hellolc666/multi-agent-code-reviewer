@@ -1,13 +1,22 @@
 <div align="center">
 
-# 🤖 Multi-Agent Code Reviewer
+# 🤖 Multi-Agent PR Review System
 
 **Automated GitHub PR review by four specialist AI agents working in parallel.**
+
+二次开发自 [Om Solanki / multi-agent-code-reviewer](https://github.com/OmkumarSolanki/multi-agent-code-reviewer)，
+保留 [MIT License](LICENSE) 与原作者版权。项目定位为可审计的 PR 审查原型。
+目前已验收阶段 0（Windows 基线）和阶段 1（Qwen 兼容接入）；
+动态风险路由、Correctness、Judge、预算治理和对照评测仍待后续阶段实现。
+四专业节点、LangGraph Send、基础路由/聚合和 CLI/API 是上游原有能力。
+
+本机基线、命令与阶段记录：[BASELINE](docs/BASELINE.md) ·
+[Qwen 配置与离线验证](docs/QWEN.md) · [验收记录](docs/STAGE_RESULTS.md)。
+下文保留的原作者线上截图和性能数据是上游历史材料，不是本次二改的测量结果。
 
 [![CI](https://github.com/OmkumarSolanki/multi-agent-code-reviewer/actions/workflows/ci.yml/badge.svg)](https://github.com/OmkumarSolanki/multi-agent-code-reviewer/actions/workflows/ci.yml)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green.svg)](#license)
-[![Tests](https://img.shields.io/badge/tests-279%20passing-brightgreen.svg)](#-development)
 [![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 
 Built with [LangGraph](https://langchain-ai.github.io/langgraph/) · [Anthropic Claude](https://www.anthropic.com/) / [OpenAI](https://openai.com/) · [Pydantic](https://docs.pydantic.dev/) · [Semgrep](https://semgrep.dev/) · [Ruff](https://docs.astral.sh/ruff/)
@@ -169,6 +178,30 @@ Notice also:
 ---
 
 ## 🚀 Quick Start
+
+### Windows PowerShell / Qwen
+
+```powershell
+.\.venv\Scripts\python.exe -m pip install -e ".[dev]"
+$env:LLM_PROVIDER = "qwen"
+$env:DASHSCOPE_API_KEY = "<your-key>"
+$env:DASHSCOPE_BASE_URL = "<your-workspace-openai-compatible-https-url>"
+$env:DASHSCOPE_MODEL = "<your-enabled-model>"
+$env:LANGCHAIN_TRACING_V2 = "false"
+
+# Offline by default; prints NOT_RUN, no paid API request
+.\.venv\Scripts\python.exe scripts/smoke_qwen.py
+
+# Explicit paid API smoke; validates FindingList AND summary
+.\.venv\Scripts\python.exe scripts/smoke_qwen.py --live
+
+# Original PR entrypoint, now also uses Qwen (real API, dry-run comments)
+.\.venv\Scripts\reviewer.exe review https://github.com/OWNER/REPO/pull/42 --output report.json
+```
+
+地域/工作空间 URL 和模型必须自行配置，没有内置 Qwen 型号或地域默认值。
+Qwen 使用 `DASHSCOPE_MODEL`，不读取遗留的 `LLM_MODEL`；Anthropic/OpenAI
+继续使用原配置。结构化能力和异常处理细节见 [QWEN.md](docs/QWEN.md)。
 
 ### 1. Install
 

@@ -1,36 +1,25 @@
-"""Shared agent plumbing.
+"""Shared provider construction and validated structured responses.
 
-Centralizes LLM client construction so every specialist agent and the
-aggregator share the same model, temperature, and reliability wrapping.
-
-Two providers are supported, selected via the ``LLM_PROVIDER`` env var:
-
-- ``anthropic`` (default) — ``langchain_anthropic.ChatAnthropic``.
-  Default model: ``claude-sonnet-4-6`` (current Sonnet generation, May 2026).
-- ``openai`` — ``langchain_openai.ChatOpenAI``.
-  Default model: ``gpt-5.5`` (released 2026-04-23, available in
-  Chat Completions + Responses APIs).
-
-Override the model with the ``LLM_MODEL`` env var (applies to whichever
-provider is active). Provider SDKs are imported lazily inside :func:`get_llm`
-so an unused provider never has to be imported even though both ship as
-runtime deps.
-
-``analyze_with_schema`` is the high-level entry point agents use: it binds a
-Pydantic schema via ``with_structured_output`` and ``ainvoke`` s the prompt,
-returning the validated model. The underlying LLM call is wrapped with
-exponential-backoff retry plus a per-process circuit breaker so transient
-provider errors don't propagate. Tests monkeypatch ``get_llm`` (or pass
-``llm=`` directly) to inject canned responses without touching the network.
+Qwen reuses ChatOpenAI with explicit DashScope settings. Try tool-based
+structured output first; only explicit unsupported-capability errors allow
+plain JSON fallback. Invalid output has bounded repair, never empty success.
+SDK imports remain lazy. Retries/breaker cover transient transport/429/5xx
+errors; configuration, authentication and missing models fail immediately.
 """
 
 from __future__ import annotations
 
+import json
+import logging
 import os
+import re
 from typing import TYPE_CHECKING, TypeVar
 
-from pydantic import BaseModel, Field
+import httpx
+from langchain_core.exceptions import OutputParserException
+from pydantic import BaseModel, Field, ValidationError
 
+from reviewer import config
 from reviewer.models.findings import Finding
 from reviewer.reliability.circuit_breaker import CircuitBreaker
 from reviewer.reliability.retry import async_retry
@@ -46,13 +35,12 @@ if TYPE_CHECKING:
 # in tests and downstream modules don't break.
 DEFAULT_MODEL = "claude-sonnet-4-6"
 
-# OpenAI default. ``gpt-5.5`` is OpenAI's flagship as of 2026-04-23, available
-# through both the Chat Completions and Responses APIs (langchain-openai
-# routes appropriately).
+# Preserve the existing OpenAI default for compatibility.
 DEFAULT_OPENAI_MODEL = "gpt-5.5"
 
 DEFAULT_PROVIDER = "anthropic"
-SUPPORTED_PROVIDERS: tuple[str, ...] = ("anthropic", "openai")
+SUPPORTED_PROVIDERS = config.SUPPORTED_LLM_PROVIDERS
+log = logging.getLogger(__name__)
 
 DEFAULT_TEMPERATURE = 0.0
 DEFAULT_MAX_TOKENS = 4096
@@ -86,8 +74,8 @@ def _resolve_provider(explicit: str | None = None) -> str:
     Raises ``ValueError`` for unsupported providers so misconfiguration fails
     fast with a clear message instead of bubbling up as a missing-import error.
     """
-    raw = explicit if explicit is not None else os.environ.get("LLM_PROVIDER", DEFAULT_PROVIDER)
-    provider = (raw or DEFAULT_PROVIDER).strip().lower()
+    raw = explicit if explicit is not None else config.llm_provider()
+    provider = raw.strip().lower() or DEFAULT_PROVIDER
     if provider not in SUPPORTED_PROVIDERS:
         raise ValueError(
             f"Unsupported LLM_PROVIDER {provider!r}. "
@@ -110,23 +98,30 @@ def get_llm(
     temperature: float = DEFAULT_TEMPERATURE,
     max_tokens: int = DEFAULT_MAX_TOKENS,
 ) -> BaseChatModel:
-    """Build a chat LLM client for the active provider.
+    """Build the provider client without making requests.
 
-    Parameters
-    ----------
-    provider : optional override; otherwise read from ``LLM_PROVIDER`` env var.
-        Currently ``"anthropic"`` (default) or ``"openai"``.
-    model : optional override; otherwise ``LLM_MODEL`` env var, otherwise the
-        provider-specific default (``DEFAULT_MODEL`` / ``DEFAULT_OPENAI_MODEL``).
-    temperature, max_tokens : passed through to the underlying client.
-
-    The provider SDK is imported lazily so users who pick one provider don't
-    incur the import cost of the other. API keys are not validated here — the
-    underlying SDK validates them on first request, so this function is safe
-    to call from tests without setting any credentials.
+    For Qwen, model= overrides DASHSCOPE_MODEL; LLM_MODEL is reserved for
+    legacy providers. No endpoint, region or Qwen model name is assumed.
+    SDK retries are disabled so the shared retry wrapper owns the bound.
     """
     resolved_provider = _resolve_provider(provider)
-    resolved_model = model or os.environ.get("LLM_MODEL") or _default_model_for(resolved_provider)
+    if resolved_provider == "qwen":
+        from langchain_openai import ChatOpenAI
+
+        settings = config.qwen_config(model=model)
+        return ChatOpenAI(
+            model=settings.model,
+            base_url=settings.base_url,
+            api_key=settings.api_key,
+            temperature=temperature,
+            max_tokens=max_tokens,
+            max_retries=0,
+            timeout=30.0,
+            metadata={"reviewer_provider": "qwen"},
+        )
+    resolved_model = (
+        model or os.environ.get("LLM_MODEL", "").strip() or _default_model_for(resolved_provider)
+    )
 
     if resolved_provider == "anthropic":
         from langchain_anthropic import ChatAnthropic
@@ -135,6 +130,7 @@ def get_llm(
             model=resolved_model,
             temperature=temperature,
             max_tokens=max_tokens,
+            max_retries=0,
         )
     if resolved_provider == "openai":
         from langchain_openai import ChatOpenAI
@@ -143,6 +139,7 @@ def get_llm(
             model=resolved_model,
             temperature=temperature,
             max_tokens=max_tokens,
+            max_retries=0,
         )
     # _resolve_provider already validated, but be defensive in case the
     # supported set is extended without updating this branch.
@@ -161,45 +158,205 @@ async def analyze_with_schema(
     llm: BaseChatModel | None = None,
     system: str | None = None,
 ) -> _T:
-    """Run ``prompt`` through the LLM and validate the response against ``schema``.
+    """Return a validated model, or raise an observable, bounded failure.
 
-    Wrapped with retry + circuit-breaker on the underlying LLM call so transient
-    provider 5xx errors don't propagate to the agent (which would record a
-    failure). Cancellation always passes through (see ``async_retry`` docs).
-
-    Parameters
-    ----------
-    prompt: full user-message prompt; agents interpolate Semgrep/Ruff/AST data here.
-    schema: Pydantic model class (typically ``FindingList`` or a subclass).
-    llm: optional injected client. ``None`` builds the default via ``get_llm``,
-        which honours ``LLM_PROVIDER`` / ``LLM_MODEL``.
-    system: optional system prompt. Sent as a separate ``SystemMessage``-equivalent
-        when provided.
-
-    Returns the validated schema instance.
+    FindingList still permits programmatic FindingList() for compatibility,
+    but an LLM must explicitly provide `findings`, including an empty array.
+    Repairs are shared across native/JSON modes (0..2 extra requests).
+    Cancellation and operational errors propagate; they never enable fallback.
     """
     client = llm or get_llm()
-    structured = client.with_structured_output(schema)
+    qwen = (getattr(client, "metadata", None) or {}).get("reviewer_provider") == "qwen"
+    remaining = config.structured_output_retries()
     messages: list[tuple[str, str]] = []
     if system:
         messages.append(("system", system))
     messages.append(("human", prompt))
-    return await _resilient_invoke(structured, messages)
+    json_mode = False
+    try:
+        # Explicit method avoids LangChain's own implicit json_schema fallback.
+        structured = (
+            client.with_structured_output(schema, method="function_calling")
+            if qwen
+            else client.with_structured_output(schema)
+        )
+    except Exception as exc:
+        if not qwen or not _capability_unsupported(exc):
+            raise
+        json_mode = True
+        structured = None
+        log.warning("structured_output_fallback schema=%s reason=unsupported", schema.__name__)
+
+    repair = False
+    while True:
+        try:
+            if json_mode:
+                raw = await _resilient_invoke(client, _json_messages(messages, schema, repair))
+                text = _response_text(raw)
+                result = schema.model_validate_json(text)
+                _require_explicit_findings(json.loads(text), schema)
+                return result
+            request = messages if not repair else [*messages, ("human", _REPAIR_INSTRUCTION)]
+            raw = await _resilient_invoke(structured, request)
+            _require_explicit_findings(raw, schema)
+            return schema.model_validate(raw)
+        except Exception as exc:
+            if qwen and not json_mode and _capability_unsupported(exc):
+                json_mode = True
+                log.warning(
+                    "structured_output_fallback schema=%s reason=unsupported", schema.__name__
+                )
+                continue
+            if not isinstance(exc, (ValidationError, OutputParserException, StructuredOutputError)):
+                raise
+            if remaining == 0:
+                raise StructuredOutputError(
+                    f"{schema.__name__}: invalid output; repair budget exhausted"
+                ) from None
+            remaining -= 1
+            repair = True
+            # Never log raw response, validation inputs, prompts or credentials.
+            log.warning(
+                "structured_output_repair schema=%s remaining=%d", schema.__name__, remaining
+            )
 
 
-# Module-level breaker for the LLM endpoint. 5 failures / 60s → OPEN 30s.
-# One breaker covers both providers — if the active provider is degraded, we
-# don't want a single review to retry it forever.
+class StructuredOutputError(ValueError):
+    """Invalid/missing structured content after the bounded repair budget."""
+
+
+def _require_explicit_findings(raw, schema) -> None:
+    if issubclass(schema, FindingList):
+        fields = raw.model_fields_set if isinstance(raw, BaseModel) else raw
+        if isinstance(fields, (dict, set)) and "findings" not in fields:
+            raise StructuredOutputError("LLM response must explicitly contain findings")
+
+
+_REPAIR_INSTRUCTION = (
+    "The previous response failed schema validation. Return valid JSON matching the full "
+    "schema, with all required fields, valid enum values and numeric ranges. "
+    "For FindingList explicitly include findings, using [] only if no issues were found. "
+    "Do not include explanations outside JSON."
+)
+
+
+def _json_messages(messages, schema, repair):
+    instructions = (
+        "Return only one JSON object matching this JSON schema. No Markdown or commentary.\n"
+        + json.dumps(schema.model_json_schema(), ensure_ascii=False)
+        + ("\n" + _REPAIR_INSTRUCTION if repair else "")
+    )
+    system = "\n\n".join(text for role, text in messages if role == "system")
+    return [
+        ("system", system + "\n\n" + instructions),
+        *(message for message in messages if message[0] != "system"),
+    ]
+
+
+def _response_text(response) -> str:
+    content = getattr(response, "content", response)
+    if isinstance(content, list):
+        if not all(isinstance(b, dict) and b.get("type") == "text" for b in content):
+            raise StructuredOutputError("Non-text JSON response")
+        content = "".join(b.get("text", "") for b in content)
+    if not isinstance(content, str) or not content.strip():
+        raise StructuredOutputError("Missing JSON response")
+    text = content.strip()
+    fenced = re.fullmatch(r"```(?:json)?\s*\n?(.*?)\n?```", text, re.DOTALL | re.IGNORECASE)
+    return fenced.group(1).strip() if fenced else text
+
+
+def _capability_unsupported(exc: Exception) -> bool:
+    """Narrow allowlist; 401/403/404/429/5xx and arbitrary 400s never fall back."""
+    if isinstance(exc, NotImplementedError):
+        return True
+    if getattr(exc, "status_code", None) not in (400, 422):
+        return False
+    body = getattr(exc, "body", None)
+    if not isinstance(body, dict):
+        return False
+    error = body.get("error", body)
+    if not isinstance(error, dict):
+        return False
+    param = str(error.get("param") or "").lower().split(".")[0]
+    code = str(error.get("code") or "").lower()
+    message = str(error.get("message") or "").lower()
+    if code in {
+        "invalid_api_key",
+        "authentication_error",
+        "model_not_found",
+        "permission_denied",
+        "insufficient_quota",
+    }:
+        return False
+    fields = (
+        "tools",
+        "tool_choice",
+        "functions",
+        "function_call",
+        "response_format",
+        "json_schema",
+    )
+    if param in fields and code in {
+        "unsupported_parameter",
+        "unsupported_value",
+        "unknown_parameter",
+        "not_supported",
+    }:
+        return True
+    return any(field in message for field in fields) and any(
+        marker in message for marker in ("unsupported", "not supported", "does not support")
+    )
+
+
+class _TransientLLMError(Exception):
+    """Sanitized marker for the existing retry and circuit-breaker machinery."""
+
+
+# Preserve the shared breaker. Five exhausted transient requests in 60s open
+# it for 30s; validation, unsupported capabilities and auth don't count.
 _LLM_BREAKER = CircuitBreaker(
     name="llm",
     failure_threshold=5,
     window_seconds=60.0,
     open_seconds=30.0,
-    failure_exceptions=(Exception,),
+    failure_exceptions=(_TransientLLMError,),
 )
 
 
-@async_retry(max_attempts=3, base_delay=1.0, max_delay=10.0)
-async def _resilient_invoke(structured, messages):
-    """Single retryable + breakered invocation against the LLM."""
-    return await _LLM_BREAKER.call(structured.ainvoke, messages)
+def _is_transient(exc: Exception) -> bool:
+    from anthropic import APIConnectionError as AnthropicConnectionError
+    from openai import APIConnectionError as OpenAIConnectionError
+
+    status = getattr(exc, "status_code", None)
+    return (
+        isinstance(
+            exc,
+            (TimeoutError, httpx.TransportError, AnthropicConnectionError, OpenAIConnectionError),
+        )
+        or isinstance(status, int)
+        and (status == 429 or 500 <= status <= 599)
+    )
+
+
+@async_retry(
+    max_attempts=3,
+    base_delay=1.0,
+    max_delay=10.0,
+    retry_on=(_TransientLLMError,),
+)
+async def _invoke_retryable(runnable, messages):
+    try:
+        return await runnable.ainvoke(messages)
+    except Exception as exc:
+        if not _is_transient(exc):
+            raise
+        raise _TransientLLMError(type(exc).__name__) from exc
+
+
+async def _resilient_invoke(runnable, messages):
+    """Retry transient failures only; preserve the original operational error."""
+    try:
+        return await _LLM_BREAKER.call(_invoke_retryable, runnable, messages)
+    except _TransientLLMError as exc:
+        raise exc.__cause__ from None
