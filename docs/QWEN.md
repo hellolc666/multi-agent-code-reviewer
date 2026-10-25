@@ -22,7 +22,8 @@ OPENAI_API_KEY、OPENAI_BASE_URL 或遗留 LLM_MODEL。显式 Python 参数
 `get_llm(provider="qwen", model="...")` 可以覆盖 provider 和 DASHSCOPE_MODEL。
 
 `.env.example` 只提供空密钥/端点/型号字段，CLI 保留现有 dotenv 加载行为。
-smoke 脚本只读进程环境变量，不自动打开 `.env`。原 Anthropic/OpenAI 的
+smoke 脚本启动时从项目根目录加载 `.env`，与当前 shell 的工作目录无关，
+已有进程变量优先；无 `--live` 不构造客户端或调用模型。原 Anthropic/OpenAI 的
 provider、model 参数、默认型号和环境变量接口保留，测试也继续覆盖。
 `config.snapshot()` / `QwenConfig` 的 repr 隐藏密钥；不要把 dataclass
 转成字典后整份打印，敏感值仍须供调用方构建客户端。
@@ -97,3 +98,24 @@ LangGraph + 四 Reviewer 的离线端到端测试。所有外部服务由 Mock �
 
 这只验证格式与接入，不是准确率评测；报告中的候选未经过 Judge。
 本轮验收没有执行 --live，真实 Qwen 为 **NOT_RUN**，也没有 GitHub 写操作。
+
+## 2026-10-25 连接故障修复
+
+用户配置的工作空间域名配了 `/apps/anthropic`，而本项目的 Qwen adapter 使用
+`ChatOpenAI`，真实最小请求返回 HTTP 404、`InvalidParameter`。同一域名的
+OpenAI 兼容路径应是 `/compatible-mode/v1`；配置校验现对已知 Anthropic 路径
+给出明确错误。只更改用户 `.env` 中此 URL 路径后，单次真实 `qwen3.7-plus`
+文本请求返回非空响应。密钥、域名和模型没有更改。
+
+`scripts/smoke_qwen.py --live` 原先没有加载 `.env`，即使用户已配置也会
+返回脱敏 `ValueError`；现在与 CLI 一致。2026-10-25 的两段真实结构化冒烟
+已返回 `PASS`（模型 `qwen3.7-plus`，29.708 秒）；此前同命令一次出现
+`APIConnectionError`，重跑成功。模型响应仅证明接入和 Pydantic 校验通过，
+不代表独立 Judge 核实或统计准确率。
+
+冒烟脚本当前从 `Path(__file__).resolve().parents[1] / ".env"` 加载配置；
+配置缺失、协议路径错误、401/403、404、429、连接超时等输出脱敏的 `reason`。
+错误文本只从固定分类生成，不回显 API Key 或服务端原始消息。
+
+- [阿里云 OpenAI 兼容 base_url](https://help.aliyun.com/en/model-studio/compatibility-of-openai-with-dashscope)
+- [阿里云各协议 Base URL 对照](https://help.aliyun.com/en/model-studio/base-url)

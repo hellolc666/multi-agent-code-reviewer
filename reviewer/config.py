@@ -97,6 +97,11 @@ def qwen_config(*, model: str | None = None) -> QwenConfig:
         raise ValueError(
             "DASHSCOPE_BASE_URL must be an HTTPS URL without credentials/query/fragment"
         )
+    if parsed.path.rstrip("/") == "/apps/anthropic":
+        raise ValueError(
+            "DASHSCOPE_BASE_URL uses the Anthropic-compatible endpoint; "
+            "the Qwen ChatOpenAI adapter requires an OpenAI-compatible base URL"
+        )
     resolved_model = model.strip() if model is not None else _required_env("DASHSCOPE_MODEL")
     if not resolved_model or resolved_model.startswith("<"):
         raise ValueError("DASHSCOPE_MODEL must be configured (non-empty, no placeholder)")

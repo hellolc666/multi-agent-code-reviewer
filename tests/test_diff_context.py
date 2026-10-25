@@ -136,7 +136,69 @@ async def test_evidence_tool_calls_and_repetition_are_bounded(checkout, monkeypa
     )
     assert len(records) == 1
     assert records[0]["result"]["matches"][0]["path"] == "other.py"
-    assert events[0]["status"] == "budget_exhausted"
+    assert events == []
+
+
+async def test_evidence_duplicate_does_not_hide_new_request(checkout, monkeypatch):
+    calls = 0
+
+    async def ask(_prompt, _schema, **_kwargs):
+        nonlocal calls
+        calls += 1
+        if calls == 1:
+            requests = [{"name": "search_symbol", "arguments": {"symbol": "helper"}}]
+        elif calls == 2:
+            requests = [
+                {"name": "search_symbol", "arguments": {"symbol": "helper"}},
+                {"name": "read_file", "arguments": {"path": "app.py"}},
+            ]
+        else:
+            requests = []
+        return EvidenceTurn(requests=requests)
+
+    monkeypatch.setattr(evidence_mod, "analyze_with_schema", ask)
+    value, diff = make_input(PATCH, mode="diff")
+    records, events = await collect_evidence(
+        {
+            "repo_path": str(checkout),
+            "pr_diff": diff,
+            "review_input": value.model_dump(),
+            "context_tools_enabled": True,
+            "tool_limits": {"rounds": 3},
+        },
+        "security",
+    )
+    assert [record["tool"] for record in records] == ["search_symbol", "read_file"]
+    assert events == []
+
+
+async def test_evidence_new_request_at_tool_limit_is_partial(checkout, monkeypatch):
+    calls = 0
+
+    async def ask(_prompt, _schema, **_kwargs):
+        nonlocal calls
+        calls += 1
+        request = (
+            {"name": "search_symbol", "arguments": {"symbol": "helper"}}
+            if calls == 1
+            else {"name": "read_file", "arguments": {"path": "app.py"}}
+        )
+        return EvidenceTurn(requests=[request])
+
+    monkeypatch.setattr(evidence_mod, "analyze_with_schema", ask)
+    value, diff = make_input(PATCH, mode="diff")
+    records, events = await collect_evidence(
+        {
+            "repo_path": str(checkout),
+            "pr_diff": diff,
+            "review_input": value.model_dump(),
+            "context_tools_enabled": True,
+            "tool_limits": {"calls": 1, "rounds": 2},
+        },
+        "security",
+    )
+    assert len(records) == 1
+    assert events == [{"agent": "security", "status": "budget_exhausted", "reason": "tool_limit"}]
 
 
 async def test_local_diff_shared_runner_is_offline_by_default(checkout):

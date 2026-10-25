@@ -22,7 +22,13 @@ SYSTEM = UNTRUSTED_SYSTEM + (
     "explanation and supporting code. Reject incorrect/low-value style-only claims. "
     "Use uncertain when context is missing, confidence is low or evidence is inconclusive. "
     "Do not infer dynamic test results; no tests were executed. Contradictory candidates "
-    "are not evidence by themselves. Set evidence_support and reproducible_trigger for confirmed."
+    "are not evidence by themselves. Return one JudgeDecision object with exactly these fields: "
+    "status (confirmed, rejected, or uncertain), reason (3 to 1500 characters), "
+    "reproducible_trigger (string or null), evidence_support (boolean), style_only (boolean). "
+    "For confirmed, evidence_support must be true and reproducible_trigger must describe a "
+    "concrete reproducible condition supported by the supplied code. If either is unavailable, "
+    "choose rejected or uncertain as warranted. For rejected and uncertain, use null for "
+    "reproducible_trigger and false for evidence_support. Do not invent test results."
 )
 
 

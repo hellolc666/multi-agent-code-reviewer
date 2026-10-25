@@ -63,21 +63,29 @@ async def collect_evidence(state: dict, agent: str) -> tuple[list[dict], list[di
             system=UNTRUSTED_SYSTEM + " You gather evidence for " + agent + ". "
             "Request only read_file(path,start_line,end_line), search_symbol(symbol), "
             "search_references(symbol), get_changed_hunks(file_path). "
+            "Prior evidence already contains completed requests and their results. "
+            "Do not request the same tool with the same arguments again. "
             "Use an empty requests array when enough evidence exists.",
         )
         if not turn.requests:
             return records, events
+        new_requests = False
         for request in turn.requests:
-            key = request.model_dump_json()
-            if key in seen or len(records) >= max_calls:
+            key = json.dumps(request.model_dump(mode="json"), sort_keys=True)
+            if key in seen:
+                # The result is already in prior evidence. A duplicate does not
+                # consume the tool budget or imply that evidence was lost.
+                continue
+            if len(records) >= max_calls:
                 events.append(
                     {
                         "agent": agent,
                         "status": "budget_exhausted",
-                        "reason": "repeated_request_or_tool_limit",
+                        "reason": "tool_limit",
                     }
                 )
                 return records, events
+            new_requests = True
             seen.add(key)
             if runtime:
                 count = runtime.tool_calls.get(agent, 0)
@@ -101,6 +109,8 @@ async def collect_evidence(state: dict, agent: str) -> tuple[list[dict], list[di
                 )
                 return records, events
             records.append(record)
+        if not new_requests:
+            return records, events
     if rounds:
         events.append({"agent": agent, "status": "budget_exhausted", "reason": "tool_rounds"})
     return records, events

@@ -21,6 +21,7 @@ from pydantic import BaseModel, Field, ValidationError
 
 from reviewer import config
 from reviewer.models.findings import Finding
+from reviewer.models.verification import JudgeDecision
 from reviewer.offline import model_override, review_active
 from reviewer.reliability.circuit_breaker import CircuitBreaker
 from reviewer.reliability.harness import BudgetExceeded, current_run
@@ -233,12 +234,28 @@ async def _analyze_with_schema(
                 continue
             if not isinstance(exc, (ValidationError, OutputParserException, StructuredOutputError)):
                 raise
+            fields, categories = _validation_diagnostics(exc, schema)
+            log.warning(
+                "structured_output_invalid schema=%s fields=%s categories=%s",
+                schema.__name__,
+                fields,
+                categories,
+            )
             if remaining == 0:
                 raise StructuredOutputError(
                     f"{schema.__name__}: invalid output; repair budget exhausted"
                 ) from None
             remaining -= 1
             repair = True
+            # Qwen's native tool parser can repeatedly reject a valid decision
+            # shape. Spend the remaining bounded attempts on plain JSON, still
+            # validating against the exact same JudgeDecision schema.
+            if qwen and schema is JudgeDecision and not json_mode:
+                json_mode = True
+                log.warning(
+                    "structured_output_fallback schema=%s reason=invalid_native",
+                    schema.__name__,
+                )
             # Never log raw response, validation inputs, prompts or credentials.
             log.warning(
                 "structured_output_repair schema=%s remaining=%d", schema.__name__, remaining
@@ -258,6 +275,22 @@ async def analyze_with_schema(prompt, schema, *, llm=None, system=None):
 
 class StructuredOutputError(ValueError):
     """Invalid/missing structured content after the bounded repair budget."""
+
+
+def _validation_diagnostics(exc: Exception, schema: type[BaseModel]) -> tuple[str, str]:
+    """Only schema-owned field names and stable error categories may reach logs."""
+    if isinstance(exc, ValidationError):
+        fields = set()
+        categories = set()
+        for error in exc.errors(include_input=False, include_context=False, include_url=False):
+            name = next((part for part in error["loc"] if isinstance(part, str)), None)
+            fields.add(name if name in schema.model_fields else "model")
+            category = error["type"]
+            categories.add(category if re.fullmatch(r"[a-z_]+", category) else "validation_error")
+        return ",".join(sorted(fields)), ",".join(sorted(categories))
+    if isinstance(exc, OutputParserException):
+        return "model", "parser_error"
+    return "model", "contract_error"
 
 
 def _require_explicit_findings(raw, schema) -> None:

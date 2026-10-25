@@ -8,11 +8,24 @@ VerificationStatus = Literal["confirmed", "rejected", "uncertain"]
 
 
 class JudgeDecision(BaseModel):
-    status: VerificationStatus
-    reason: str = Field(min_length=3, max_length=1500)
-    reproducible_trigger: str | None = None
-    evidence_support: bool = False
-    style_only: bool = False
+    status: VerificationStatus = Field(description="Exactly one of confirmed, rejected, uncertain.")
+    reason: str = Field(
+        min_length=3,
+        max_length=1500,
+        description="Brief evidence-based reason for the decision.",
+    )
+    reproducible_trigger: str | None = Field(
+        default=None,
+        description="Concrete condition that reproduces a confirmed defect; null otherwise.",
+    )
+    evidence_support: bool = Field(
+        default=False,
+        description="True only if supplied code evidence supports the confirmed defect.",
+    )
+    style_only: bool = Field(
+        default=False,
+        description="True if the candidate concerns style alone; such findings are rejected.",
+    )
 
     @model_validator(mode="after")
     def require_confirmation_evidence(self):

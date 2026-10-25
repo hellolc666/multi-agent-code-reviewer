@@ -1,6 +1,7 @@
 import pytest
 
 from reviewer.agents import judge
+from reviewer.agents.base import StructuredOutputError
 from reviewer.models.findings import Finding
 from reviewer.models.verification import JudgeDecision
 from reviewer.tools.diff_input import make_input
@@ -104,6 +105,40 @@ async def test_judge_outage_never_confirms(review, monkeypatch):
     assert result["verification_incomplete"]
     assert result["verified_findings"][0]["status"] == "uncertain"
     assert len(result["raw_findings"]) == 1
+
+
+async def test_judge_structured_failure_preserves_partial_record(review, monkeypatch):
+    async def invalid(*_args, **_kwargs):
+        raise StructuredOutputError("JudgeDecision: invalid output; repair budget exhausted")
+
+    monkeypatch.setattr(judge, "analyze_with_schema", invalid)
+    result = await judge.judge_findings_node(review)
+    record = result["verified_findings"][0]
+    assert result["verification_incomplete"]
+    assert record["status"] == "uncertain"
+    assert record["verification_incomplete"]
+    assert record["reason"] == "judge_error:StructuredOutputError"
+    assert not record["can_comment"]
+    assert len(result["raw_findings"]) == 1
+
+
+async def test_judge_prompt_describes_decision_contract(review, monkeypatch):
+    async def decide(_prompt, schema, *, system):
+        assert schema is JudgeDecision
+        for field in (
+            "confirmed, rejected, or uncertain",
+            "reproducible_trigger",
+            "evidence_support",
+            "style_only",
+            "concrete reproducible condition",
+        ):
+            assert field in system
+        return JudgeDecision(status="uncertain", reason="Insufficient supporting context.")
+
+    monkeypatch.setattr(judge, "analyze_with_schema", decide)
+    record = (await judge.judge_findings_node(review))["verified_findings"][0]
+    assert record["status"] == "uncertain"
+    assert not record["verification_incomplete"]
 
 
 async def test_missing_snippet_and_low_confidence_are_uncertain(review):

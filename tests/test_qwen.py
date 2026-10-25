@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import asyncio
 import json
+import os
 from contextlib import asynccontextmanager
 from pathlib import Path
 from types import SimpleNamespace
+from unittest.mock import patch
 
 import httpx
 import pytest
@@ -21,6 +23,7 @@ from reviewer.agents import quality as quality_mod
 from reviewer.agents import security as security_mod
 from reviewer.agents.base import FindingList, StructuredOutputError, analyze_with_schema, get_llm
 from reviewer.graph.aggregator import _SummaryResponse
+from reviewer.models.verification import JudgeDecision
 from reviewer.reliability.circuit_breaker import CircuitBreaker, CircuitState
 from reviewer.tools.github_client import PRBundle, PRFile, PRMetadata
 from scripts import smoke_qwen
@@ -172,6 +175,86 @@ async def test_native_success_does_not_use_fallback():
     assert result.findings == []
     assert len(llm.native_calls) == 1
     assert llm.raw_calls == []
+
+
+@pytest.mark.parametrize(
+    "decision",
+    [
+        {
+            "status": "confirmed",
+            "reason": "The call raises NameError.",
+            "reproducible_trigger": "Call answer() without defining helper.",
+            "evidence_support": True,
+            "style_only": False,
+        },
+        {"status": "rejected", "reason": "The helper is imported above."},
+        {"status": "uncertain", "reason": "The imported helper cannot be inspected."},
+    ],
+)
+async def test_qwen_judge_native_valid_decisions(decision):
+    llm = FakeQwen(native=[decision])
+    result = await analyze_with_schema("candidate", JudgeDecision, llm=llm)
+    assert result.status == decision["status"]
+    assert len(llm.native_calls) == 1
+    assert llm.raw_calls == []
+
+
+@pytest.mark.parametrize(
+    "invalid,diagnostic",
+    [
+        ({"reason": "Status was omitted."}, "fields=status categories=missing"),
+        (
+            {"status": "accepted", "reason": "Invalid status value."},
+            "fields=status categories=literal_error",
+        ),
+        (
+            {"status": "confirmed", "reason": "No supporting evidence."},
+            "fields=model categories=value_error",
+        ),
+    ],
+)
+async def test_qwen_judge_invalid_tool_result_falls_back_to_json(invalid, diagnostic, caplog):
+    llm = FakeQwen(
+        native=[invalid],
+        raw=[AIMessage(content='{"status":"uncertain","reason":"Evidence is incomplete."}')],
+    )
+    result = await analyze_with_schema("PRIVATE-SOURCE", JudgeDecision, llm=llm)
+    assert result.status == "uncertain"
+    assert len(llm.native_calls) == len(llm.raw_calls) == 1
+    assert "JSON schema" in llm.raw_calls[0][0][1]
+    assert "PRIVATE-SOURCE" not in caplog.text
+    assert "structured_output_invalid schema=JudgeDecision" in caplog.text
+    assert diagnostic in caplog.text
+    assert "structured_output_fallback schema=JudgeDecision reason=invalid_native" in caplog.text
+
+
+async def test_qwen_judge_invalid_json_repairs_without_confirming(caplog):
+    llm = FakeQwen(
+        native=[{"status": "confirmed", "reason": "Missing trigger."}],
+        raw=[
+            AIMessage(content="PRIVATE-INVALID-JSON"),
+            AIMessage(content='{"status":"rejected","reason":"Claim contradicted by code."}'),
+        ],
+    )
+    result = await analyze_with_schema("candidate", JudgeDecision, llm=llm)
+    assert result.status == "rejected"
+    assert len(llm.native_calls) == 1
+    assert len(llm.raw_calls) == 2
+    assert "PRIVATE-INVALID-JSON" not in caplog.text
+
+
+async def test_qwen_judge_repair_failure_remains_error(caplog):
+    llm = FakeQwen(
+        native=[{"status": "confirmed", "reason": "Unsupported confirmation."}],
+        raw=[AIMessage(content="not JSON"), AIMessage(content='{"status":"accepted"}')],
+    )
+    with pytest.raises(StructuredOutputError, match="budget exhausted"):
+        await analyze_with_schema("PRIVATE-SOURCE", JudgeDecision, llm=llm)
+    assert len(llm.native_calls) == 1
+    assert len(llm.raw_calls) == 2
+    assert "PRIVATE-SOURCE" not in caplog.text
+    assert "not JSON" not in caplog.text
+    assert "accepted" not in caplog.text
 
 
 @pytest.mark.parametrize(
@@ -366,6 +449,63 @@ async def test_actual_langchain_sdk_tool_response_parses_without_network():
     assert len(requests) == 2
 
 
+async def test_actual_sdk_judge_invalid_tool_result_uses_validated_json():
+    requests = []
+
+    def respond(request):
+        payload = json.loads(request.content)
+        requests.append(payload)
+        if "tools" in payload:
+            message = {
+                "role": "assistant",
+                "content": "",
+                "tool_calls": [
+                    {
+                        "id": "call_judge",
+                        "type": "function",
+                        "function": {
+                            "name": "JudgeDecision",
+                            "arguments": json.dumps(
+                                {"status": "confirmed", "reason": "Evidence is missing."}
+                            ),
+                        },
+                    }
+                ],
+            }
+            finish_reason = "tool_calls"
+        else:
+            message = {
+                "role": "assistant",
+                "content": '{"status":"uncertain","reason":"Evidence is insufficient."}',
+            }
+            finish_reason = "stop"
+        return httpx.Response(
+            200,
+            json={
+                "id": "mock",
+                "object": "chat.completion",
+                "model": "mock-qwen",
+                "created": 0,
+                "choices": [{"index": 0, "finish_reason": finish_reason, "message": message}],
+            },
+        )
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as transport:
+        llm = ChatOpenAI(
+            model="mock-qwen",
+            api_key="dummy",
+            base_url="https://example.test/v1",
+            http_async_client=transport,
+            max_retries=0,
+            metadata={"reviewer_provider": "qwen"},
+        )
+        decision = await analyze_with_schema("candidate", JudgeDecision, llm=llm)
+    assert decision.status == "uncertain"
+    assert len(requests) == 2
+    assert "tools" in requests[0]
+    assert "tools" not in requests[1]
+
+
 async def test_actual_sdk_rejected_tools_fall_back_to_plain_json():
     requests = []
 
@@ -517,7 +657,9 @@ async def test_qwen_runner_end_to_end_with_mock_http_and_fixture(monkeypatch):
     assert calls.count("EvidenceTurn") == 2
 
 
-def test_smoke_without_live_never_constructs_client(monkeypatch, capsys):
+def test_smoke_without_live_never_constructs_client(monkeypatch, capsys, tmp_path):
+    monkeypatch.setattr(smoke_qwen, "PROJECT_ROOT", tmp_path)
+
     def forbidden(**_kwargs):
         pytest.fail("must not construct a client without --live")
 
@@ -526,7 +668,9 @@ def test_smoke_without_live_never_constructs_client(monkeypatch, capsys):
     assert json.loads(capsys.readouterr().out)["status"] == "NOT_RUN"
 
 
-def test_smoke_live_failure_is_explicit_and_sanitized(monkeypatch, capsys):
+def test_smoke_live_failure_is_explicit_and_sanitized(monkeypatch, capsys, tmp_path):
+    monkeypatch.setattr(smoke_qwen, "PROJECT_ROOT", tmp_path)
+
     def forbidden(**_kwargs):
         raise ValueError("secret-key-and-source")
 
@@ -535,6 +679,122 @@ def test_smoke_live_failure_is_explicit_and_sanitized(monkeypatch, capsys):
     output = capsys.readouterr().out
     assert json.loads(output)["status"] == "FAIL"
     assert "secret-key-and-source" not in output
+
+
+def test_smoke_live_loads_dotenv_before_client(monkeypatch, capsys, tmp_path):
+    calls = []
+    monkeypatch.setattr(smoke_qwen, "PROJECT_ROOT", tmp_path)
+
+    def load(path, *, override):
+        calls.append((path, override))
+
+    def fail(**_kwargs):
+        calls.append("client")
+        raise ValueError("private-response")
+
+    monkeypatch.setattr(smoke_qwen, "load_dotenv", load)
+    monkeypatch.setattr(smoke_qwen, "get_llm", fail)
+    assert smoke_qwen.main(["--live"]) == 1
+    assert calls == [(tmp_path / ".env", False), "client"]
+    assert "private-response" not in capsys.readouterr().out
+
+
+def test_smoke_reads_project_root_dotenv_from_original_command(monkeypatch, capsys, tmp_path):
+    root = tmp_path / "project"
+    root.mkdir()
+    (root / ".env").write_text(
+        "LLM_PROVIDER=qwen\nDASHSCOPE_API_KEY=fixture-secret\n"
+        "DASHSCOPE_BASE_URL=https://workspace.example.test/compatible-mode/v1\n"
+        "DASHSCOPE_MODEL=fixture-model\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(smoke_qwen, "PROJECT_ROOT", root)
+    monkeypatch.chdir(root)
+
+    async def fake_smoke(_diff):
+        settings = config.qwen_config()
+        assert settings.api_key == "fixture-secret"
+        return {"status": "PASS", "model": settings.model}
+
+    monkeypatch.setattr(smoke_qwen, "smoke", fake_smoke)
+    with patch.dict(os.environ):
+        for key in ("LLM_PROVIDER", "DASHSCOPE_API_KEY", "DASHSCOPE_BASE_URL", "DASHSCOPE_MODEL"):
+            os.environ.pop(key, None)
+        assert smoke_qwen.main(["--live"]) == 0
+    output = capsys.readouterr().out
+    assert json.loads(output) == {"status": "PASS", "model": "fixture-model"}
+    assert "fixture-secret" not in output
+
+
+def test_smoke_shell_config_takes_precedence(monkeypatch, capsys, tmp_path):
+    (tmp_path / ".env").write_text("DASHSCOPE_MODEL=file-model\n", encoding="utf-8")
+    monkeypatch.setattr(smoke_qwen, "PROJECT_ROOT", tmp_path)
+    with patch.dict(os.environ):
+        os.environ["DASHSCOPE_MODEL"] = "shell-model"
+        assert smoke_qwen.main([]) == 0
+        assert os.environ["DASHSCOPE_MODEL"] == "shell-model"
+    assert json.loads(capsys.readouterr().out)["status"] == "NOT_RUN"
+
+
+@pytest.mark.parametrize(
+    ("configured", "expected"),
+    [
+        ({}, "DASHSCOPE_API_KEY is missing"),
+        ({"DASHSCOPE_API_KEY": "fixture-secret"}, "DASHSCOPE_BASE_URL is missing"),
+        (
+            {
+                "DASHSCOPE_API_KEY": "fixture-secret",
+                "DASHSCOPE_BASE_URL": "https://workspace.example.test/compatible-mode/v1",
+            },
+            "DASHSCOPE_MODEL is missing",
+        ),
+        (
+            {
+                "DASHSCOPE_API_KEY": "fixture-secret",
+                "DASHSCOPE_BASE_URL": "https://workspace.example.test/apps/anthropic",
+                "DASHSCOPE_MODEL": "qwen3.7-plus",
+            },
+            "uses /apps/anthropic",
+        ),
+    ],
+)
+def test_smoke_config_error_is_clear_without_key(
+    monkeypatch, capsys, tmp_path, configured, expected
+):
+    monkeypatch.setattr(smoke_qwen, "PROJECT_ROOT", tmp_path)
+    with patch.dict(os.environ):
+        for key in ("DASHSCOPE_API_KEY", "DASHSCOPE_BASE_URL", "DASHSCOPE_MODEL"):
+            os.environ.pop(key, None)
+        os.environ.update(configured)
+        assert smoke_qwen.main(["--live"]) == 1
+    output = capsys.readouterr().out
+    result = json.loads(output)
+    assert expected in result["reason"]
+    assert "fixture-secret" not in output
+
+
+def test_smoke_api_error_does_not_echo_provider_text(monkeypatch, capsys, tmp_path):
+    monkeypatch.setattr(smoke_qwen, "PROJECT_ROOT", tmp_path)
+
+    class ProviderError(Exception):
+        status_code = 401
+
+    async def fail(_diff):
+        raise ProviderError("fixture-secret from service body")
+
+    monkeypatch.setattr(smoke_qwen, "smoke", fail)
+    assert smoke_qwen.main(["--live"]) == 1
+    output = capsys.readouterr().out
+    assert "authentication or permission" in json.loads(output)["reason"]
+    assert "fixture-secret" not in output
+
+
+def test_qwen_rejects_anthropic_protocol_endpoint(monkeypatch):
+    monkeypatch.setenv("DASHSCOPE_API_KEY", "test-only")
+    monkeypatch.setenv("DASHSCOPE_MODEL", "qwen3.7-plus")
+    monkeypatch.setenv("DASHSCOPE_BASE_URL", "https://workspace.example.test/apps/anthropic")
+    with pytest.raises(ValueError, match="Anthropic-compatible endpoint"):
+        config.qwen_config()
 
 
 async def test_smoke_uses_both_shared_schemas(monkeypatch):
