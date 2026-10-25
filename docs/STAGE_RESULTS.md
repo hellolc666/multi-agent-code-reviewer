@@ -99,3 +99,20 @@
 - `python -m ruff check --no-cache reviewer tests` / `git diff --check`：PASS。
 - 真实 Qwen/GitHub/Semgrep：NOT_RUN。GitHub 跨进程首次发布和 head 校验后变动
   非原子，详见 HARNESS.md；无伪造 exactly-once 保证。下一阶段为冻结评测集与消融。
+
+## 阶段 6：PASS（离线工程验收；人工/在线验收待完成）
+
+- 新增 evals/ 的 20 个独立原创样例、JSONL/schema、固定 10/10 划分、SHA manifest、
+  A/B/C/D runner、人工语义匹配计分、旧报告重算、逐次失败保存与 3-run 一致性。
+- 8 逻辑 / 4 安全 / 4 测试回归 / 4 clean；标签经过 Codex 静态检查，
+  标记 curated_pending_human_signoff；**没有伪造人工签核**。
+- 数据 SHA：`4a7461fb965c440d813b01c633ebcb489810421710d163968ca8d6ea4134b7b1`。
+- 准备阶段的严格新增行校验发现 3 个上下文锚点，改为明确新增语句后 freeze。
+- `python -m evals.run --split all --output evals/results/offline-v1.json`：
+  PASS，80 次运行；`--split test --limit 3 --repeats 3`：PASS，36 次。
+  运行时间/请求数仅为离线流程记录，质量指标为 null、not_live_benchmark。
+- 实际项目 `python -m pytest -q -p no:cacheprovider`：**401 passed / 4 skipped**，18.07s。
+  新增 7 个评测测试；SHA 篡改、gold 隔离、位置与语义分离、重复匹配、失败保存均覆盖。
+- `python -m ruff check --no-cache reviewer tests evals` / `git diff --check`：PASS。
+- 真实 Qwen 消融、人工签核：NOT_RUN；因此未证明多 Agent/Judge 优势或真实成本收益。
+  工程入口完整，后续外部验收命令见 evals/README.md。阶段 5 SHA：ddc740b。

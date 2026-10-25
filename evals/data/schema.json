@@ -1,0 +1,136 @@
+{
+  "$defs": {
+    "GoldLabel": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "title": "Id",
+          "type": "string"
+        },
+        "file_path": {
+          "title": "File Path",
+          "type": "string"
+        },
+        "line": {
+          "minimum": 1,
+          "title": "Line",
+          "type": "integer"
+        },
+        "title": {
+          "title": "Title",
+          "type": "string"
+        },
+        "defect": {
+          "title": "Defect",
+          "type": "string"
+        },
+        "trigger": {
+          "title": "Trigger",
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "high",
+            "medium",
+            "low"
+          ],
+          "title": "Severity",
+          "type": "string"
+        },
+        "evidence": {
+          "title": "Evidence",
+          "type": "string"
+        },
+        "category": {
+          "enum": [
+            "logic",
+            "security",
+            "regression"
+          ],
+          "title": "Category",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "file_path",
+        "line",
+        "title",
+        "defect",
+        "trigger",
+        "severity",
+        "evidence",
+        "category"
+      ],
+      "title": "GoldLabel",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "pattern": "^[a-z][a-z0-9_]+$",
+      "title": "Id",
+      "type": "string"
+    },
+    "split": {
+      "enum": [
+        "dev",
+        "test"
+      ],
+      "title": "Split",
+      "type": "string"
+    },
+    "source": {
+      "title": "Source",
+      "type": "string"
+    },
+    "annotation_status": {
+      "enum": [
+        "curated_pending_human_signoff",
+        "human_confirmed"
+      ],
+      "title": "Annotation Status",
+      "type": "string"
+    },
+    "reviewed_by": {
+      "title": "Reviewed By",
+      "type": "string"
+    },
+    "review_note": {
+      "title": "Review Note",
+      "type": "string"
+    },
+    "repo_files": {
+      "additionalProperties": {
+        "type": "string"
+      },
+      "title": "Repo Files",
+      "type": "object"
+    },
+    "diff": {
+      "title": "Diff",
+      "type": "string"
+    },
+    "gold_labels": {
+      "items": {
+        "$ref": "#/$defs/GoldLabel"
+      },
+      "title": "Gold Labels",
+      "type": "array"
+    }
+  },
+  "required": [
+    "id",
+    "split",
+    "source",
+    "annotation_status",
+    "reviewed_by",
+    "review_note",
+    "repo_files",
+    "diff",
+    "gold_labels"
+  ],
+  "title": "Case",
+  "type": "object"
+}

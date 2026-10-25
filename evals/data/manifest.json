@@ -1,0 +1,9 @@
+{
+  "version": "v1-20",
+  "sha256": "4a7461fb965c440d813b01c633ebcb489810421710d163968ca8d6ea4134b7b1",
+  "cases": 20,
+  "dev": 10,
+  "test": 10,
+  "seed": "fixed alternating authored order",
+  "annotation_status": "curated_pending_human_signoff"
+}

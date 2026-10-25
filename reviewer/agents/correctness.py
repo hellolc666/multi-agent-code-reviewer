@@ -19,6 +19,14 @@ SYSTEM = UNTRUSTED_SYSTEM + (
     "or assertions about tests that were not run. Use agent/category correctness."
 )
 
+BASELINE_SYSTEM = UNTRUSTED_SYSTEM + (
+    " You are a single general code reviewer. Review correctness, security, quality, test "
+    "regressions and documentation. Report only concrete defects caused by the change, "
+    "with trigger_condition, real file/RIGHT line and exact evidence_snippet. "
+    "No style opinions or unsupported speculation. "
+    "Use agent correctness and the appropriate category."
+)
+
 
 async def correctness_agent_node(state):
     try:
@@ -27,10 +35,19 @@ async def correctness_agent_node(state):
             result = await analyze_with_schema(
                 untrusted(state.get("pr_diff", "") + "\nEvidence:\n" + json.dumps(evidence)),
                 FindingList,
-                system=SYSTEM,
+                system=BASELINE_SYSTEM
+                if state.get("review_options", {}).get("single_agent_baseline")
+                else SYSTEM,
             )
             findings = [
-                f.model_copy(update={"agent": "correctness", "category": Category.CORRECTNESS})
+                f.model_copy(
+                    update={
+                        "agent": "correctness",
+                        "category": f.category
+                        if state.get("review_options", {}).get("single_agent_baseline")
+                        else Category.CORRECTNESS,
+                    }
+                )
                 for f in result.findings
             ]
             return {

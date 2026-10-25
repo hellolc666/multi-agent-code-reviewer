@@ -1,0 +1,3 @@
+# Byte-frozen evaluation corpus must hash identically on Windows/Linux clones.
+evals/data/*.jsonl text eol=lf
+evals/data/manifest.json text eol=lf
