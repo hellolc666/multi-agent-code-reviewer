@@ -258,6 +258,7 @@ async def _execute_review(
     context_tools=True,
     options=None,
     runtime=None,
+    model_client=None,
 ):
     """The sole graph execution path, with per-run isolation and recovery."""
     from langsmith import tracing_context
@@ -298,7 +299,9 @@ async def _execute_review(
     config = {"run_name": "pr_review"}
     if tracing and tracing.get("enabled"):
         config.update(tags=tracing.get("tags", []), metadata=tracing.get("metadata", {}))
-    model_token = model_override.set(None if live else MockLLM())
+    if live and model_client is not None:
+        raise ValueError("model_client injection is reserved for offline tests and demos")
+    model_token = model_override.set(None if live else model_client or MockLLM())
     offline_token = offline_mode.set(not live)
     active_token = review_active.set(True)
     runtime_token = current_run.set(runtime)
@@ -435,6 +438,7 @@ async def run_review_diff(
     live=False,
     context_tools=True,
     options=None,
+    model_client=None,
     _runtime=None,
 ):
     """Review an explicitly supplied UTF-8 patch against a read-only checkout."""
@@ -460,6 +464,7 @@ async def run_review_diff(
         context_tools=context_tools,
         options=options,
         runtime=_runtime,
+        model_client=model_client,
     )
     if output:
         import json

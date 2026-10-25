@@ -25,19 +25,20 @@ from reviewer import __version__
 from reviewer.runner import run_review, run_review_diff
 
 CLI_HELP = """\
-Multi-agent code reviewer for GitHub pull requests.
+Multi-agent code reviewer for GitHub pull requests and local diffs.
 
-Dispatches four specialist AI agents in parallel — security, quality,
-test mapping, documentation — each pairing a deterministic tool
-(Semgrep, Ruff, Python AST) with an LLM for explanations and fix
-suggestions. Returns a structured JSON ReviewReport.
+Routes up to five specialist agents — security, correctness, quality,
+test mapping and documentation — then independently verifies candidates.
+Returns an auditable JSON ReviewReport. Default mode is offline mock.
 
 Run ``reviewer review --help`` for the full review-command options.
 
 EXAMPLES
 
   reviewer review https://github.com/owner/repo/pull/42
-  reviewer review <PR_URL> --output report.json --post-comments
+  reviewer review-diff --diff review.diff --repo-path . --output report.json
+  reviewer review <PR_URL> --live --output report.json
+  reviewer publish --report report.json --post-comments
   reviewer review <PR_URL> --only security,quality
   reviewer --env-file ~/.config/reviewer.env review <PR_URL>
 
@@ -45,11 +46,12 @@ ENVIRONMENT
 
   ANTHROPIC_API_KEY   Anthropic API key (default LLM provider)
   OPENAI_API_KEY      OpenAI API key (when LLM_PROVIDER=openai)
-  LLM_PROVIDER        anthropic (default) | openai
+  LLM_PROVIDER        anthropic (default) | openai | qwen
+  DASHSCOPE_API_KEY, DASHSCOPE_BASE_URL, DASHSCOPE_MODEL
+                      Required with qwen
   LLM_MODEL           Override the default model
   GITHUB_TOKEN        Required for private repos and --post-comments
-  LANGCHAIN_TRACING_V2, LANGCHAIN_API_KEY, LANGCHAIN_PROJECT
-                      Optional LangSmith tracing config
+  REVIEWER_PLANNER_MODE    rules (default) | hybrid
 
 DOCS
   https://github.com/OmkumarSolanki/multi-agent-code-reviewer
@@ -60,16 +62,17 @@ Review a GitHub Pull Request and emit a structured JSON report.
 
 The pipeline:
   1. Fetch PR diff + changed files; shallow-clone the head branch.
-  2. Plan which specialists to run (deterministic — based on file types).
-  3. Dispatch security / quality / test-mapping / docs agents in parallel.
-  4. Each agent runs its tool (Semgrep / Ruff / AST), then an LLM call.
-  5. Aggregator dedups, sorts by severity, writes a 1–2 sentence summary.
+  2. Build a risk plan and dispatch selected specialists with Send.
+  3. Gather bounded evidence and propose candidate findings.
+  4. Judge independently checks anchors, evidence and causal claims.
+  5. Aggregate confirmed findings and retain raw/uncertain/rejected.
 
 EXAMPLES
 
   reviewer review https://github.com/owner/repo/pull/42
   reviewer review <PR_URL> --output report.json
-  reviewer review <PR_URL> --post-comments
+  reviewer review <PR_URL> --live --output report.json
+  reviewer publish --report report.json --post-comments
   reviewer review <PR_URL> --only security,quality
   reviewer review <PR_URL> --verbose
 """
@@ -157,7 +160,7 @@ def review(
         metavar="AGENTS",
         help=(
             "Run ONLY these agents (comma-separated). Overrides the planner. "
-            "Valid: security, quality, test_mapping, docs."
+            "Valid: security, correctness, quality, test_mapping, docs."
         ),
         show_default=False,
     ),

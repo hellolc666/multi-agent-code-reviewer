@@ -26,3 +26,17 @@
 - 在线请求单独通过 smoke 的 --live 开启，本阶段未使用真实凭证。
 - README 先标明来源、当前阶段及上游历史性能数据边界；完整架构和评测改写
   留到对应阶段，不提前声称 Correctness/Judge/动态路由已实现。
+
+## 阶段 2–7 的最小调整
+
+- 未建立第二套 graph/adapter：本地与 GitHub 输入复用 `_execute_review`；保留四个
+  上游 Agent/静态工具，新增 Correctness、Risk Planner 与 Judge。
+- 受审源码只读，不运行仓库测试脚本；静态工具通过隔离的只读路径使用。
+  额外取证限制轮数/次数/字符数。大 diff 选完整 hunk 并记录被省略覆盖。
+- 不引入 SQLite Checkpointer/Redis/HITL。人工检查 JSON + 独立 publish CLI 是
+  最小可审计方案；GitHub marker/SHA 校验不提供跨进程原子性。
+- 因没有真人签核和付费凭证，阶段 6 按任务书允许的 20 例首版推进，gold 标注
+  明示待签核，质量指标留 null。A 用单 general Reviewer 近似基线，而非假定上游
+  有不存在的完整单 Agent 接口。结果中保留每个失败运行。
+- 三个离线 demo 的候选由 ScriptedDemoModel 明确给出，验证的是正式流水线的路由、
+  Judge 与报告；真实模型能力要另行 `--live` 验证。

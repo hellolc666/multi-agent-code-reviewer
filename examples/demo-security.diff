@@ -1,0 +1,7 @@
+diff --git a/users.py b/users.py
+--- a/users.py
++++ b/users.py
+@@ -1,2 +1,2 @@
+ def find(db, name):
+-    return db.execute('SELECT id FROM users WHERE name = ?', (name,))
++    return db.execute(f"SELECT id FROM users WHERE name = '{name}'")

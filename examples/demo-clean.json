@@ -1,0 +1,332 @@
+{
+  "pr_url": "",
+  "pr_title": "",
+  "pr_author": "",
+  "review_started_at": "2026-10-25T03:08:56Z",
+  "review_completed_at": "2026-10-25T03:08:57Z",
+  "duration_seconds": 1.0,
+  "files_changed": 1,
+  "findings": [],
+  "summary": "No confirmed findings. 2 uncertain; 0 rejected. Inspect raw candidates and verification reasons.",
+  "agents_succeeded": [
+    "correctness",
+    "quality",
+    "test_mapping",
+    "docs"
+  ],
+  "agents_failed": [],
+  "trace_id": "bb68764e-6316-450e-92fd-2391fa71928f",
+  "input_mode": "diff",
+  "head_sha": null,
+  "diff_sha256": "1815538c631ccaf9e467c26b70284b7ad69e9e75b87038679a24f10ec2fa6670",
+  "reviewed_files": [
+    "bounds.py"
+  ],
+  "coverage": {
+    "included_hunks": [
+      {
+        "path": "bounds.py",
+        "hunk": 0,
+        "header": "@@ -1,4 +1,4 @@"
+      }
+    ],
+    "omitted": [],
+    "input_characters": 245,
+    "review_characters": 210
+  },
+  "tool_evidence": [],
+  "budget_events": [],
+  "source_errors": [],
+  "execution_mode": "mock",
+  "review_plan": {
+    "risk": "low",
+    "change_summary": "1 files; 1 Python changes",
+    "affected_files": [
+      "bounds.py"
+    ],
+    "selected_agents": [
+      "correctness",
+      "quality",
+      "test_mapping",
+      "docs"
+    ],
+    "focus_points": [
+      "logic and boundary conditions"
+    ],
+    "routing_reasons": {
+      "correctness": "Executable Python change: inspect behavior and boundaries",
+      "quality": "Python AST/lint and maintainability review",
+      "test_mapping": "Source change: statically inspect related regression tests",
+      "docs": "Public Python API present in changed source"
+    },
+    "budget": {
+      "max_reviewers": 5,
+      "omitted_agents": []
+    },
+    "mode": "rules"
+  },
+  "planner_errors": [],
+  "status": "completed",
+  "raw_findings": [
+    {
+      "id": "TEST-MAP-001",
+      "agent": "test_mapping",
+      "category": "test_coverage",
+      "severity": "medium",
+      "file_path": "bounds.py",
+      "line_start": 1,
+      "line_end": 1,
+      "title": "uncovered: get",
+      "explanation": "Static AST analysis classified get as uncovered (confidence 0.90).",
+      "suggestion": "Add a unit test exercising get.",
+      "confidence": 0.9,
+      "trigger_condition": null,
+      "evidence_snippet": "def get(items, index):",
+      "source": "static_seed",
+      "verification_status": "candidate",
+      "tool_source": "ast-test-mapping"
+    },
+    {
+      "id": "DOC-001",
+      "agent": "docs",
+      "category": "documentation",
+      "severity": "low",
+      "file_path": "bounds.py",
+      "line_start": 1,
+      "line_end": 1,
+      "title": "Missing docstring on function get",
+      "explanation": "Public function get has no docstring. Documenting public APIs improves maintainability.",
+      "suggestion": "Add a one-sentence docstring describing what get does.",
+      "confidence": 0.9,
+      "trigger_condition": null,
+      "evidence_snippet": "def get(items, index):",
+      "source": "static_seed",
+      "verification_status": "candidate",
+      "tool_source": "ast-docs"
+    }
+  ],
+  "verified_findings": [
+    {
+      "finding": {
+        "id": "TEST-MAP-001",
+        "agent": "test_mapping",
+        "category": "test_coverage",
+        "severity": "medium",
+        "file_path": "bounds.py",
+        "line_start": 1,
+        "line_end": 1,
+        "title": "uncovered: get",
+        "explanation": "Static AST analysis classified get as uncovered (confidence 0.90).",
+        "suggestion": "Add a unit test exercising get.",
+        "confidence": 0.9,
+        "trigger_condition": null,
+        "evidence_snippet": "def get(items, index):",
+        "source": "static_seed",
+        "verification_status": "uncertain",
+        "tool_source": "ast-test-mapping"
+      },
+      "status": "uncertain",
+      "reason": "context_anchor_requires_impact_explanation",
+      "candidate_ids": [
+        "test_mapping/TEST-MAP-001/0"
+      ],
+      "source_agents": [
+        "test_mapping"
+      ],
+      "checks": [
+        "path_in_diff"
+      ],
+      "can_comment": false,
+      "verification_incomplete": false
+    },
+    {
+      "finding": {
+        "id": "DOC-001",
+        "agent": "docs",
+        "category": "documentation",
+        "severity": "low",
+        "file_path": "bounds.py",
+        "line_start": 1,
+        "line_end": 1,
+        "title": "Missing docstring on function get",
+        "explanation": "Public function get has no docstring. Documenting public APIs improves maintainability.",
+        "suggestion": "Add a one-sentence docstring describing what get does.",
+        "confidence": 0.9,
+        "trigger_condition": null,
+        "evidence_snippet": "def get(items, index):",
+        "source": "static_seed",
+        "verification_status": "uncertain",
+        "tool_source": "ast-docs"
+      },
+      "status": "uncertain",
+      "reason": "context_anchor_requires_impact_explanation",
+      "candidate_ids": [
+        "docs/DOC-001/1"
+      ],
+      "source_agents": [
+        "docs"
+      ],
+      "checks": [
+        "path_in_diff"
+      ],
+      "can_comment": false,
+      "verification_incomplete": false
+    }
+  ],
+  "verification_incomplete": false,
+  "judge_enabled": true,
+  "verification_conflicts": [],
+  "run_id": "bb68764e-6316-450e-92fd-2391fa71928f",
+  "review_version": "2.0.0",
+  "prompt_version": "review-v2.0",
+  "budget": {
+    "max_reviewers": 5,
+    "max_llm_requests": 30,
+    "max_concurrent": 3,
+    "max_tool_calls": 6,
+    "max_tool_rounds": 2,
+    "max_tool_characters": 8192,
+    "max_context_characters": 64000,
+    "total_seconds": 180.0,
+    "call_seconds": 30.0
+  },
+  "usage": {
+    "llm_requests": 5,
+    "input_tokens": null,
+    "output_tokens": null,
+    "unknown_usage_requests": 5,
+    "estimated_cost": null,
+    "cost_method": "unknown: missing real usage or configured prices",
+    "elapsed_seconds": 0.188363
+  },
+  "trace": [
+    {
+      "run_id": "bb68764e-6316-450e-92fd-2391fa71928f",
+      "trace_id": "bb68764e-6316-450e-92fd-2391fa71928f",
+      "agent": "planner",
+      "kind": "node",
+      "status": "completed",
+      "duration_seconds": 0.0011647000210359693,
+      "usage": null
+    },
+    {
+      "run_id": "bb68764e-6316-450e-92fd-2391fa71928f",
+      "trace_id": "bb68764e-6316-450e-92fd-2391fa71928f",
+      "agent": "correctness",
+      "kind": "llm",
+      "status": "completed",
+      "duration_seconds": 8.190004155039787e-05,
+      "usage": null,
+      "request": 1
+    },
+    {
+      "run_id": "bb68764e-6316-450e-92fd-2391fa71928f",
+      "trace_id": "bb68764e-6316-450e-92fd-2391fa71928f",
+      "agent": "correctness",
+      "kind": "llm",
+      "status": "completed",
+      "duration_seconds": 3.309990279376507e-05,
+      "usage": null,
+      "request": 2
+    },
+    {
+      "run_id": "bb68764e-6316-450e-92fd-2391fa71928f",
+      "trace_id": "bb68764e-6316-450e-92fd-2391fa71928f",
+      "agent": "correctness",
+      "kind": "node",
+      "status": "completed",
+      "duration_seconds": 0.10569009999744594,
+      "usage": null
+    },
+    {
+      "run_id": "bb68764e-6316-450e-92fd-2391fa71928f",
+      "trace_id": "bb68764e-6316-450e-92fd-2391fa71928f",
+      "agent": "quality",
+      "kind": "tool",
+      "status": "mock_skipped",
+      "duration_seconds": 6.400048732757568e-06,
+      "usage": null,
+      "tool": "ruff"
+    },
+    {
+      "run_id": "bb68764e-6316-450e-92fd-2391fa71928f",
+      "trace_id": "bb68764e-6316-450e-92fd-2391fa71928f",
+      "agent": "quality",
+      "kind": "llm",
+      "status": "completed",
+      "duration_seconds": 4.9200025387108326e-05,
+      "usage": null,
+      "request": 3
+    },
+    {
+      "run_id": "bb68764e-6316-450e-92fd-2391fa71928f",
+      "trace_id": "bb68764e-6316-450e-92fd-2391fa71928f",
+      "agent": "quality",
+      "kind": "node",
+      "status": "completed",
+      "duration_seconds": 0.0007680999115109444,
+      "usage": null
+    },
+    {
+      "run_id": "bb68764e-6316-450e-92fd-2391fa71928f",
+      "trace_id": "bb68764e-6316-450e-92fd-2391fa71928f",
+      "agent": "test_mapping",
+      "kind": "llm",
+      "status": "completed",
+      "duration_seconds": 6.349990144371986e-05,
+      "usage": null,
+      "request": 4
+    },
+    {
+      "run_id": "bb68764e-6316-450e-92fd-2391fa71928f",
+      "trace_id": "bb68764e-6316-450e-92fd-2391fa71928f",
+      "agent": "test_mapping",
+      "kind": "node",
+      "status": "completed",
+      "duration_seconds": 0.0074183999095112085,
+      "usage": null
+    },
+    {
+      "run_id": "bb68764e-6316-450e-92fd-2391fa71928f",
+      "trace_id": "bb68764e-6316-450e-92fd-2391fa71928f",
+      "agent": "docs",
+      "kind": "llm",
+      "status": "completed",
+      "duration_seconds": 5.100003909319639e-05,
+      "usage": null,
+      "request": 5
+    },
+    {
+      "run_id": "bb68764e-6316-450e-92fd-2391fa71928f",
+      "trace_id": "bb68764e-6316-450e-92fd-2391fa71928f",
+      "agent": "docs",
+      "kind": "node",
+      "status": "completed",
+      "duration_seconds": 0.002822199952788651,
+      "usage": null
+    },
+    {
+      "run_id": "bb68764e-6316-450e-92fd-2391fa71928f",
+      "trace_id": "bb68764e-6316-450e-92fd-2391fa71928f",
+      "agent": "judge",
+      "kind": "node",
+      "status": "completed",
+      "duration_seconds": 0.001184099935926497,
+      "usage": null
+    },
+    {
+      "run_id": "bb68764e-6316-450e-92fd-2391fa71928f",
+      "trace_id": "bb68764e-6316-450e-92fd-2391fa71928f",
+      "agent": "aggregate",
+      "kind": "node",
+      "status": "completed",
+      "duration_seconds": 0.0001903000520542264,
+      "usage": null
+    }
+  ],
+  "unreviewed_dimensions": [],
+  "publication": {
+    "status": "dry_run"
+  },
+  "demo_model": "scripted_mock; findings were programmed, not discovered"
+}

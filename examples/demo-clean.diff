@@ -1,0 +1,9 @@
+diff --git a/bounds.py b/bounds.py
+--- a/bounds.py
++++ b/bounds.py
+@@ -1,4 +1,4 @@
+ def get(items, index):
+-    if index < 0 or index > len(items):
++    if index < 0 or index >= len(items):
+         return None
+     return items[index]

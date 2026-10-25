@@ -1,0 +1,466 @@
+{
+  "pr_url": "",
+  "pr_title": "",
+  "pr_author": "",
+  "review_started_at": "2026-10-25T03:09:02Z",
+  "review_completed_at": "2026-10-25T03:09:02Z",
+  "duration_seconds": 0.0,
+  "files_changed": 1,
+  "findings": [
+    {
+      "id": "scripted-demo-candidate",
+      "agent": "security",
+      "category": "security",
+      "severity": "high",
+      "file_path": "users.py",
+      "line_start": 2,
+      "line_end": null,
+      "title": "Untrusted name is interpolated into SQL",
+      "explanation": "Input becomes SQL syntax and can bypass the intended filter.",
+      "suggestion": "Use a bound parameter.",
+      "confidence": 0.95,
+      "trigger_condition": "name is a request value containing a SQL quote",
+      "evidence_snippet": "    return db.execute(f\"SELECT id FROM users WHERE name = '{name}'\")",
+      "source": "llm",
+      "verification_status": "confirmed",
+      "tool_source": null
+    }
+  ],
+  "summary": "Scripted mock workflow completed.",
+  "agents_succeeded": [
+    "security",
+    "correctness",
+    "quality",
+    "test_mapping",
+    "docs"
+  ],
+  "agents_failed": [],
+  "trace_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+  "input_mode": "diff",
+  "head_sha": null,
+  "diff_sha256": "cb4ed9db951d7880413deecaf40840a229069bf7d6a56543330963e99ab727db",
+  "reviewed_files": [
+    "users.py"
+  ],
+  "coverage": {
+    "included_hunks": [
+      {
+        "path": "users.py",
+        "hunk": 0,
+        "header": "@@ -1,2 +1,2 @@"
+      }
+    ],
+    "omitted": [],
+    "input_characters": 248,
+    "review_characters": 215
+  },
+  "tool_evidence": [],
+  "budget_events": [],
+  "source_errors": [],
+  "execution_mode": "mock",
+  "review_plan": {
+    "risk": "high",
+    "change_summary": "1 files; 1 Python changes",
+    "affected_files": [
+      "users.py"
+    ],
+    "selected_agents": [
+      "security",
+      "correctness",
+      "quality",
+      "test_mapping",
+      "docs"
+    ],
+    "focus_points": [
+      "SQL/data integrity"
+    ],
+    "routing_reasons": {
+      "correctness": "Executable Python change: inspect behavior and boundaries",
+      "quality": "Python AST/lint and maintainability review",
+      "security": "SQL/data integrity",
+      "test_mapping": "Source change: statically inspect related regression tests",
+      "docs": "Public Python API present in changed source"
+    },
+    "budget": {
+      "max_reviewers": 5,
+      "omitted_agents": []
+    },
+    "mode": "rules"
+  },
+  "planner_errors": [],
+  "status": "completed",
+  "raw_findings": [
+    {
+      "id": "scripted-demo-candidate",
+      "agent": "security",
+      "category": "security",
+      "severity": "high",
+      "file_path": "users.py",
+      "line_start": 2,
+      "line_end": null,
+      "title": "Untrusted name is interpolated into SQL",
+      "explanation": "Input becomes SQL syntax and can bypass the intended filter.",
+      "suggestion": "Use a bound parameter.",
+      "confidence": 0.95,
+      "trigger_condition": "name is a request value containing a SQL quote",
+      "evidence_snippet": "    return db.execute(f\"SELECT id FROM users WHERE name = '{name}'\")",
+      "source": "llm",
+      "verification_status": "candidate",
+      "tool_source": null
+    },
+    {
+      "id": "TEST-MAP-001",
+      "agent": "test_mapping",
+      "category": "test_coverage",
+      "severity": "medium",
+      "file_path": "users.py",
+      "line_start": 1,
+      "line_end": 1,
+      "title": "uncovered: find",
+      "explanation": "Static AST analysis classified find as uncovered (confidence 0.90).",
+      "suggestion": "Add a unit test exercising find.",
+      "confidence": 0.9,
+      "trigger_condition": null,
+      "evidence_snippet": "def find(db, name):",
+      "source": "static_seed",
+      "verification_status": "candidate",
+      "tool_source": "ast-test-mapping"
+    },
+    {
+      "id": "DOC-001",
+      "agent": "docs",
+      "category": "documentation",
+      "severity": "low",
+      "file_path": "users.py",
+      "line_start": 1,
+      "line_end": 1,
+      "title": "Missing docstring on function find",
+      "explanation": "Public function find has no docstring. Documenting public APIs improves maintainability.",
+      "suggestion": "Add a one-sentence docstring describing what find does.",
+      "confidence": 0.9,
+      "trigger_condition": null,
+      "evidence_snippet": "def find(db, name):",
+      "source": "static_seed",
+      "verification_status": "candidate",
+      "tool_source": "ast-docs"
+    }
+  ],
+  "verified_findings": [
+    {
+      "finding": {
+        "id": "scripted-demo-candidate",
+        "agent": "security",
+        "category": "security",
+        "severity": "high",
+        "file_path": "users.py",
+        "line_start": 2,
+        "line_end": null,
+        "title": "Untrusted name is interpolated into SQL",
+        "explanation": "Input becomes SQL syntax and can bypass the intended filter.",
+        "suggestion": "Use a bound parameter.",
+        "confidence": 0.95,
+        "trigger_condition": "name is a request value containing a SQL quote",
+        "evidence_snippet": "    return db.execute(f\"SELECT id FROM users WHERE name = '{name}'\")",
+        "source": "llm",
+        "verification_status": "confirmed",
+        "tool_source": null
+      },
+      "status": "confirmed",
+      "reason": "Scripted demonstration checks the supplied trigger and exact changed line.",
+      "candidate_ids": [
+        "security/scripted-demo-candidate/0"
+      ],
+      "source_agents": [
+        "security"
+      ],
+      "checks": [
+        "path_in_diff",
+        "right_side_added_line",
+        "snippet_exists_at_anchor"
+      ],
+      "can_comment": true,
+      "verification_incomplete": false
+    },
+    {
+      "finding": {
+        "id": "TEST-MAP-001",
+        "agent": "test_mapping",
+        "category": "test_coverage",
+        "severity": "medium",
+        "file_path": "users.py",
+        "line_start": 1,
+        "line_end": 1,
+        "title": "uncovered: find",
+        "explanation": "Static AST analysis classified find as uncovered (confidence 0.90).",
+        "suggestion": "Add a unit test exercising find.",
+        "confidence": 0.9,
+        "trigger_condition": null,
+        "evidence_snippet": "def find(db, name):",
+        "source": "static_seed",
+        "verification_status": "uncertain",
+        "tool_source": "ast-test-mapping"
+      },
+      "status": "uncertain",
+      "reason": "context_anchor_requires_impact_explanation",
+      "candidate_ids": [
+        "test_mapping/TEST-MAP-001/1"
+      ],
+      "source_agents": [
+        "test_mapping"
+      ],
+      "checks": [
+        "path_in_diff"
+      ],
+      "can_comment": false,
+      "verification_incomplete": false
+    },
+    {
+      "finding": {
+        "id": "DOC-001",
+        "agent": "docs",
+        "category": "documentation",
+        "severity": "low",
+        "file_path": "users.py",
+        "line_start": 1,
+        "line_end": 1,
+        "title": "Missing docstring on function find",
+        "explanation": "Public function find has no docstring. Documenting public APIs improves maintainability.",
+        "suggestion": "Add a one-sentence docstring describing what find does.",
+        "confidence": 0.9,
+        "trigger_condition": null,
+        "evidence_snippet": "def find(db, name):",
+        "source": "static_seed",
+        "verification_status": "uncertain",
+        "tool_source": "ast-docs"
+      },
+      "status": "uncertain",
+      "reason": "context_anchor_requires_impact_explanation",
+      "candidate_ids": [
+        "docs/DOC-001/2"
+      ],
+      "source_agents": [
+        "docs"
+      ],
+      "checks": [
+        "path_in_diff"
+      ],
+      "can_comment": false,
+      "verification_incomplete": false
+    }
+  ],
+  "verification_incomplete": false,
+  "judge_enabled": true,
+  "verification_conflicts": [],
+  "run_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+  "review_version": "2.0.0",
+  "prompt_version": "review-v2.0",
+  "budget": {
+    "max_reviewers": 5,
+    "max_llm_requests": 30,
+    "max_concurrent": 3,
+    "max_tool_calls": 6,
+    "max_tool_rounds": 2,
+    "max_tool_characters": 8192,
+    "max_context_characters": 64000,
+    "total_seconds": 180.0,
+    "call_seconds": 30.0
+  },
+  "usage": {
+    "llm_requests": 9,
+    "input_tokens": null,
+    "output_tokens": null,
+    "unknown_usage_requests": 9,
+    "estimated_cost": null,
+    "cost_method": "unknown: missing real usage or configured prices",
+    "elapsed_seconds": 0.118188
+  },
+  "trace": [
+    {
+      "run_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "trace_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "agent": "planner",
+      "kind": "node",
+      "status": "completed",
+      "duration_seconds": 0.0009893999667838216,
+      "usage": null
+    },
+    {
+      "run_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "trace_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "agent": "security",
+      "kind": "tool",
+      "status": "mock_skipped",
+      "duration_seconds": 1.079996582120657e-05,
+      "usage": null,
+      "tool": "semgrep"
+    },
+    {
+      "run_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "trace_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "agent": "security",
+      "kind": "llm",
+      "status": "completed",
+      "duration_seconds": 5.5600074119865894e-05,
+      "usage": null,
+      "request": 1
+    },
+    {
+      "run_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "trace_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "agent": "security",
+      "kind": "llm",
+      "status": "completed",
+      "duration_seconds": 4.299997817724943e-05,
+      "usage": null,
+      "request": 2
+    },
+    {
+      "run_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "trace_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "agent": "security",
+      "kind": "node",
+      "status": "completed",
+      "duration_seconds": 0.051941299927420914,
+      "usage": null
+    },
+    {
+      "run_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "trace_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "agent": "correctness",
+      "kind": "llm",
+      "status": "completed",
+      "duration_seconds": 6.019999273121357e-05,
+      "usage": null,
+      "request": 3
+    },
+    {
+      "run_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "trace_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "agent": "correctness",
+      "kind": "llm",
+      "status": "completed",
+      "duration_seconds": 2.0000035874545574e-05,
+      "usage": null,
+      "request": 4
+    },
+    {
+      "run_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "trace_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "agent": "correctness",
+      "kind": "node",
+      "status": "completed",
+      "duration_seconds": 0.0011842999374493957,
+      "usage": null
+    },
+    {
+      "run_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "trace_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "agent": "quality",
+      "kind": "tool",
+      "status": "mock_skipped",
+      "duration_seconds": 7.500057108700275e-06,
+      "usage": null,
+      "tool": "ruff"
+    },
+    {
+      "run_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "trace_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "agent": "quality",
+      "kind": "llm",
+      "status": "completed",
+      "duration_seconds": 2.0400038920342922e-05,
+      "usage": null,
+      "request": 5
+    },
+    {
+      "run_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "trace_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "agent": "quality",
+      "kind": "node",
+      "status": "completed",
+      "duration_seconds": 0.00042090006172657013,
+      "usage": null
+    },
+    {
+      "run_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "trace_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "agent": "test_mapping",
+      "kind": "llm",
+      "status": "completed",
+      "duration_seconds": 3.400002606213093e-05,
+      "usage": null,
+      "request": 6
+    },
+    {
+      "run_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "trace_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "agent": "test_mapping",
+      "kind": "node",
+      "status": "completed",
+      "duration_seconds": 0.00294379994738847,
+      "usage": null
+    },
+    {
+      "run_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "trace_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "agent": "docs",
+      "kind": "llm",
+      "status": "completed",
+      "duration_seconds": 2.2699940018355846e-05,
+      "usage": null,
+      "request": 7
+    },
+    {
+      "run_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "trace_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "agent": "docs",
+      "kind": "node",
+      "status": "completed",
+      "duration_seconds": 0.0008765000384300947,
+      "usage": null
+    },
+    {
+      "run_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "trace_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "agent": "judge",
+      "kind": "llm",
+      "status": "completed",
+      "duration_seconds": 4.710000939667225e-05,
+      "usage": null,
+      "request": 8
+    },
+    {
+      "run_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "trace_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "agent": "judge",
+      "kind": "node",
+      "status": "completed",
+      "duration_seconds": 0.006400999962352216,
+      "usage": null
+    },
+    {
+      "run_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "trace_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "agent": "aggregate",
+      "kind": "llm",
+      "status": "completed",
+      "duration_seconds": 2.429995220154524e-05,
+      "usage": null,
+      "request": 9
+    },
+    {
+      "run_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "trace_id": "000398cd-fd8a-46c5-afa0-f485231c1631",
+      "agent": "aggregate",
+      "kind": "node",
+      "status": "completed",
+      "duration_seconds": 0.00033109996002167463,
+      "usage": null
+    }
+  ],
+  "unreviewed_dimensions": [],
+  "publication": {
+    "status": "dry_run"
+  },
+  "demo_model": "scripted_mock; findings were programmed, not discovered"
+}

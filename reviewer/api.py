@@ -36,7 +36,7 @@ class ReviewRequest(BaseModel):
         description=("Optional whitelist of agents (short labels). If set, overrides the planner."),
     )
     post_comments: bool = Field(
-        default=False, description="Post a Markdown summary comment to the PR."
+        default=False, description="Disabled on the HTTP endpoint; use CLI publish."
     )
     github_token: str | None = Field(
         default=None,
@@ -83,10 +83,15 @@ async def review(request: ReviewRequest) -> dict[str, Any]:
         )
     except ValueError as e:
         # PR-URL parse failures, etc.
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(e)) from e
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST, detail="invalid review input"
+        ) from e
     except Exception as e:  # noqa: BLE001
-        log.exception("review failed for %s", request.pr_url)
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)) from e
+        log.error("review failed: %s", type(e).__name__)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="review failed: " + type(e).__name__,
+        ) from e
 
     if not report:
         raise HTTPException(

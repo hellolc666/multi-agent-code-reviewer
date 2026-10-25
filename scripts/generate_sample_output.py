@@ -19,9 +19,8 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from reviewer.graph import aggregator as agg_mod  # noqa: E402
-from reviewer.graph.aggregator import _SummaryResponse, aggregate_findings_node  # noqa: E402
+from reviewer.graph.aggregator import aggregate_findings_node  # noqa: E402
 from reviewer.models.findings import Category, Finding, Severity  # noqa: E402
-
 
 SAMPLE_FINDINGS = [
     Finding(

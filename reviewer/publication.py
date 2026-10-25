@@ -60,6 +60,9 @@ def post_comment(
         if existing is not None:
             if not allow_update:
                 return {"status": "already_published", "url": existing.html_url}
+            pr.update()
+            if pr.head.sha != expected_head_sha:
+                raise PublicationError("PR head changed before comment update")
             existing.edit(body)
             return {"status": "updated", "url": existing.html_url}
         # Refresh immediately before the write. GitHub issue comments have no

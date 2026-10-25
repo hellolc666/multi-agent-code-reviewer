@@ -84,7 +84,7 @@ def test_review_400_on_value_error(monkeypatch):
     client = TestClient(app)
     resp = client.post("/review", json={"pr_url": "not-a-url"})
     assert resp.status_code == 400
-    assert "bad PR URL" in resp.json()["detail"]
+    assert resp.json()["detail"] == "invalid review input"
 
 
 def test_review_500_on_unexpected_exception(monkeypatch):
@@ -97,7 +97,8 @@ def test_review_500_on_unexpected_exception(monkeypatch):
         "/review", json={"pr_url": "https://github.com/x/y/pull/1"}
     )
     assert resp.status_code == 500
-    assert "upstream broke" in resp.json()["detail"]
+    assert "RuntimeError" in resp.json()["detail"]
+    assert "upstream broke" not in resp.json()["detail"]
 
 
 def test_review_500_on_empty_report(monkeypatch):

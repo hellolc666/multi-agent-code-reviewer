@@ -116,3 +116,20 @@
 - `python -m ruff check --no-cache reviewer tests evals` / `git diff --check`：PASS。
 - 真实 Qwen 消融、人工签核：NOT_RUN；因此未证明多 Agent/Judge 优势或真实成本收益。
   工程入口完整，后续外部验收命令见 evals/README.md。阶段 5 SHA：ddc740b。
+
+## 阶段 7：PASS（离线工程验收，2026-10-25）
+
+- README 重写来源/许可/上游能力与本次扩展对照、Windows 配置、架构图、本地/PR
+  命令与性能数据边界；原上游截图和数字不作为本次证明。
+- 新增 ARCHITECTURE.md、DECISIONS.md、TESTING.md、DEMO.md；更新实现说明、
+  CLI 帮助、API 脱敏、Docker Compose Qwen 变量；保留原 Dockerfile。
+- `scripts/demo.py` 调用共享 runner，生成三份 patch/checkout/JSON：
+  clean 0、logic 1、security 1 条 confirmed。候选由 ScriptedDemoModel 预设，
+  不是模型检测准确率证据。`tests/test_demos.py` 3 个测试 PASS。
+- 原仓库 `pytest -q -p no:cacheprovider`：**404 passed / 4 skipped**，
+  15.97s；`ruff check --no-cache reviewer tests evals scripts`：PASS；
+  `pip check`：PASS；`scripts/smoke_qwen.py`：PASS，返回 NOT_RUN/live=false。
+- 原仓库 `git diff --check`：PASS；阶段 6 提交 SHA 为 `74ad817`，
+  阶段 7 SHA 见 git log；未向远程推送。
+- 真实 Qwen/GitHub/Semgrep、人工标签签核、Docker build：NOT_RUN。
+  一个上游 LangGraph pending deprecation warning 和 GitHub 非原子评论竞态仍存在。
