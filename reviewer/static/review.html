@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>代码审查工作台</title>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, "Microsoft YaHei", system-ui, sans-serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #0b1119; color: #eaf0f6; }
+    body::before { content: ""; position: fixed; inset: 0; z-index: -1; background: radial-gradient(circle at 75% 0%, #173246 0, transparent 35%), radial-gradient(circle at 0% 95%, #142a2b 0, transparent 40%); }
+    .shell { max-width: 1320px; margin: 0 auto; padding: 36px 26px 72px; }
+    header { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; margin-bottom: 30px; }
+    .eyebrow { color: #6de0c1; font-size: 12px; font-weight: 750; letter-spacing: .18em; text-transform: uppercase; }
+    h1 { margin: 10px 0 8px; font-size: clamp(29px, 4vw, 45px); letter-spacing: -.045em; line-height: 1.1; }
+    header p { margin: 0; color: #9eafc0; max-width: 630px; line-height: 1.7; }
+    .badge { border: 1px solid #245b57; color: #88e8d0; background: #10362f; border-radius: 999px; padding: 8px 13px; white-space: nowrap; font-size: 12px; font-weight: 700; }
+    .grid { display: grid; grid-template-columns: minmax(320px, 440px) minmax(0, 1fr); gap: 22px; align-items: start; }
+    .panel { border: 1px solid #263645; border-radius: 18px; background: #101b27eb; box-shadow: 0 16px 40px #0003; }
+    .panel-head { padding: 20px 22px 17px; border-bottom: 1px solid #263645; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+    h2 { margin: 0; font-size: 16px; letter-spacing: -.01em; }
+    .panel-body { padding: 21px 22px 23px; }
+    label { display: block; color: #c4d1dd; font-size: 13px; font-weight: 700; margin: 0 0 8px; }
+    .field { margin-bottom: 20px; }
+    input[type="text"], textarea { display: block; width: 100%; border-radius: 10px; border: 1px solid #345064; background: #0b1520; color: #eaf0f6; font: inherit; font-size: 13px; padding: 12px 13px; outline: none; }
+    input[type="text"]:focus, textarea:focus { border-color: #60d9bc; box-shadow: 0 0 0 3px #60d9bc24; }
+    textarea { min-height: 220px; resize: vertical; font-family: Consolas, "Cascadia Code", monospace; line-height: 1.5; }
+    .hint { color: #8fa2b3; font-size: 12px; line-height: 1.55; margin: 7px 0 0; }
+    .actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    button, .file-label { border-radius: 9px; border: 1px solid #3e5968; background: #1b2a37; color: #eaf0f6; padding: 10px 13px; font: inherit; font-size: 12px; font-weight: 700; cursor: pointer; }
+    button:hover, .file-label:hover { border-color: #69d5ba; }
+    button:disabled { opacity: .55; cursor: wait; }
+    .primary { width: 100%; background: #76e5c6; color: #05241e; border: 0; padding: 14px; font-size: 14px; }
+    .primary:hover { background: #9af0d8; }
+    .file-label { display: inline-block; margin: 0; }
+    .file-label input { display: none; }
+    .choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .choice { display: flex; align-items: center; gap: 9px; margin: 0; border: 1px solid #2a4152; border-radius: 10px; padding: 11px; font-size: 12px; font-weight: 600; cursor: pointer; }
+    .choice input, .live-row input { accent-color: #70e0c0; }
+    .live-row { display: flex; align-items: flex-start; gap: 10px; background: #2b2619; border: 1px solid #6b5730; border-radius: 11px; padding: 13px; margin: 20px 0; }
+    .live-row label { margin: 0; cursor: pointer; }
+    .live-row span { display: block; color: #cdbb92; margin-top: 4px; font-size: 12px; font-weight: 400; line-height: 1.5; }
+    .result-empty { display: grid; place-items: center; min-height: 420px; text-align: center; color: #9cb1c2; padding: 40px; }
+    .result-empty .icon { width: 56px; height: 56px; margin: 0 auto 16px; border: 1px solid #376054; border-radius: 15px; display: grid; place-items: center; color: #86e4cc; font-size: 25px; }
+    .result-empty strong { color: #e9f1f6; font-size: 17px; }
+    .result-empty p { line-height: 1.7; max-width: 370px; }
+    .status-line { display: flex; gap: 9px; flex-wrap: wrap; align-items: center; margin-bottom: 14px; }
+    .pill { border-radius: 999px; padding: 5px 9px; font-size: 11px; font-weight: 800; background: #234237; color: #96ead0; }
+    .pill.partial { background: #503f24; color: #f4d395; }
+    .pill.failed { background: #552d32; color: #ffb0b5; }
+    .meta { color: #97aaba; font-size: 12px; }
+    .summary { line-height: 1.7; color: #d9e6ed; margin: 0 0 18px; }
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 18px 0 25px; }
+    .stat { background: #142635; border: 1px solid #294454; border-radius: 11px; padding: 12px; }
+    .stat b { display: block; font-size: 23px; margin-top: 6px; }
+    .section-title { color: #8fb0bb; text-transform: uppercase; letter-spacing: .14em; font-size: 11px; font-weight: 800; margin: 23px 0 12px; }
+    .finding { border: 1px solid #2c4953; border-radius: 12px; padding: 15px; margin-bottom: 12px; background: #122531; }
+    .finding-head { display: flex; gap: 10px; justify-content: space-between; align-items: flex-start; }
+    .finding h3 { font-size: 14px; margin: 0 0 7px; line-height: 1.45; }
+    .finding p { color: #bbccd7; font-size: 13px; line-height: 1.6; margin: 10px 0 0; }
+    .location { color: #90b9c7; font: 12px Consolas, monospace; }
+    .severity { color: #ffd49b; text-transform: uppercase; font-size: 10px; font-weight: 800; letter-spacing: .08em; }
+    .notice { border: 1px solid #664b32; border-radius: 10px; background: #2a211d; color: #f0c6a3; padding: 12px; margin-top: 12px; font-size: 12px; line-height: 1.55; }
+    .error { color: #ffb4b9; border-color: #6b3841; background: #301e28; }
+    .muted { color: #98acbb; font-size: 13px; line-height: 1.6; }
+    #download { display: none; }
+    @media (max-width: 850px) { .grid { grid-template-columns: 1fr; } header { flex-direction: column; } .shell { padding: 25px 15px 48px; } }
+    @media (max-width: 480px) { .choices { grid-template-columns: 1fr; } .stats { grid-template-columns: 1fr 1fr; } }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header>
+      <div><div class="eyebrow">LOCAL REVIEW WORKBENCH</div><h1>代码审查工作台</h1><p>用本地 diff 测试多 Agent 审查和 Judge 复核。默认离线运行；真实 Qwen 调用需要你主动开启。</p></div>
+      <div class="badge">● 仅本机访问 · 不发布评论</div>
+    </header>
+    <div class="grid">
+      <section class="panel" aria-labelledby="input-title">
+        <div class="panel-head"><h2 id="input-title">审查输入</h2><button type="button" id="example">载入示例</button></div>
+        <div class="panel-body">
+          <div class="field"><label for="repo">代码目录</label><input id="repo" type="text" placeholder="D:\\path\\to\\checked-out-repo" spellcheck="false"><p class="hint">填写补丁应用后的本地代码目录。审查工具只读源代码。</p></div>
+          <div class="field"><label for="diff">Git diff</label><textarea id="diff" spellcheck="false" placeholder="粘贴 git diff --no-ext-diff 的输出…"></textarea><div class="actions" style="margin-top: 10px"><label class="file-label">选择 .diff 文件<input id="file" type="file" accept=".diff,.patch,text/plain"></label><span id="file-name" class="hint"></span></div></div>
+          <div class="field"><label>审查 Agent</label><div class="choices" id="agents"><label class="choice"><input type="checkbox" value="correctness" checked> Correctness</label><label class="choice"><input type="checkbox" value="security"> Security</label><label class="choice"><input type="checkbox" value="quality"> Quality</label><label class="choice"><input type="checkbox" value="test_mapping"> Test Mapping</label><label class="choice"><input type="checkbox" value="docs"> Docs</label></div><p class="hint">不选时交给 Risk Planner 自动决定。</p></div>
+          <div class="live-row"><input type="checkbox" id="live"><label for="live">调用真实 Qwen<span>会将 diff 和相关代码发送到你配置的模型端点，并可能产生费用。留空则运行离线 Mock。</span></label></div>
+          <button class="primary" id="run" type="button">开始离线审查</button>
+        </div>
+      </section>
+      <section class="panel" aria-labelledby="result-title">
+        <div class="panel-head"><h2 id="result-title">审查结果</h2><button type="button" id="download">下载 JSON 报告</button></div>
+        <div class="panel-body" id="results" aria-live="polite"><div class="result-empty"><div><div class="icon">⌘</div><strong>等待审查输入</strong><p>可以先载入内置的页数计算示例，点击“开始离线审查”查看完整流程。</p></div></div></div>
+      </section>
+    </div>
+  </div>
+  <script>
+    const $ = id => document.getElementById(id);
+    let lastReport = null;
+    const node = (tag, className, value) => { const el = document.createElement(tag); if (className) el.className = className; if (value !== undefined) el.textContent = String(value); return el; };
+    const add = (parent, ...children) => { parent.append(...children); return parent; };
+    const notice = (message, error = false) => add(node('div', 'notice' + (error ? ' error' : ''), message));
+
+    $('example').addEventListener('click', async () => {
+      try {
+        const response = await fetch('/api/example', { cache: 'no-store' });
+        if (!response.ok) throw new Error('示例读取失败');
+        const data = await response.json();
+        $('repo').value = data.repo_path;
+        $('diff').value = data.diff_text;
+        $('file-name').textContent = '已载入内置示例';
+      } catch (error) { $('results').replaceChildren(notice(error.message, true)); }
+    });
+    $('file').addEventListener('change', async event => {
+      const file = event.target.files[0];
+      if (!file) return;
+      if (file.size > 4 * 1024 * 1024) { $('results').replaceChildren(notice('diff 不能超过 4 MiB', true)); return; }
+      $('diff').value = await file.text();
+      $('file-name').textContent = file.name;
+    });
+    $('live').addEventListener('change', () => { $('run').textContent = $('live').checked ? '开始真实 Qwen 审查' : '开始离线审查'; });
+
+    function render(report) {
+      const root = $('results'); root.replaceChildren();
+      const header = node('div', 'status-line');
+      const status = report.status || 'unknown';
+      add(header, node('span', 'pill ' + (status === 'completed' ? '' : status), status.toUpperCase()));
+      add(header, node('span', 'meta', report.execution_mode === 'live' ? '真实模型' : '离线 Mock'));
+      if (report.usage?.elapsed_seconds != null) add(header, node('span', 'meta', `${Math.round(report.usage.elapsed_seconds)} 秒`));
+      add(root, header, node('p', 'summary', report.summary || '没有返回摘要。'));
+      const stats = node('div', 'stats');
+      [['确认问题', report.findings?.length || 0], ['原始候选', report.raw_findings?.length || 0], ['待复核', (report.verified_findings || []).filter(x => x.status === 'uncertain').length]].forEach(([label, count]) => add(stats, add(node('div', 'stat'), node('span', 'meta', label), node('b', '', count))));
+      add(root, stats, node('div', 'section-title', '已确认的问题'));
+      if (!report.findings?.length) add(root, node('p', 'muted', '没有已确认的问题。离线 Mock 不用于判断代码是否正确。'));
+      for (const finding of report.findings || []) {
+        const card = node('article', 'finding');
+        const heading = add(node('div', 'finding-head'), add(node('div'), node('h3', '', finding.title || '未命名问题'), node('span', 'location', `${finding.file_path || '?'}:${finding.line_start || '?'}`)), node('span', 'severity', finding.severity || ''));
+        add(card, heading, node('p', '', finding.explanation || ''));
+        const verified = (report.verified_findings || []).find(x => x.finding?.id === finding.id);
+        if (verified?.reason) add(card, node('p', '', `Judge：${verified.reason}`));
+        add(root, card);
+      }
+      if (report.verification_incomplete) add(root, notice('Judge 复核未完成，请查看原始候选和失败原因。'));
+      if (report.budget_events?.length) add(root, notice(`预算事件：${report.budget_events.map(x => x.reason || x.status).join('、')}`));
+      if (report.agents_failed?.length) add(root, notice(`失败阶段：${report.agents_failed.map(x => `${x.agent} (${x.error})`).join('、')}`, true));
+      $('download').style.display = 'inline-block';
+    }
+
+    $('run').addEventListener('click', async () => {
+      const diff_text = $('diff').value;
+      const repo_path = $('repo').value.trim();
+      if (!diff_text.trim() || !repo_path) { $('results').replaceChildren(notice('请填写代码目录并提供 diff。', true)); return; }
+      const live = $('live').checked;
+      const agents = [...document.querySelectorAll('#agents input:checked')].map(x => x.value);
+      const button = $('run'); button.disabled = true; button.textContent = '正在审查…';
+      $('download').style.display = 'none';
+      $('results').replaceChildren(add(node('div', 'result-empty'), add(node('div'), node('div', 'icon', '◌'), node('strong', '', '审查进行中'), node('p', '', live ? '正在调用真实模型。请保持此页面打开。' : '正在运行离线流程。'))));
+      try {
+        const response = await fetch('/api/review', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ diff_text, repo_path, live, agents }) });
+        const data = await response.json();
+        if (!response.ok) throw new Error(typeof data.detail === 'string' ? data.detail : `请求失败 (${response.status})`);
+        lastReport = data; render(data);
+      } catch (error) { $('results').replaceChildren(notice(error.message, true)); }
+      finally { button.disabled = false; button.textContent = $('live').checked ? '开始真实 Qwen 审查' : '开始离线审查'; }
+    });
+    $('download').addEventListener('click', () => {
+      if (!lastReport) return;
+      const url = URL.createObjectURL(new Blob([JSON.stringify(lastReport, null, 2)], { type: 'application/json' }));
+      const link = document.createElement('a'); link.href = url; link.download = 'review-report.json'; link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
+  </script>
+</body>
+</html>

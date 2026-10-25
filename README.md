@@ -43,6 +43,17 @@ git -c core.quotepath=false diff --no-ext-diff > review.diff
 .\.venv\Scripts\reviewer.exe review-diff --diff review.diff --repo-path . --output report.json
 ```
 
+也可以启动本地测试页面（仅监听 `127.0.0.1:8765`）：
+
+```powershell
+.\.venv\Scripts\python.exe scripts/run_local_ui.py
+```
+
+在浏览器打开 `http://127.0.0.1:8765`，点击“载入示例”，然后运行离线审查。
+页面也支持粘贴或选择 `.diff` 文件、填写补丁新版本的代码目录，以及选择 Agent。
+真实 Qwen 调用须勾选“调用真实 Qwen”；启动脚本从项目根目录加载 `.env`，
+页面不显示密钥，也不提供 GitHub 评论发布入口。审查结果可下载为 JSON。
+
 真实 Qwen 需由操作者填写自己所在地域/工作空间的 OpenAI-compatible endpoint 与模型：
 
 ```powershell
