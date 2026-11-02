@@ -1,0 +1,12 @@
+diff --git a/minishop/inventory.py b/minishop/inventory.py
+--- a/minishop/inventory.py
++++ b/minishop/inventory.py
+@@ -11,7 +11,7 @@
+         return self._stock.get(sku, 0)
+ 
+     def snapshot(self) -> dict[str, int]:
+-        return dict(self._stock)
++        return self._stock
+ 
+     def restock(self, sku: str, quantity: int) -> None:
+         if quantity <= 0:

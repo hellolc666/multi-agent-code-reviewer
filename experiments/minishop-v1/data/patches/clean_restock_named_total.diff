@@ -1,0 +1,13 @@
+diff --git a/minishop/inventory.py b/minishop/inventory.py
+--- a/minishop/inventory.py
++++ b/minishop/inventory.py
+@@ -16,7 +16,8 @@
+     def restock(self, sku: str, quantity: int) -> None:
+         if quantity <= 0:
+             raise ValueError("quantity must be positive")
+-        self._stock[sku] = self.available(sku) + quantity
++        new_quantity = self.available(sku) + quantity
++        self._stock[sku] = new_quantity
+ 
+     def reserve(self, sku: str, quantity: int) -> None:
+         if quantity <= 0:

@@ -1,0 +1,12 @@
+diff --git a/README.md b/README.md
+--- a/README.md
++++ b/README.md
+@@ -16,7 +16,7 @@
+ tests/          单元测试和跨模块流程测试
+ ```
+ 
+-运行全部测试：
++在仓库根目录运行全部测试：
+ 
+ ```powershell
+ python -m unittest discover -s tests -v

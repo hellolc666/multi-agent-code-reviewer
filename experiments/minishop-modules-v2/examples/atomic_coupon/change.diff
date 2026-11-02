@@ -1,0 +1,36 @@
+diff --git a/minishop/inventory.py b/minishop/inventory.py
+--- a/minishop/inventory.py
++++ b/minishop/inventory.py
+@@ -28,7 +28,7 @@
+     def reserve_many(self, quantities: dict[str, int]) -> None:
+         if any(quantity <= 0 for quantity in quantities.values()):
+             raise ValueError("quantity must be positive")
+-        if any(self.available(sku) < quantity for sku, quantity in quantities.items()):
+-            raise ValueError("not enough stock")
+         for sku, quantity in quantities.items():
++            if self.available(sku) < quantity:
++                raise ValueError("not enough stock")
+             self._stock[sku] -= quantity
+diff --git a/minishop/orders.py b/minishop/orders.py
+--- a/minishop/orders.py
++++ b/minishop/orders.py
+@@ -29,5 +29,6 @@
+         staged = Inventory(self._inventory.snapshot())
+         for line in lines:
+             checkout(staged, line.sku, line.quantity)
+-        self._inventory.reserve_many({line.sku: line.quantity for line in lines})
++        quantities = {line.sku: line.quantity for line in lines}
++        self._inventory.reserve_many(quantities)
+         return Order(lines, price)
+diff --git a/minishop/pricing.py b/minishop/pricing.py
+--- a/minishop/pricing.py
++++ b/minishop/pricing.py
+@@ -43,7 +43,7 @@
+     subtotal = sum(catalog.purchasable(line.sku).price_cents * line.quantity for line in lines)
+     discount = 0
+     if coupon is not None:
+-        if subtotal < coupon.minimum_cents:
++        if subtotal <= coupon.minimum_cents:
+             raise ValueError("coupon minimum not met")
+         discount = subtotal * coupon.percent_off // 100
+     shipping = 0 if subtotal >= free_shipping_at_cents else shipping_cents

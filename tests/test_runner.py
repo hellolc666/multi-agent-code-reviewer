@@ -7,11 +7,13 @@ from pathlib import Path
 import pytest
 
 from reviewer import runner as runner_mod
+from reviewer.config import UnsupportedReviewModelError
 from reviewer.runner import (
     LABEL_TO_NODE,
     _format_comment_body,
     _resolve_only,
     run_review,
+    run_review_diff,
 )
 from reviewer.tools.github_client import PRBundle, PRMetadata
 
@@ -51,6 +53,29 @@ def test_label_to_node_mapping_consistent():
     # All labels round-trip through both maps.
     assert LABEL_TO_NODE["security"] == "security_agent"
     assert LABEL_TO_NODE["test_mapping"] == "test_mapping_agent"
+
+
+@pytest.mark.asyncio
+async def test_live_local_diff_rejects_ocr_model_before_graph(tmp_path, monkeypatch):
+    patch = tmp_path / "change.diff"
+    patch.write_text(
+        "diff --git a/app.py b/app.py\n--- a/app.py\n+++ b/app.py\n"
+        "@@ -1 +1 @@\n-old = 1\n+new = 1\n",
+        encoding="utf-8",
+    )
+    (tmp_path / "app.py").write_text("new = 1\n", encoding="utf-8")
+    monkeypatch.setenv("LLM_PROVIDER", "qwen")
+    monkeypatch.setenv("DASHSCOPE_API_KEY", "PRIVATE-KEY")
+    monkeypatch.setenv("DASHSCOPE_BASE_URL", "https://example.test/compatible-mode/v1")
+    monkeypatch.setenv("DASHSCOPE_MODEL", "qwen-vl-ocr-2025-11-20")
+
+    def forbidden_graph(**_kwargs):
+        pytest.fail("unsupported model must be rejected before graph execution")
+
+    monkeypatch.setattr(runner_mod, "build_review_graph", forbidden_graph)
+    with pytest.raises(UnsupportedReviewModelError) as caught:
+        await run_review_diff(patch, tmp_path, live=True)
+    assert "PRIVATE-KEY" not in str(caught.value)
 
 
 # --------------------------------------------------------------------------- #
@@ -144,6 +169,7 @@ def fake_bundle(tmp_path: Path):
 @pytest.fixture
 def patched_pipeline(monkeypatch, fake_bundle):
     """Mock fetch_pr + the entire graph so we test the runner's plumbing."""
+    monkeypatch.setenv("LLM_PROVIDER", "anthropic")
     captured = {}
 
     class _FakeCM:

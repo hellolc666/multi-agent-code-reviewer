@@ -64,6 +64,31 @@ def test_cli_review_writes_report_to_file(patched_run_review, tmp_path):
     assert out.exists()
     payload = json.loads(out.read_text())
     assert payload["pr_url"] == "https://github.com/x/y/pull/1"
+    markdown = out.with_suffix(".md").read_text(encoding="utf-8")
+    assert "# 代码审查报告" in markdown
+    assert "stub" in markdown
+
+
+def test_cli_can_render_existing_json_without_review(tmp_path):
+    source = tmp_path / "previous.json"
+    source.write_text(json.dumps({"status": "partial", "summary": "Please inspect failures."}))
+    output = tmp_path / "human.md"
+    result = CliRunner().invoke(
+        app, ["render-report", "--report", str(source), "--output", str(output)]
+    )
+    assert result.exit_code == 0, result.output
+    assert "审查未完整完成" in output.read_text(encoding="utf-8")
+    assert "Please inspect failures" in output.read_text(encoding="utf-8")
+
+
+def test_cli_markdown_only_output(patched_run_review, tmp_path):
+    output = tmp_path / "review.md"
+    result = CliRunner().invoke(
+        app, ["review", "https://github.com/x/y/pull/1", "--output", str(output)]
+    )
+    assert result.exit_code == 0, result.output
+    assert output.read_text(encoding="utf-8").startswith("# 代码审查报告")
+    assert not (tmp_path / "review.json").exists()
 
 
 def test_cli_review_only_parses_comma_list(patched_run_review):

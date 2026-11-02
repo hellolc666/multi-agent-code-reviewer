@@ -1,0 +1,1222 @@
+[
+  {
+    "id": "p0001",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：uncovered: Catalog.__init__；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0002",
+    "gold_id": "inventory_snapshot_alias_g1",
+    "reason": "描述返回内部字典引用，调用者修改快照会改变真实库存，符合可变状态别名缺陷。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0003",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for class Quote；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0004",
+    "gold_id": "inventory_snapshot_alias_g1",
+    "reason": "描述返回内部字典引用，调用者修改快照会改变真实库存，符合可变状态别名缺陷。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0005",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Catalog.__init__ lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0006",
+    "gold_id": "inventory_snapshot_alias_g1",
+    "reason": "描述返回内部字典引用，调用者修改快照会改变真实库存，符合可变状态别名缺陷。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0007",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Quote class；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0008",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Inventory.__init__ lacks unit test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0009",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Cart.add method；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0010",
+    "gold_id": "cart_overwrite_g1",
+    "reason": "描述重复添加同一 SKU 覆盖而非累计数量，根因与触发一致。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0011",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Inventory.reserve_many method；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0012",
+    "gold_id": "cart_overwrite_g1",
+    "reason": "描述重复添加同一 SKU 覆盖而非累计数量，根因与触发一致。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0013",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Catalog.__init__ lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0014",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Cart.remove method；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0015",
+    "gold_id": "inventory_partial_reserve_g1",
+    "reason": "描述先扣前面商品库存、后续商品缺货抛错且不回滚，符合批量预留原子性缺陷。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0016",
+    "gold_id": "dev_coupon_minimum_g1",
+    "reason": "描述小计等于优惠券最低金额时错误拒绝，符合门槛等号回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0017",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Order class；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0018",
+    "gold_id": "pricing_quantity_g1",
+    "reason": "描述小计未乘购买数量，多件仅计单价，符合计价回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0019",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for class OrderService；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0020",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Cart.lines method；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0021",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring on method Inventory.snapshot；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0022",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring on class Product；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0023",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring on class Catalog；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0024",
+    "gold_id": "pricing_quantity_g1",
+    "reason": "描述小计未乘购买数量，多件仅计单价，符合计价回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0025",
+    "gold_id": "cart_overwrite_g1",
+    "reason": "描述重复添加同一 SKU 覆盖而非累计数量，根因与触发一致。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0026",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Coupon.__post_init__ lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0027",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for method Inventory.reserve；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0028",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for method OrderService.place；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0029",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for quote function；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0030",
+    "gold_id": "orders_live_staging_g1",
+    "reason": "描述 staged 指向真实库存，校验时提前扣减并在后续失败时残留，符合隔离快照缺失根因。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0031",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for method Inventory.reserve；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0032",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for method Inventory.snapshot；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0033",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Cart class；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0034",
+    "gold_id": null,
+    "reason": "setdefault 加累加仍保持原行为，所述冗长属于风格偏好，没有行为缺陷。"
+  },
+  {
+    "id": "p0035",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Cart.remove method；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0036",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：uncovered: Inventory.__init__；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0037",
+    "gold_id": "catalog_inactive_g1",
+    "reason": "描述移除 active 检查后允许已下架商品购买，符合业务可购买性回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0038",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for method Inventory.reserve_many；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0039",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Inventory.__init__ lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0040",
+    "gold_id": "inventory_snapshot_alias_g1",
+    "reason": "描述返回内部字典引用，调用者修改快照会改变真实库存，符合可变状态别名缺陷。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0041",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Coupon class；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0042",
+    "gold_id": "orders_live_staging_g1",
+    "reason": "描述 staged 指向真实库存，校验时提前扣减并在后续失败时残留，符合隔离快照缺失根因。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0043",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Cart.lines method；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0044",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Cart.__init__ lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0045",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for quote function；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0046",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Cart.remove method；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0047",
+    "gold_id": "inventory_partial_reserve_g1",
+    "reason": "描述先扣前面商品库存、后续商品缺货抛错且不回滚，符合批量预留原子性缺陷。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0048",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for method Inventory.available；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0049",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring on method Inventory.available；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0050",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Coupon class；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0051",
+    "gold_id": "cart_overwrite_g1",
+    "reason": "描述重复添加同一 SKU 覆盖而非累计数量，根因与触发一致。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0052",
+    "gold_id": "pricing_quantity_g1",
+    "reason": "描述小计未乘购买数量，多件仅计单价，符合计价回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0053",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for CartLine class；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0054",
+    "gold_id": "inventory_partial_reserve_g1",
+    "reason": "描述先扣前面商品库存、后续商品缺货抛错且不回滚，符合批量预留原子性缺陷。 该条的定位精度和是否重复交由固定评分器单独检查。 附带的安全/并发推测未获证实，仅接受其明确描述的原子性或优惠券根因。"
+  },
+  {
+    "id": "p0055",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Coupon.__post_init__ lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0056",
+    "gold_id": null,
+    "reason": "两行字典更新保持累加语义，简洁性建议不匹配行为缺陷。"
+  },
+  {
+    "id": "p0057",
+    "gold_id": "inventory_snapshot_alias_g1",
+    "reason": "描述返回内部字典引用，调用者修改快照会改变真实库存，符合可变状态别名缺陷。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0058",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Coupon.__post_init__ lacks unit test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0059",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for method Inventory.snapshot；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0060",
+    "gold_id": null,
+    "reason": "把 <= 的影响说反：实际是拒绝等于门槛的优惠券，而非允许额外折扣；不匹配标签。"
+  },
+  {
+    "id": "p0061",
+    "gold_id": "inventory_snapshot_alias_g1",
+    "reason": "描述返回内部字典引用，调用者修改快照会改变真实库存，符合可变状态别名缺陷。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0062",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Order class lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0063",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Order class lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0064",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Product.__post_init__ lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0065",
+    "gold_id": "dev_coupon_minimum_g1",
+    "reason": "描述小计等于优惠券最低金额时错误拒绝，符合门槛等号回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0066",
+    "gold_id": null,
+    "reason": "Product 没有自定义假值语义，not product 与 None 检查在当前类型下等价；只是可读性偏好。"
+  },
+  {
+    "id": "p0067",
+    "gold_id": "orders_live_staging_g1",
+    "reason": "描述 staged 指向真实库存，校验时提前扣减并在后续失败时残留，符合隔离快照缺失根因。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0068",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Inventory.restock method；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0069",
+    "gold_id": "pricing_quantity_g1",
+    "reason": "描述小计未乘购买数量，多件仅计单价，符合计价回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0070",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Cart.__init__ lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0071",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Cart.add method；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0072",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Cart class；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0073",
+    "gold_id": "pricing_shipping_equal_g1",
+    "reason": "描述恰好达到免邮金额时仍收运费，符合边界回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0074",
+    "gold_id": null,
+    "reason": "setdefault 加累加没有改变数量语义，冗长建议不匹配行为标签。"
+  },
+  {
+    "id": "p0075",
+    "gold_id": "catalog_inactive_g1",
+    "reason": "描述移除 active 检查后允许已下架商品购买，符合业务可购买性回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0076",
+    "gold_id": "dev_coupon_minimum_g1",
+    "reason": "描述小计等于优惠券最低金额时错误拒绝，符合门槛等号回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0077",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for function quote；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0078",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring on class CartLine；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0079",
+    "gold_id": "dev_coupon_minimum_g1",
+    "reason": "描述小计等于优惠券最低金额时错误拒绝，符合门槛等号回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0080",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for CartLine class；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0081",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for class Order；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0082",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for class OrderService；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0083",
+    "gold_id": "cart_overwrite_g1",
+    "reason": "描述重复添加同一 SKU 覆盖而非累计数量，根因与触发一致。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0084",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Inventory.reserve method；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0085",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Inventory.__init__ lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0086",
+    "gold_id": "pricing_shipping_equal_g1",
+    "reason": "描述恰好达到免邮金额时仍收运费，符合边界回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0087",
+    "gold_id": "inventory_partial_reserve_g1",
+    "reason": "描述先扣前面商品库存、后续商品缺货抛错且不回滚，符合批量预留原子性缺陷。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0088",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：OrderService.__init__ lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0089",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Inventory.reserve method lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0090",
+    "gold_id": "pricing_quantity_g1",
+    "reason": "描述小计未乘购买数量，多件仅计单价，符合计价回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0091",
+    "gold_id": "cart_overwrite_g1",
+    "reason": "描述重复添加同一 SKU 覆盖而非累计数量，根因与触发一致。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0092",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Inventory.available method；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0093",
+    "gold_id": "pricing_shipping_equal_g1",
+    "reason": "描述恰好达到免邮金额时仍收运费，符合边界回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0094",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Inventory.snapshot method；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0095",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Inventory.reserve method；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0096",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Inventory.__init__ lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0097",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for method Catalog.purchasable；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0098",
+    "gold_id": "pricing_quantity_g1",
+    "reason": "描述小计未乘购买数量，多件仅计单价，符合计价回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0099",
+    "gold_id": "dev_coupon_minimum_g1",
+    "reason": "描述小计等于优惠券最低金额时错误拒绝，符合门槛等号回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0100",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Cart.lines method；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0101",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Inventory.reserve lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0102",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Coupon.__post_init__ lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0103",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Inventory.available method；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0104",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Inventory.reserve_many method；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0105",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：uncovered: Cart.__init__；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0106",
+    "gold_id": "inventory_snapshot_alias_g1",
+    "reason": "描述返回内部字典引用，调用者修改快照会改变真实库存，符合可变状态别名缺陷。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0107",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Inventory.snapshot method；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0108",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Cart.__init__ method lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0109",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for OrderService class；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0110",
+    "gold_id": "inventory_snapshot_alias_g1",
+    "reason": "描述返回内部字典引用，调用者修改快照会改变真实库存，符合可变状态别名缺陷。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0111",
+    "gold_id": null,
+    "reason": "补货引入局部变量保持校验和加法结果，冗长意见不构成行为缺陷。"
+  },
+  {
+    "id": "p0112",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for class Inventory；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0113",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for CartLine class；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0114",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Inventory class；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0115",
+    "gold_id": "cart_overwrite_g1",
+    "reason": "描述重复添加同一 SKU 覆盖而非累计数量，根因与触发一致。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0116",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for class Coupon；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0117",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for CartLine class；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0118",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Coupon.__post_init__ lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0119",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Quote class；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0120",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for class Order；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0121",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for function quote；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0122",
+    "gold_id": "pricing_shipping_equal_g1",
+    "reason": "描述恰好达到免邮金额时仍收运费，符合边界回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0123",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Coupon.__post_init__ lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0124",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Cart.__init__ lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0125",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for class Coupon；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0126",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Cart.remove method；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0127",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Cart class；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0128",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Order class lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0129",
+    "gold_id": "inventory_snapshot_alias_g1",
+    "reason": "描述返回内部字典引用，调用者修改快照会改变真实库存，符合可变状态别名缺陷。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0130",
+    "gold_id": null,
+    "reason": "两行 setdefault 更新是等价重构，没有展示错误数量或失败触发。"
+  },
+  {
+    "id": "p0131",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：OrderService.__init__ lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0132",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring on method Cart.remove；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0133",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Inventory.snapshot method；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0134",
+    "gold_id": "inventory_partial_reserve_g1",
+    "reason": "描述先扣前面商品库存、后续商品缺货抛错且不回滚，符合批量预留原子性缺陷。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0135",
+    "gold_id": "cart_overwrite_g1",
+    "reason": "描述重复添加同一 SKU 覆盖而非累计数量，根因与触发一致。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0136",
+    "gold_id": "pricing_shipping_equal_g1",
+    "reason": "描述恰好达到免邮金额时仍收运费，符合边界回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0137",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Order class lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0138",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for class Order；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0139",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：OrderService.__init__ lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0140",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Inventory.reserve lacks unit test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0141",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Inventory.restock method；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0142",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Inventory.reserve lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0143",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：OrderService.__init__ lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0144",
+    "gold_id": "inventory_partial_reserve_g1",
+    "reason": "描述先扣前面商品库存、后续商品缺货抛错且不回滚，符合批量预留原子性缺陷。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0145",
+    "gold_id": "pricing_shipping_equal_g1",
+    "reason": "描述恰好达到免邮金额时仍收运费，符合边界回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0146",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Quote class；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0147",
+    "gold_id": "pricing_shipping_equal_g1",
+    "reason": "描述恰好达到免邮金额时仍收运费，符合边界回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0148",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Cart class；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0149",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Inventory.reserve lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0150",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring on method CartTotalTests.test_total_counts_units；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0151",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for quote function；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0152",
+    "gold_id": "catalog_inactive_g1",
+    "reason": "描述移除 active 检查后允许已下架商品购买，符合业务可购买性回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0153",
+    "gold_id": "pricing_quantity_g1",
+    "reason": "描述小计未乘购买数量，多件仅计单价，符合计价回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0154",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring on method Inventory.reserve；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0155",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Inventory.restock method；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0156",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for method Inventory.reserve_many；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0157",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：OrderService.__init__ lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0158",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Cart.remove method；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0159",
+    "gold_id": "inventory_partial_reserve_g1",
+    "reason": "描述先扣前面商品库存、后续商品缺货抛错且不回滚，符合批量预留原子性缺陷。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0160",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for method OrderService.place；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0161",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for method OrderService.place；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0162",
+    "gold_id": "catalog_inactive_g1",
+    "reason": "描述移除 active 检查后允许已下架商品购买，符合业务可购买性回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0163",
+    "gold_id": "dev_coupon_minimum_g1",
+    "reason": "描述小计等于优惠券最低金额时错误拒绝，符合门槛等号回归。 该条的定位精度和是否重复交由固定评分器单独检查。 附带的安全/并发推测未获证实，仅接受其明确描述的原子性或优惠券根因。"
+  },
+  {
+    "id": "p0164",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for class Quote；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0165",
+    "gold_id": "pricing_quantity_g1",
+    "reason": "描述小计未乘购买数量，多件仅计单价，符合计价回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0166",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Cart.add method；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0167",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Inventory.available method；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0168",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for method Inventory.available；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0169",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring on method Inventory.reserve_many；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0170",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：uncovered: Inventory.reserve；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0171",
+    "gold_id": "inventory_snapshot_alias_g1",
+    "reason": "描述返回内部字典引用，调用者修改快照会改变真实库存，符合可变状态别名缺陷。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0172",
+    "gold_id": "pricing_quantity_g1",
+    "reason": "描述小计未乘购买数量，多件仅计单价，符合计价回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0173",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Product.__post_init__ lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0174",
+    "gold_id": "pricing_quantity_g1",
+    "reason": "描述小计未乘购买数量，多件仅计单价，符合计价回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0175",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Inventory.reserve_many method；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0176",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Inventory class；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0177",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring on method Cart.add；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0178",
+    "gold_id": "pricing_shipping_equal_g1",
+    "reason": "描述恰好达到免邮金额时仍收运费，符合边界回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0179",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Cart.lines method；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0180",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Cart.lines method；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0181",
+    "gold_id": "inventory_snapshot_alias_g1",
+    "reason": "描述返回内部字典引用，调用者修改快照会改变真实库存，符合可变状态别名缺陷。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0182",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for OrderService.place method；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0183",
+    "gold_id": "pricing_quantity_g1",
+    "reason": "描述小计未乘购买数量，多件仅计单价，符合计价回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0184",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring on method Catalog.purchasable；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0185",
+    "gold_id": "pricing_shipping_equal_g1",
+    "reason": "描述恰好达到免邮金额时仍收运费，符合边界回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0186",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Order class；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0187",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for class Product；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0188",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring on class Cart；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0189",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring on method Inventory.restock；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0190",
+    "gold_id": "pricing_quantity_g1",
+    "reason": "描述小计未乘购买数量，多件仅计单价，符合计价回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0191",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring on class Inventory；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0192",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Cart.add method；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0193",
+    "gold_id": "orders_live_staging_g1",
+    "reason": "描述 staged 指向真实库存，校验时提前扣减并在后续失败时残留，符合隔离快照缺失根因。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0194",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for class OrderService；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0195",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Cart.add method；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0196",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Inventory.__init__ lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0197",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Coupon class；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0198",
+    "gold_id": "catalog_inactive_g1",
+    "reason": "描述移除 active 检查后允许已下架商品购买，符合业务可购买性回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0199",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Inventory.__init__ method lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0200",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for OrderService class；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0201",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for method Inventory.restock；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0202",
+    "gold_id": null,
+    "reason": "主张新增并发超卖，但原版本也无锁，未论证变更新增并发问题；没有描述标签要求的后续校验失败导致部分扣减。"
+  },
+  {
+    "id": "p0203",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for OrderService.place method；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0204",
+    "gold_id": "cart_overwrite_g1",
+    "reason": "描述重复添加同一 SKU 覆盖而非累计数量，根因与触发一致。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0205",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for quote function；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0206",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for class Coupon；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0207",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Coupon.__post_init__ method lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0208",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring on method Cart.lines；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0209",
+    "gold_id": "inventory_snapshot_alias_g1",
+    "reason": "描述返回内部字典引用，调用者修改快照会改变真实库存，符合可变状态别名缺陷。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0210",
+    "gold_id": "dev_coupon_minimum_g1",
+    "reason": "描述小计等于优惠券最低金额时错误拒绝，符合门槛等号回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0211",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Cart.__init__ lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0212",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Inventory.reserve method；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0213",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for class Quote；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0214",
+    "gold_id": "dev_coupon_minimum_g1",
+    "reason": "描述小计等于优惠券最低金额时错误拒绝，符合门槛等号回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0215",
+    "gold_id": "pricing_quantity_g1",
+    "reason": "描述小计未乘购买数量，多件仅计单价，符合计价回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0216",
+    "gold_id": "inventory_partial_reserve_g1",
+    "reason": "描述先扣前面商品库存、后续商品缺货抛错且不回滚，符合批量预留原子性缺陷。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0217",
+    "gold_id": "catalog_inactive_g1",
+    "reason": "描述移除 active 检查后允许已下架商品购买，符合业务可购买性回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0218",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：uncovered: Product.__post_init__；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0219",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Inventory.reserve method lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0220",
+    "gold_id": "pricing_shipping_equal_g1",
+    "reason": "描述恰好达到免邮金额时仍收运费，符合边界回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0221",
+    "gold_id": "inventory_partial_reserve_g1",
+    "reason": "描述先扣前面商品库存、后续商品缺货抛错且不回滚，符合批量预留原子性缺陷。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0222",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Cart.__init__ lacks unit test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0223",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Coupon.__post_init__ lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0224",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring on class CartTotalTests；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0225",
+    "gold_id": "inventory_snapshot_alias_g1",
+    "reason": "描述返回内部字典引用，调用者修改快照会改变真实库存，符合可变状态别名缺陷。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0226",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Quote class；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0227",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for quote function；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0228",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Coupon class；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0229",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Quote class；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0230",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for class Catalog；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0231",
+    "gold_id": "dev_coupon_minimum_g1",
+    "reason": "描述小计等于优惠券最低金额时错误拒绝，符合门槛等号回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0232",
+    "gold_id": null,
+    "reason": "该条基于静态测试引用关联报告覆盖缺口：Order class lacks test coverage；静态无引用不证明动态未覆盖，也未识别标签中的错误行为，故不匹配。"
+  },
+  {
+    "id": "p0233",
+    "gold_id": "cart_overwrite_g1",
+    "reason": "描述重复添加同一 SKU 覆盖而非累计数量，根因与触发一致。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0234",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Inventory class；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0235",
+    "gold_id": "dev_coupon_minimum_g1",
+    "reason": "描述小计等于优惠券最低金额时错误拒绝，符合门槛等号回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0236",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Cart class；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0237",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for class Inventory；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0238",
+    "gold_id": "dev_coupon_minimum_g1",
+    "reason": "描述小计等于优惠券最低金额时错误拒绝，符合门槛等号回归。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0239",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for Coupon class；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0240",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for method Inventory.restock；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0241",
+    "gold_id": "orders_live_staging_g1",
+    "reason": "描述 staged 指向真实库存，校验时提前扣减并在后续失败时残留，符合隔离快照缺失根因。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0242",
+    "gold_id": "inventory_partial_reserve_g1",
+    "reason": "描述先扣前面商品库存、后续商品缺货抛错且不回滚，符合批量预留原子性缺陷。 该条的定位精度和是否重复交由固定评分器单独检查。"
+  },
+  {
+    "id": "p0243",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for function quote；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  },
+  {
+    "id": "p0244",
+    "gold_id": null,
+    "reason": "该条仅报告缺少 docstring：Missing docstring for CartLine class；没有对应本次植入的行为缺陷。按冻结的闭集规则记不匹配，不等于文档建议必然无价值。"
+  }
+]

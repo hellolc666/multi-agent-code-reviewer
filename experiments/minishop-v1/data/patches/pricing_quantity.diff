@@ -1,0 +1,12 @@
+diff --git a/minishop/pricing.py b/minishop/pricing.py
+--- a/minishop/pricing.py
++++ b/minishop/pricing.py
+@@ -40,7 +40,7 @@
+     lines = cart.lines()
+     if not lines:
+         raise ValueError("cart is empty")
+-    subtotal = sum(catalog.purchasable(line.sku).price_cents * line.quantity for line in lines)
++    subtotal = sum(catalog.purchasable(line.sku).price_cents for line in lines)
+     discount = 0
+     if coupon is not None:
+         if subtotal < coupon.minimum_cents:

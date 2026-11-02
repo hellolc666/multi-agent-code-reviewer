@@ -51,6 +51,18 @@ def test_review_minimal_request(patched_run_review):
     assert patched_run_review["post_comments"] is False
 
 
+def test_review_can_return_readable_markdown(patched_run_review):
+    client = TestClient(app)
+    resp = client.post(
+        "/review",
+        json={"pr_url": "https://github.com/x/y/pull/1", "response_format": "markdown"},
+    )
+    assert resp.status_code == 200
+    assert resp.headers["content-type"].startswith("text/markdown")
+    assert resp.text.startswith("# 代码审查报告")
+    assert "stub" in resp.text
+
+
 def test_review_passes_through_options(patched_run_review):
     client = TestClient(app)
     resp = client.post(

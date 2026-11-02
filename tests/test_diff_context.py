@@ -4,10 +4,11 @@ import hashlib
 import json
 
 import pytest
+from langchain_core.messages import AIMessage, ToolMessage
 from typer.testing import CliRunner
 
 from reviewer.agents import evidence as evidence_mod
-from reviewer.agents.evidence import EvidenceTurn, collect_evidence
+from reviewer.agents.evidence import collect_evidence
 from reviewer.cli import app
 from reviewer.runner import run_review_diff
 from reviewer.tools.context import CodeContext, safe_relative
@@ -120,10 +121,13 @@ Binary files a/icon.png and b/icon.png differ
 
 
 async def test_evidence_tool_calls_and_repetition_are_bounded(checkout, monkeypatch):
-    async def ask(_prompt, _schema, **_kwargs):
-        return EvidenceTurn(requests=[{"name": "search_symbol", "arguments": {"symbol": "helper"}}])
+    async def ask(_messages, tools):
+        assert len(tools) == 4
+        return AIMessage(content="", tool_calls=[{
+            "name": "search_symbol", "args": {"symbol": "helper"}, "id": "call-1"
+        }])
 
-    monkeypatch.setattr(evidence_mod, "analyze_with_schema", ask)
+    monkeypatch.setattr(evidence_mod, "invoke_bound_tools", ask)
     value, diff = make_input(PATCH, mode="diff")
     records, events = await collect_evidence(
         {
@@ -142,21 +146,23 @@ async def test_evidence_tool_calls_and_repetition_are_bounded(checkout, monkeypa
 async def test_evidence_duplicate_does_not_hide_new_request(checkout, monkeypatch):
     calls = 0
 
-    async def ask(_prompt, _schema, **_kwargs):
+    async def ask(messages, _tools):
         nonlocal calls
         calls += 1
+        if calls > 1:
+            assert isinstance(messages[-1], ToolMessage)
         if calls == 1:
-            requests = [{"name": "search_symbol", "arguments": {"symbol": "helper"}}]
+            requests = [{"name": "search_symbol", "args": {"symbol": "helper"}, "id": "call-1"}]
         elif calls == 2:
             requests = [
-                {"name": "search_symbol", "arguments": {"symbol": "helper"}},
-                {"name": "read_file", "arguments": {"path": "app.py"}},
+                {"name": "search_symbol", "args": {"symbol": "helper"}, "id": "call-2"},
+                {"name": "read_file", "args": {"path": "app.py"}, "id": "call-3"},
             ]
         else:
             requests = []
-        return EvidenceTurn(requests=requests)
+        return AIMessage(content="", tool_calls=requests)
 
-    monkeypatch.setattr(evidence_mod, "analyze_with_schema", ask)
+    monkeypatch.setattr(evidence_mod, "invoke_bound_tools", ask)
     value, diff = make_input(PATCH, mode="diff")
     records, events = await collect_evidence(
         {
@@ -175,17 +181,17 @@ async def test_evidence_duplicate_does_not_hide_new_request(checkout, monkeypatc
 async def test_evidence_new_request_at_tool_limit_is_partial(checkout, monkeypatch):
     calls = 0
 
-    async def ask(_prompt, _schema, **_kwargs):
+    async def ask(_messages, _tools):
         nonlocal calls
         calls += 1
         request = (
-            {"name": "search_symbol", "arguments": {"symbol": "helper"}}
+            {"name": "search_symbol", "args": {"symbol": "helper"}, "id": "call-1"}
             if calls == 1
-            else {"name": "read_file", "arguments": {"path": "app.py"}}
+            else {"name": "read_file", "args": {"path": "app.py"}, "id": "call-2"}
         )
-        return EvidenceTurn(requests=[request])
+        return AIMessage(content="", tool_calls=[request])
 
-    monkeypatch.setattr(evidence_mod, "analyze_with_schema", ask)
+    monkeypatch.setattr(evidence_mod, "invoke_bound_tools", ask)
     value, diff = make_input(PATCH, mode="diff")
     records, events = await collect_evidence(
         {
@@ -199,6 +205,52 @@ async def test_evidence_new_request_at_tool_limit_is_partial(checkout, monkeypat
     )
     assert len(records) == 1
     assert events == [{"agent": "security", "status": "budget_exhausted", "reason": "tool_limit"}]
+
+
+async def test_bound_evidence_rejects_invalid_arguments_and_unsafe_paths(checkout, monkeypatch):
+    calls = 0
+
+    async def ask(_messages, _tools):
+        nonlocal calls
+        calls += 1
+        if calls > 1:
+            return AIMessage(content="Enough evidence.")
+        return AIMessage(content="", tool_calls=[
+            {"name": "read_file", "args": {"path": 3}, "id": "bad-args"},
+            {"name": "read_file", "args": {"path": "../outside"}, "id": "unsafe-path"},
+        ])
+
+    monkeypatch.setattr(evidence_mod, "invoke_bound_tools", ask)
+    value, diff = make_input(PATCH, mode="diff")
+    records, events = await collect_evidence({
+        "repo_path": str(checkout), "pr_diff": diff,
+        "review_input": value.model_dump(), "context_tools_enabled": True,
+    }, "security")
+    assert calls == 2
+    assert [record["error"] for record in records] == ["invalid_arguments", "path_denied"]
+    assert events == []
+
+
+async def test_completed_final_tool_round_is_not_a_truncated_request(checkout, monkeypatch):
+    calls = 0
+
+    async def ask(_messages, _tools):
+        nonlocal calls
+        calls += 1
+        return AIMessage(content="", tool_calls=[{
+            "name": "search_symbol", "args": {"symbol": f"helper{calls}"},
+            "id": f"call-{calls}",
+        }])
+
+    monkeypatch.setattr(evidence_mod, "invoke_bound_tools", ask)
+    value, diff = make_input(PATCH, mode="diff")
+    records, events = await collect_evidence({
+        "repo_path": str(checkout), "pr_diff": diff,
+        "review_input": value.model_dump(), "context_tools_enabled": True,
+        "tool_limits": {"rounds": 2},
+    }, "correctness")
+    assert calls == 2 and len(records) == 2
+    assert events == []
 
 
 async def test_local_diff_shared_runner_is_offline_by_default(checkout):
@@ -231,3 +283,4 @@ def test_review_diff_cli_without_github_token(checkout, monkeypatch):
     )
     assert result.exit_code == 0, result.output
     assert json.loads(output.read_text(encoding="utf-8"))["execution_mode"] == "mock"
+    assert "离线 Mock" in output.with_suffix(".md").read_text(encoding="utf-8")

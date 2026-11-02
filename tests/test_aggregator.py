@@ -228,6 +228,55 @@ async def test_aggregate_node_builds_review_report(monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_confirmed_quality_duplicate_preserves_judge_decisions(monkeypatch):
+    async def fake_summary(findings, _failed):
+        assert len(findings) == 2
+        return "Two independent defects."
+
+    monkeypatch.setattr(agg_mod, "_generate_summary", fake_summary)
+    inventory = _f(
+        id="atomic", cat=Category.CORRECTNESS, file="minishop/inventory.py",
+        line=33, title="Partial stock mutation",
+    ).model_copy(update={"agent": "correctness", "evidence_snippet": "self.reserve(sku, quantity)"})
+    coupon = _f(
+        id="coupon", cat=Category.CORRECTNESS, file="minishop/pricing.py",
+        line=46, title="Coupon boundary rejected",
+    ).model_copy(update={"agent": "correctness", "evidence_snippet": "if subtotal <= minimum:"})
+    duplicate = _f(
+        id="quality-coupon", cat=Category.QUALITY, file="minishop/pricing.py",
+        line=46, title="Coupon check inverted",
+    ).model_copy(update={"agent": "quality", "evidence_snippet": "if subtotal <= minimum:"})
+    records = [
+        {"finding": item.model_dump(mode="json"), "status": "confirmed", "reason": "Supported."}
+        for item in (inventory, duplicate, coupon)
+    ]
+    result = (await aggregate_findings_node({
+        "pr_url": "", "changed_files": [{"path": "minishop/inventory.py"}],
+        "findings": [inventory, duplicate, coupon],
+        "verified_findings": records, "agents_succeeded": ["correctness", "quality"],
+    }))["final_report"]
+    assert {item["id"] for item in result["findings"]} == {"atomic", "coupon"}
+    assert [item["status"] for item in result["verified_findings"]] == ["confirmed"] * 3
+    assert result["verified_findings"][1]["duplicate_of"] == "coupon"
+
+
+def test_distinct_same_line_claims_are_not_suppressed():
+    first = _f(id="a", cat=Category.CORRECTNESS).model_copy(
+        update={"evidence_snippet": "return check(x)"}
+    )
+    second = _f(id="b", cat=Category.QUALITY).model_copy(
+        update={"evidence_snippet": "different changed line"}
+    )
+    records = [
+        {"finding": item.model_dump(mode="json"), "status": "confirmed"}
+        for item in (first, second)
+    ]
+    findings, annotated = agg_mod._unique_confirmed(records)
+    assert len(findings) == 2
+    assert all("duplicate_of" not in item for item in annotated)
+
+
+@pytest.mark.asyncio
 async def test_aggregate_node_generates_trace_id_if_missing(monkeypatch):
     async def fake_summary(*a, **kw):  # noqa: ARG001
         return "ok"

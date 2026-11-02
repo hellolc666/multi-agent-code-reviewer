@@ -61,6 +61,15 @@ class ScriptedDemoModel:
     def __init__(self, target):
         self.target = target
 
+    def bind_tools(self, _tools, *, tool_choice="auto"):
+        class Response:
+            async def ainvoke(self, _messages):
+                from langchain_core.messages import AIMessage
+
+                return AIMessage(content="Scripted mock; no evidence tools requested.")
+
+        return Response()
+
     def with_structured_output(self, schema):
         target = self.target
 
@@ -83,8 +92,6 @@ class ScriptedDemoModel:
                             ]
                         }
                     )
-                if name == "EvidenceTurn":
-                    return schema.model_validate({"requests": []})
                 if name == "JudgeDecision":
                     return schema.model_validate(
                         {

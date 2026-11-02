@@ -12,13 +12,20 @@ class MockLLM:
 
     metadata = {"reviewer_provider": "mock"}
 
+    def bind_tools(self, _tools, *, tool_choice="auto"):
+        class Response:
+            async def ainvoke(self, _messages):
+                from langchain_core.messages import AIMessage
+
+                return AIMessage(content="Offline mock; no tools requested.")
+
+        return Response()
+
     def with_structured_output(self, schema):
         class Response:
             async def ainvoke(self, _messages):
                 if schema.__name__ == "FindingList":
                     return schema.model_validate({"findings": []})
-                if schema.__name__ == "EvidenceTurn":
-                    return schema.model_validate({"requests": []})
                 if schema.__name__ == "_SummaryResponse":
                     return schema.model_validate({"summary": "Offline mock; no live model called."})
                 if schema.__name__ == "JudgeDecision":

@@ -13,8 +13,13 @@ from reviewer.models.findings import Category
 SYSTEM = UNTRUSTED_SYSTEM + (
     " You are the correctness reviewer. Identify only defects caused or exposed by this change: "
     "logic/boundary conditions, exceptions, state/transaction consistency, resource leaks, "
-    "concurrency or N+1 requests. Require an explicit trigger_condition, real file/RIGHT line "
-    "and exact evidence_snippet. Explain the causal chain using related context. "
+    "concurrency or N+1 requests. Compare changed equality boundaries and whether all "
+    "items are validated before state is mutated; consider a later item failing. "
+    "Only claim concurrency if this change introduces a concrete concurrency hazard. "
+    "For each finding, set line_start and line_end to the same RIGHT-side added line "
+    "(the + line). evidence_snippet must be exactly that one source-code line, without "
+    "the + prefix, removed lines, or surrounding diff. Require an explicit "
+    "trigger_condition. Explain the causal chain using related context. "
     "Do not emit style opinions, speculative defects, unrelated pre-existing issues, "
     "or assertions about tests that were not run. Use agent/category correctness."
 )

@@ -1,0 +1,326 @@
+[
+  {
+    "id": "dev_exact_stock",
+    "split": "dev",
+    "source": "https://github.com/hellolc666/code-review-demo/tree/4353804fcf686c04a0ae4345bac223815d82f6b2; authored mutation",
+    "annotation_status": "curated_pending_human_signoff",
+    "reviewed_by": "Codex, AI-simulated human annotator; no human signoff",
+    "review_note": "库存刚好等于购买数量时，结账被错误拒绝",
+    "gold_labels": [
+      {
+        "id": "dev_exact_stock_g1",
+        "file_path": "minishop/checkout.py",
+        "line": 9,
+        "title": "库存刚好等于购买数量时，结账被错误拒绝",
+        "defect": "库存刚好等于购买数量时，结账被错误拒绝",
+        "trigger": "Inventory({'book': 2}); checkout(..., 'book', 2)",
+        "severity": "medium",
+        "evidence": "    if inventory.available(sku) <= quantity:",
+        "category": "logic"
+      }
+    ]
+  },
+  {
+    "id": "dev_coupon_minimum",
+    "split": "dev",
+    "source": "https://github.com/hellolc666/code-review-demo/tree/4353804fcf686c04a0ae4345bac223815d82f6b2; authored mutation",
+    "annotation_status": "curated_pending_human_signoff",
+    "reviewed_by": "Codex, AI-simulated human annotator; no human signoff",
+    "review_note": "金额恰好达到优惠券门槛时仍被拒绝",
+    "gold_labels": [
+      {
+        "id": "dev_coupon_minimum_g1",
+        "file_path": "minishop/pricing.py",
+        "line": 46,
+        "title": "金额恰好达到优惠券门槛时仍被拒绝",
+        "defect": "金额恰好达到优惠券门槛时仍被拒绝",
+        "trigger": "2000 分小计配 minimum_cents=2000 的优惠券",
+        "severity": "medium",
+        "evidence": "        if subtotal <= coupon.minimum_cents:",
+        "category": "logic"
+      }
+    ]
+  },
+  {
+    "id": "dev_readme",
+    "split": "dev",
+    "source": "https://github.com/hellolc666/code-review-demo/tree/4353804fcf686c04a0ae4345bac223815d82f6b2; authored mutation",
+    "annotation_status": "curated_pending_human_signoff",
+    "reviewed_by": "Codex, AI-simulated human annotator; no human signoff",
+    "review_note": "Clarifies test command working directory without changing behavior.",
+    "gold_labels": []
+  },
+  {
+    "id": "dev_inventory_compare",
+    "split": "dev",
+    "source": "https://github.com/hellolc666/code-review-demo/tree/4353804fcf686c04a0ae4345bac223815d82f6b2; authored mutation",
+    "annotation_status": "curated_pending_human_signoff",
+    "reviewed_by": "Codex, AI-simulated human annotator; no human signoff",
+    "review_note": "Equivalent stock comparison for the same arguments; baseline tests remain valid.",
+    "gold_labels": []
+  },
+  {
+    "id": "cart_overwrite",
+    "split": "test",
+    "source": "https://github.com/hellolc666/code-review-demo/tree/4353804fcf686c04a0ae4345bac223815d82f6b2; authored mutation",
+    "annotation_status": "curated_pending_human_signoff",
+    "reviewed_by": "Codex, AI-simulated human annotator; no human signoff",
+    "review_note": "重复添加同一商品覆盖旧数量，订单少买少计价",
+    "gold_labels": [
+      {
+        "id": "cart_overwrite_g1",
+        "file_path": "minishop/cart.py",
+        "line": 21,
+        "title": "重复添加同一商品覆盖旧数量，订单少买少计价",
+        "defect": "重复添加同一商品覆盖旧数量，订单少买少计价",
+        "trigger": "add('book',2) 后 add('book',1)，应为3却为1",
+        "severity": "medium",
+        "evidence": "        self._quantities[sku] = quantity",
+        "category": "logic"
+      }
+    ]
+  },
+  {
+    "id": "catalog_inactive",
+    "split": "test",
+    "source": "https://github.com/hellolc666/code-review-demo/tree/4353804fcf686c04a0ae4345bac223815d82f6b2; authored mutation",
+    "annotation_status": "curated_pending_human_signoff",
+    "reviewed_by": "Codex, AI-simulated human annotator; no human signoff",
+    "review_note": "已下架商品通过 purchasable 校验，可继续被订单购买",
+    "gold_labels": [
+      {
+        "id": "catalog_inactive_g1",
+        "file_path": "minishop/catalog.py",
+        "line": 30,
+        "title": "已下架商品通过 purchasable 校验，可继续被订单购买",
+        "defect": "已下架商品通过 purchasable 校验，可继续被订单购买",
+        "trigger": "active=False 的商品传给 Catalog.purchasable 或 OrderService.place",
+        "severity": "medium",
+        "evidence": "        if product is None:",
+        "category": "logic"
+      }
+    ]
+  },
+  {
+    "id": "inventory_snapshot_alias",
+    "split": "test",
+    "source": "https://github.com/hellolc666/code-review-demo/tree/4353804fcf686c04a0ae4345bac223815d82f6b2; authored mutation",
+    "annotation_status": "curated_pending_human_signoff",
+    "reviewed_by": "Codex, AI-simulated human annotator; no human signoff",
+    "review_note": "库存快照暴露内部可变字典，调用者能绕过库存校验修改真实库存",
+    "gold_labels": [
+      {
+        "id": "inventory_snapshot_alias_g1",
+        "file_path": "minishop/inventory.py",
+        "line": 14,
+        "title": "库存快照暴露内部可变字典，调用者能绕过库存校验修改真实库存",
+        "defect": "库存快照暴露内部可变字典，调用者能绕过库存校验修改真实库存",
+        "trigger": "snapshot()['book']=0 改变原库存；快照也随后续补货变化",
+        "severity": "medium",
+        "evidence": "        return self._stock",
+        "category": "logic"
+      }
+    ]
+  },
+  {
+    "id": "inventory_partial_reserve",
+    "split": "test",
+    "source": "https://github.com/hellolc666/code-review-demo/tree/4353804fcf686c04a0ae4345bac223815d82f6b2; authored mutation",
+    "annotation_status": "curated_pending_human_signoff",
+    "reviewed_by": "Codex, AI-simulated human annotator; no human signoff",
+    "review_note": "批量库存预留失去原子性，后续商品缺货时前面的库存已经扣除",
+    "gold_labels": [
+      {
+        "id": "inventory_partial_reserve_g1",
+        "file_path": "minishop/inventory.py",
+        "line": 32,
+        "title": "批量库存预留失去原子性，后续商品缺货时前面的库存已经扣除",
+        "defect": "批量库存预留失去原子性，后续商品缺货时前面的库存已经扣除",
+        "trigger": "stock book=2 pen=0；reserve_many({'book':1,'pen':1}) 抛错后 book 应仍为2",
+        "severity": "medium",
+        "evidence": "            if self.available(sku) < quantity:",
+        "category": "logic"
+      }
+    ]
+  },
+  {
+    "id": "pricing_quantity",
+    "split": "test",
+    "source": "https://github.com/hellolc666/code-review-demo/tree/4353804fcf686c04a0ae4345bac223815d82f6b2; authored mutation",
+    "annotation_status": "curated_pending_human_signoff",
+    "reviewed_by": "Codex, AI-simulated human annotator; no human signoff",
+    "review_note": "小计忽略商品数量，多个同类商品只收取一个的价格",
+    "gold_labels": [
+      {
+        "id": "pricing_quantity_g1",
+        "file_path": "minishop/pricing.py",
+        "line": 43,
+        "title": "小计忽略商品数量，多个同类商品只收取一个的价格",
+        "defect": "小计忽略商品数量，多个同类商品只收取一个的价格",
+        "trigger": "单价2000分、数量2，应得到4000分小计",
+        "severity": "medium",
+        "evidence": "    subtotal = sum(catalog.purchasable(line.sku).price_cents for line in lines)",
+        "category": "logic"
+      }
+    ]
+  },
+  {
+    "id": "pricing_shipping_equal",
+    "split": "test",
+    "source": "https://github.com/hellolc666/code-review-demo/tree/4353804fcf686c04a0ae4345bac223815d82f6b2; authored mutation",
+    "annotation_status": "curated_pending_human_signoff",
+    "reviewed_by": "Codex, AI-simulated human annotator; no human signoff",
+    "review_note": "小计恰好达到免邮门槛时仍收取运费",
+    "gold_labels": [
+      {
+        "id": "pricing_shipping_equal_g1",
+        "file_path": "minishop/pricing.py",
+        "line": 49,
+        "title": "小计恰好达到免邮门槛时仍收取运费",
+        "defect": "小计恰好达到免邮门槛时仍收取运费",
+        "trigger": "subtotal=5000、默认门槛5000，应免邮却收500分",
+        "severity": "medium",
+        "evidence": "    shipping = 0 if subtotal > free_shipping_at_cents else shipping_cents",
+        "category": "logic"
+      }
+    ]
+  },
+  {
+    "id": "pricing_discount_fraction",
+    "split": "test",
+    "source": "https://github.com/hellolc666/code-review-demo/tree/4353804fcf686c04a0ae4345bac223815d82f6b2; authored mutation",
+    "annotation_status": "curated_pending_human_signoff",
+    "reviewed_by": "Codex, AI-simulated human annotator; no human signoff",
+    "review_note": "折扣产生小数分，破坏整数金额及向下取整约定",
+    "gold_labels": [
+      {
+        "id": "pricing_discount_fraction_g1",
+        "file_path": "minishop/pricing.py",
+        "line": 48,
+        "title": "折扣产生小数分，破坏整数金额及向下取整约定",
+        "defect": "折扣产生小数分，破坏整数金额及向下取整约定",
+        "trigger": "999分小计打九折，discount 应为99分且总价1400分；修改后为99.9和1399.1",
+        "severity": "medium",
+        "evidence": "        discount = subtotal * coupon.percent_off / 100",
+        "category": "logic"
+      }
+    ]
+  },
+  {
+    "id": "orders_reserve_before_price",
+    "split": "test",
+    "source": "https://github.com/hellolc666/code-review-demo/tree/4353804fcf686c04a0ae4345bac223815d82f6b2; authored mutation",
+    "annotation_status": "curated_pending_human_signoff",
+    "reviewed_by": "Codex, AI-simulated human annotator; no human signoff",
+    "review_note": "价格或优惠券校验移到扣库存之后，失败订单也消耗库存",
+    "gold_labels": [
+      {
+        "id": "orders_reserve_before_price_g1",
+        "file_path": "minishop/orders.py",
+        "line": 32,
+        "title": "价格或优惠券校验移到扣库存之后，失败订单也消耗库存",
+        "defect": "价格或优惠券校验移到扣库存之后，失败订单也消耗库存",
+        "trigger": "购买1支笔却使用未达最低金额的优惠券；抛 ValueError 后库存应不变",
+        "severity": "medium",
+        "evidence": "        price = quote(cart, self._catalog, coupon)",
+        "category": "logic"
+      }
+    ]
+  },
+  {
+    "id": "orders_live_staging",
+    "split": "test",
+    "source": "https://github.com/hellolc666/code-review-demo/tree/4353804fcf686c04a0ae4345bac223815d82f6b2; authored mutation",
+    "annotation_status": "curated_pending_human_signoff",
+    "reviewed_by": "Codex, AI-simulated human annotator; no human signoff",
+    "review_note": "预校验直接扣真实库存，成功订单重复扣减，后续失败也无法回滚",
+    "gold_labels": [
+      {
+        "id": "orders_live_staging_g1",
+        "file_path": "minishop/orders.py",
+        "line": 29,
+        "title": "预校验直接扣真实库存，成功订单重复扣减，后续失败也无法回滚",
+        "defect": "预校验直接扣真实库存，成功订单重复扣减，后续失败也无法回滚",
+        "trigger": "库存3购买1，checkout 和 reserve_many 各扣1，剩1而非2；后续缺货也会留下前项扣减",
+        "severity": "medium",
+        "evidence": "        staged = self._inventory",
+        "category": "logic"
+      }
+    ]
+  },
+  {
+    "id": "test_receipt_assertion",
+    "split": "test",
+    "source": "https://github.com/hellolc666/code-review-demo/tree/4353804fcf686c04a0ae4345bac223815d82f6b2; authored mutation",
+    "annotation_status": "curated_pending_human_signoff",
+    "reviewed_by": "Codex, AI-simulated human annotator; no human signoff",
+    "review_note": "返回值断言退化为真值判断，错误的非空收据也能通过测试",
+    "gold_labels": [
+      {
+        "id": "test_receipt_assertion_g1",
+        "file_path": "tests/test_checkout.py",
+        "line": 10,
+        "title": "返回值断言退化为真值判断，错误的非空收据也能通过测试",
+        "defect": "返回值断言退化为真值判断，错误的非空收据也能通过测试",
+        "trigger": "checkout 正确扣库存但返回错误 sku 或 quantity，修改后测试仍通过",
+        "severity": "medium",
+        "evidence": "        self.assertTrue(checkout(inventory, \"book\", 2))",
+        "category": "regression"
+      }
+    ]
+  },
+  {
+    "id": "clean_cart_setdefault",
+    "split": "test",
+    "source": "https://github.com/hellolc666/code-review-demo/tree/4353804fcf686c04a0ae4345bac223815d82f6b2; authored mutation",
+    "annotation_status": "curated_pending_human_signoff",
+    "reviewed_by": "Codex, AI-simulated human annotator; no human signoff",
+    "review_note": "Equivalent aggregation after unchanged input validation; missing and repeated SKUs retain behavior.",
+    "gold_labels": []
+  },
+  {
+    "id": "clean_catalog_guard",
+    "split": "test",
+    "source": "https://github.com/hellolc666/code-review-demo/tree/4353804fcf686c04a0ae4345bac223815d82f6b2; authored mutation",
+    "annotation_status": "curated_pending_human_signoff",
+    "reviewed_by": "Codex, AI-simulated human annotator; no human signoff",
+    "review_note": "Product has no custom falsy behavior; None and inactive checks are equivalent.",
+    "gold_labels": []
+  },
+  {
+    "id": "clean_pricing_named_net",
+    "split": "test",
+    "source": "https://github.com/hellolc666/code-review-demo/tree/4353804fcf686c04a0ae4345bac223815d82f6b2; authored mutation",
+    "annotation_status": "curated_pending_human_signoff",
+    "reviewed_by": "Codex, AI-simulated human annotator; no human signoff",
+    "review_note": "Introduces a name for an unchanged integer expression; coupon and shipping behavior is preserved.",
+    "gold_labels": []
+  },
+  {
+    "id": "clean_orders_named_quantities",
+    "split": "test",
+    "source": "https://github.com/hellolc666/code-review-demo/tree/4353804fcf686c04a0ae4345bac223815d82f6b2; authored mutation",
+    "annotation_status": "curated_pending_human_signoff",
+    "reviewed_by": "Codex, AI-simulated human annotator; no human signoff",
+    "review_note": "Extracts the same mapping after staging; validation and mutation order are unchanged.",
+    "gold_labels": []
+  },
+  {
+    "id": "clean_restock_named_total",
+    "split": "test",
+    "source": "https://github.com/hellolc666/code-review-demo/tree/4353804fcf686c04a0ae4345bac223815d82f6b2; authored mutation",
+    "annotation_status": "curated_pending_human_signoff",
+    "reviewed_by": "Codex, AI-simulated human annotator; no human signoff",
+    "review_note": "Names the new stock total without changing positive-quantity validation or missing-SKU behavior.",
+    "gold_labels": []
+  },
+  {
+    "id": "clean_cart_total_feature",
+    "split": "test",
+    "source": "https://github.com/hellolc666/code-review-demo/tree/4353804fcf686c04a0ae4345bac223815d82f6b2; authored mutation",
+    "annotation_status": "curated_pending_human_signoff",
+    "reviewed_by": "Codex, AI-simulated human annotator; no human signoff",
+    "review_note": "Adds a total-unit-count method and an empty/multi-SKU test; no existing contract changes.",
+    "gold_labels": []
+  }
+]

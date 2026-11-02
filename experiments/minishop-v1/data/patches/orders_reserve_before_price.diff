@@ -1,0 +1,17 @@
+diff --git a/minishop/orders.py b/minishop/orders.py
+--- a/minishop/orders.py
++++ b/minishop/orders.py
+@@ -21,7 +21,6 @@
+         self._inventory = inventory
+ 
+     def place(self, cart: Cart, coupon: Coupon | None = None) -> Order:
+-        price = quote(cart, self._catalog, coupon)
+         lines = cart.lines()
+ 
+         # Validate every line using checkout's business rule on a temporary copy.
+@@ -30,4 +29,5 @@
+         for line in lines:
+             checkout(staged, line.sku, line.quantity)
+         self._inventory.reserve_many({line.sku: line.quantity for line in lines})
++        price = quote(cart, self._catalog, coupon)
+         return Order(lines, price)

@@ -10,6 +10,10 @@ git -c core.quotepath=false diff HEAD~1 HEAD --output example.patch
 .\.venv\Scripts\reviewer.exe review https://github.com/OWNER/REPO/pull/42 --live --output report.json
 ```
 
+指定 `--output report.json` 时还会生成可读的 `report.md`；用
+`reviewer render-report --report report.json --output report.md` 可转换已有结果。
+Markdown 会明确标出 `partial`、离线 Mock 和未完成的 Judge 复核。
+
 本地和 GitHub 均经过 `ReviewInput → _execute_review → 同一 LangGraph`。
 报告记录 mode、diff SHA-256、head SHA（GitHub）、文件清单、覆盖 hunk 与省略原因。
 本地输入限制 4 MiB；模型 diff 字符预算默认 24000，优先 auth/sql/permission/transaction

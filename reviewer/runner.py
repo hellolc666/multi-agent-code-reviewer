@@ -267,6 +267,11 @@ async def _execute_review(
     from reviewer.reliability.harness import ReviewBudget, RunHarness, current_run
     from reviewer.tools.diff_input import changed_sources
 
+    if live:
+        from reviewer import config as reviewer_config
+
+        if reviewer_config.llm_provider() == "qwen":
+            reviewer_config.qwen_model_candidates()
     options = dict(options or {})
     budget = ReviewBudget.model_validate(options.get("budget", {}))
     runtime = runtime or RunHarness(budget)

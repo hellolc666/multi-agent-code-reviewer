@@ -1,0 +1,11 @@
+diff --git a/minishop/orders.py b/minishop/orders.py
+--- a/minishop/orders.py
++++ b/minishop/orders.py
+@@ -29,5 +29,6 @@
+         staged = Inventory(self._inventory.snapshot())
+         for line in lines:
+             checkout(staged, line.sku, line.quantity)
+-        self._inventory.reserve_many({line.sku: line.quantity for line in lines})
++        quantities = {line.sku: line.quantity for line in lines}
++        self._inventory.reserve_many(quantities)
+         return Order(lines, price)

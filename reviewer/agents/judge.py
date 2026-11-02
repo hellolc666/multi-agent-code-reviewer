@@ -55,6 +55,52 @@ def _groups(findings):
     return list(groups.values())
 
 
+def _normalize_added_line_anchor(finding: Finding, value: ReviewInput) -> Finding:
+    """Anchor an exact changed line inside a diff-formatted or multiline snippet.
+
+    This repairs the model's line formatting, not its claim. The existing
+    checkout and Judge evidence checks still decide whether it is a defect.
+    Ambiguous or unmatched snippets remain untouched for normal rejection.
+    """
+    snippet = finding.evidence_snippet or ""
+    added_snippets = [line[1:] for line in snippet.splitlines() if line.startswith("+")]
+    bounded_multiline = (
+        not added_snippets
+        and finding.line_start is not None
+        and finding.line_end is not None
+        and finding.line_end > finding.line_start
+        and len(snippet.splitlines()) > 1
+    )
+    if bounded_multiline:
+        added_snippets = snippet.splitlines()
+    if not added_snippets:
+        return finding
+    matches = [
+        line
+        for file in value.files
+        if file.path == finding.file_path
+        for hunk in file.hunks
+        for line in hunk.lines
+        if line.kind == "add"
+        and line.new_line is not None
+        and line.text in added_snippets
+        and (
+            not bounded_multiline
+            or finding.line_start <= line.new_line <= finding.line_end
+        )
+    ]
+    if len(matches) != 1:
+        return finding
+    line = matches[0]
+    return finding.model_copy(
+        update={
+            "line_start": line.new_line,
+            "line_end": line.new_line,
+            "evidence_snippet": line.text,
+        }
+    )
+
+
 def _anchor(finding, value, context):
     """Return (early status/reason, checks, inline eligibility, code evidence)."""
     checks = []
@@ -138,8 +184,13 @@ async def judge_findings_node(state):
     )
     value = ReviewInput.model_validate(state["review_input"]) if state.get("review_input") else None
     context = CodeContext(state["repo_path"], value.files) if value else None
+    prepared = (
+        [_normalize_added_line_anchor(Finding.model_validate(item), value) for item in raw]
+        if value is not None and enabled
+        else raw
+    )
     records = []
-    for finding, ids, agents in _groups(raw):
+    for finding, ids, agents in _groups(prepared):
         checks, inline = [], False
         incomplete = False
         if not enabled:
@@ -154,7 +205,7 @@ async def judge_findings_node(state):
                 try:
                     related = [
                         {"agent": f.agent, "title": f.title, "explanation": f.explanation}
-                        for f, _, _ in _groups(raw)
+                        for f, _, _ in _groups(prepared)
                         if f.file_path == finding.file_path and f.line_start == finding.line_start
                     ]
                     # This explicit projection cannot carry evaluator/gold fields.

@@ -1,0 +1,187 @@
+{
+  "started_at": "2026-11-01T09:30:37.228866+00:00",
+  "live": true,
+  "dataset": {
+    "version": "minishop-modules-v2",
+    "cases": 6,
+    "test": 6,
+    "dev": 0,
+    "sha256": "3bc227cf29375a17f6d638cd843c252238bb6e67280e300f8f7c5aa1b953a077",
+    "source": {
+      "version": "minishop-v1-20",
+      "base_commit": "4353804fcf686c04a0ae4345bac223815d82f6b2",
+      "repo_url": "https://github.com/hellolc666/code-review-demo",
+      "sha256": "0e818f8320ebf41aab870dec46c8b0a653da5b40bf9cfe28960d3808c7405e27",
+      "cases": 20,
+      "dev": 4,
+      "test": 16,
+      "annotation_status": "AI_simulated_pending_human_signoff",
+      "human_signed_off": false,
+      "scope": "10 defective + 6 clean test changes; 4 development cases; no security-specific gold"
+    },
+    "human_signed_off": false,
+    "label_method": "AI simulated, executable oracle checked",
+    "scope": "4 dual-defect changes + 2 clean changes; recombined known mutations"
+  },
+  "model": "qwen3.5-27b",
+  "budget": {
+    "max_reviewers": 5,
+    "max_llm_requests": 30,
+    "max_concurrent": 3,
+    "max_tool_calls": 6,
+    "max_tool_rounds": 2,
+    "max_tool_characters": 8192,
+    "max_context_characters": 64000,
+    "total_seconds": 180.0,
+    "call_seconds": 30.0
+  },
+  "variants": {
+    "A": {
+      "only": [
+        "correctness"
+      ],
+      "context_tools": false,
+      "options": {
+        "judge_enabled": false,
+        "single_agent_baseline": true
+      }
+    },
+    "B": {
+      "only": [
+        "security",
+        "correctness",
+        "quality",
+        "test_mapping",
+        "docs"
+      ],
+      "context_tools": false,
+      "options": {
+        "judge_enabled": false
+      }
+    },
+    "C": {
+      "only": [
+        "security",
+        "correctness",
+        "quality",
+        "test_mapping",
+        "docs"
+      ],
+      "context_tools": false,
+      "options": {
+        "judge_enabled": true
+      }
+    },
+    "D": {
+      "only": null,
+      "context_tools": true,
+      "options": {
+        "judge_enabled": true,
+        "planner_mode": "rules"
+      }
+    },
+    "D_no_judge": {
+      "only": null,
+      "context_tools": true,
+      "options": {
+        "judge_enabled": false,
+        "planner_mode": "rules"
+      }
+    },
+    "D_no_evidence": {
+      "only": null,
+      "context_tools": false,
+      "options": {
+        "judge_enabled": true,
+        "planner_mode": "rules"
+      }
+    },
+    "D_no_routing": {
+      "only": [
+        "security",
+        "correctness",
+        "quality",
+        "test_mapping",
+        "docs"
+      ],
+      "context_tools": true,
+      "options": {
+        "judge_enabled": true,
+        "planner_mode": "rules"
+      }
+    },
+    "D_no_static": {
+      "only": null,
+      "context_tools": true,
+      "options": {
+        "judge_enabled": true,
+        "planner_mode": "rules",
+        "static_tools_enabled": false
+      }
+    }
+  },
+  "cases": [
+    "atomic_coupon",
+    "cart_shipping",
+    "order_catalog",
+    "snapshot_quantity",
+    "clean_checkout",
+    "clean_catalog_stock"
+  ],
+  "repeats": 1,
+  "human_signed_off": false,
+  "fallback_enabled": false,
+  "order": "sequential, rotate variant order by case index",
+  "source_sha256": {
+    "reviewer/api.py": "030e6836c95bb105f3e8817a1b948df906e72bd88be5fb5e40b12b11a28cbcb5",
+    "reviewer/cli.py": "8f34d8c33b84c87f6bb56a8a884a489c39e829ad88abc8572c2e8a7ab34330a0",
+    "reviewer/config.py": "8fd606bc27b4fa4816c5150f784925c994207fc3d91c56776eaf6e233e53c80d",
+    "reviewer/local_ui.py": "3cb962adc26c37c7660d01b460e6c602fecc62396d6046c23051690b62a56ccd",
+    "reviewer/offline.py": "2ea31af3da8fe113389e7b6921c2cc06a69f82c019ca171c136b17afc2be9542",
+    "reviewer/publication.py": "3187048955967937c7c208d6277c259f49900f5ff792d0818e0eade31a0fd42c",
+    "reviewer/reporting.py": "33549348bde8053b027e4683f74a69357d676de82b211e9cf4dc7836f7ac6313",
+    "reviewer/runner.py": "11fc37c6cb478be582a3ad5c8155f5f17d27f3b08648cebc166e5d7e158eb330",
+    "reviewer/__init__.py": "a849eb7783871c77471247e1fd4dff80e65f2ddeebe4b62c6678b3ee1a53e551",
+    "reviewer/agents/base.py": "d0910333fe88bed2224ad7887ac7b576b72b993004acc74b85e66c3280d48224",
+    "reviewer/agents/correctness.py": "3bde579a8fbcbe7f68f7efdd001b8a7144be5d6b96237512483a3ed35395ceda",
+    "reviewer/agents/docs.py": "420579c03cbce80c6ef95fce65b834ab946981f453fac05b246eefa3a48b9621",
+    "reviewer/agents/evidence.py": "6e923478011b984a9ecc4f2dbf86022eb7c74f64e8e3234c84b9611b16b89c3d",
+    "reviewer/agents/judge.py": "73df0869fe028ce9ba20aa9ceb04588e8e6592d75274ec7346bfae221f798ef8",
+    "reviewer/agents/quality.py": "5403d84273abaf1b22f54a862ed68ae6fae94bf3c19e205921fc25df43e4da04",
+    "reviewer/agents/security.py": "ea58cef332b981174a155bbc76511bc3ba5263014c2d79cb1e8465f08215f9e1",
+    "reviewer/agents/test_mapping.py": "53d5148c64e5bdb3a28a7c388d4d7ac284a8c7ea4fe8b55069013d687fa56a22",
+    "reviewer/agents/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviewer/graph/aggregator.py": "c0730212fce178974f19fb360b703bea9d761ae2892d071f4f14758e36b07e17",
+    "reviewer/graph/builder.py": "9bfaf06a6aac3d13eca7cbfbc792af760949f9f21aa36fdd2302048e2eb8ac03",
+    "reviewer/graph/planner.py": "fa24d8b946420758e89fa942b45193306328f1f955b155a342e1829abd0072c0",
+    "reviewer/graph/state.py": "22c898d06e093c937ab741a7392bcf18686405b117e3e7f00487122c4690089b",
+    "reviewer/graph/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviewer/models/findings.py": "1b8f074e27193ef76ed8829cd42c5b7030086fbb88d70c96f8633f05631b048d",
+    "reviewer/models/inputs.py": "3105921823f55173ac37211fe9ff25d2cdd515c0141389d8b556389cef1e49cc",
+    "reviewer/models/plan.py": "fd9cc16ee0438f74c4358b5f01d43d29720a91ba455e268e5f9a46f1c94a7244",
+    "reviewer/models/report.py": "fcce923eee9767e1f2fbbff34c7b3b91878c9c251fbd4525e892efea6dad0352",
+    "reviewer/models/verification.py": "1408ca38fd6db152c4514308775d3e91807fd2f57298ab0a696ff6ecf48c26d7",
+    "reviewer/models/__init__.py": "d598b381af9c117483443f61220bbb8a177ec499d5173c7dfdebad1bd5e86e1c",
+    "reviewer/observability/langsmith_setup.py": "ca3996941a32c39d539e0fc37ee4ba2e8e63da5b2a8a34b7f362330204b6c8ef",
+    "reviewer/observability/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviewer/reliability/circuit_breaker.py": "78792370d93bd520772a868a611231e7ad77aa95bf077068762182444d503908",
+    "reviewer/reliability/harness.py": "8a61f30f3b61859e59490ac0e9955f3d4971552ec8daee169ca2c64c658734fd",
+    "reviewer/reliability/retry.py": "77fa2cdb8eea35e0b5abaad160704adcde92af42fdfe91d727a3f74ffdb98a3f",
+    "reviewer/reliability/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviewer/tools/ast_inspector.py": "77f47f7f221ab53b3767a62ecbf0c41a15eec980f0d930aae1ae43d5d8e4f519",
+    "reviewer/tools/context.py": "8efe3912ef6084d2053af40ae9c39791b824bf4a030b53407d4971fdc9d7542e",
+    "reviewer/tools/diff_input.py": "74130899490e09cb2ee69b8162258dfc1f6757f0d26a096a37fe98f85bf16a0a",
+    "reviewer/tools/github_client.py": "3780c92e9dfcd573b690139cada03463671e2cf23861625ff2ccd0978e42a662",
+    "reviewer/tools/ruff_runner.py": "6cd1aaa9594f320cb11463ac0c1a0b28f08927517d1f26332f784428649fb752",
+    "reviewer/tools/semgrep_runner.py": "aa80f0b8bed70aab06c1167ef88afe900b21c028a6c4e9893d40fb443904e1f9",
+    "reviewer/tools/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evals/build_dataset.py": "d95911b898f86310e20b7da1064bd9fb919063c46d9d825eac4a8d71a4e90ec1",
+    "evals/metrics.py": "24705c8f85ac1a8f0c9b849a769eb91c598e56290e274bfd33a93bcac9d9f022",
+    "evals/module_ablation.py": "6608a8852681ef97752dd4b0a8475d41e0af1d33fe0481b98cbb35399c744445",
+    "evals/module_scoring.py": "f4bcadeb1a047e0c73b46394e59dc09031a9a19d68b8323ffe6c7b678b132571",
+    "evals/run.py": "17bb72efb1ba0b98f23410d9b28f56a5e15e71567ffee1cd93c4b0bf54343d8c",
+    "evals/schema.py": "db979b709dea707c2c502865aa1072e0b09989ff76910fe212e9d095ef995bf3",
+    "evals/score_report.py": "0cf06aa189fc41f49abbf6a33c4a7b7fea3a84d9deb4d6ea03d5f94dd1e6755c",
+    "evals/__init__.py": "0f8842962aecf48395e7eb2819d9d5972bf685dd92e26ecc27484c2fc16fc8d0"
+  }
+}

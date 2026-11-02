@@ -1,0 +1,35 @@
+diff --git a/minishop/cart.py b/minishop/cart.py
+--- a/minishop/cart.py
++++ b/minishop/cart.py
+@@ -18,7 +18,7 @@
+             raise ValueError("sku is required")
+         if quantity <= 0:
+             raise ValueError("quantity must be positive")
+-        self._quantities[sku] = self._quantities.get(sku, 0) + quantity
++        self._quantities[sku] = quantity
+ 
+     def remove(self, sku: str) -> None:
+         self._quantities.pop(sku, None)
+diff --git a/minishop/inventory.py b/minishop/inventory.py
+--- a/minishop/inventory.py
++++ b/minishop/inventory.py
+@@ -16,7 +16,8 @@
+     def restock(self, sku: str, quantity: int) -> None:
+         if quantity <= 0:
+             raise ValueError("quantity must be positive")
+-        self._stock[sku] = self.available(sku) + quantity
++        new_quantity = self.available(sku) + quantity
++        self._stock[sku] = new_quantity
+ 
+     def reserve(self, sku: str, quantity: int) -> None:
+         if quantity <= 0:
+diff --git a/minishop/pricing.py b/minishop/pricing.py
+--- a/minishop/pricing.py
++++ b/minishop/pricing.py
+@@ -46,5 +46,5 @@
+         if subtotal < coupon.minimum_cents:
+             raise ValueError("coupon minimum not met")
+         discount = subtotal * coupon.percent_off // 100
+-    shipping = 0 if subtotal >= free_shipping_at_cents else shipping_cents
++    shipping = 0 if subtotal > free_shipping_at_cents else shipping_cents
+     return Quote(subtotal, discount, shipping, subtotal - discount + shipping)

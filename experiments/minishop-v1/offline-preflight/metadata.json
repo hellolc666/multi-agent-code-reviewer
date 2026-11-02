@@ -1,0 +1,149 @@
+{
+  "experiment": "minishop-abcd-v1",
+  "live": false,
+  "label_method": "AI-simulated human annotation, independently exercised with authored assertions",
+  "human_signed_off": false,
+  "dataset": {
+    "version": "minishop-v1-20",
+    "base_commit": "4353804fcf686c04a0ae4345bac223815d82f6b2",
+    "repo_url": "https://github.com/hellolc666/code-review-demo",
+    "sha256": "0e818f8320ebf41aab870dec46c8b0a653da5b40bf9cfe28960d3808c7405e27",
+    "cases": 20,
+    "dev": 4,
+    "test": 16,
+    "annotation_status": "AI_simulated_pending_human_signoff",
+    "human_signed_off": false,
+    "scope": "10 defective + 6 clean test changes; 4 development cases; no security-specific gold"
+  },
+  "model": "MockLLM",
+  "temperature": 0,
+  "budget": {
+    "max_reviewers": 5,
+    "max_llm_requests": 30,
+    "max_concurrent": 3,
+    "max_tool_calls": 6,
+    "max_tool_rounds": 2,
+    "max_tool_characters": 8192,
+    "max_context_characters": 64000,
+    "total_seconds": 180.0,
+    "call_seconds": 30.0
+  },
+  "variants": {
+    "A": {
+      "only": [
+        "correctness"
+      ],
+      "context_tools": false,
+      "options": {
+        "judge_enabled": false,
+        "single_agent_baseline": true
+      }
+    },
+    "B": {
+      "only": [
+        "security",
+        "correctness",
+        "quality",
+        "test_mapping",
+        "docs"
+      ],
+      "context_tools": false,
+      "options": {
+        "judge_enabled": false
+      }
+    },
+    "C": {
+      "only": [
+        "security",
+        "correctness",
+        "quality",
+        "test_mapping",
+        "docs"
+      ],
+      "context_tools": false,
+      "options": {
+        "judge_enabled": true
+      }
+    },
+    "D": {
+      "only": null,
+      "context_tools": true,
+      "options": {
+        "judge_enabled": true,
+        "planner_mode": "rules"
+      }
+    }
+  },
+  "cases": 4,
+  "planned_runs": 16,
+  "repeats": 1,
+  "order": "Rotate ABCD by case index, execute sequentially; no rerun selection",
+  "reviewer_source_sha256": {
+    "reviewer/api.py": "f534557f0167c0d238c9313888316dbff4d220a89ed419add25c7eb971e361dc",
+    "reviewer/cli.py": "7bcfcc110ccc72c6f8c349ed679045fef3325f1e21953fbf11bd3eb4d0b2f9e3",
+    "reviewer/config.py": "f58debbd5be6de8fc5272d3b8eee03a85f69cf9d666f889ba1df83004fab4d4b",
+    "reviewer/local_ui.py": "baf3065d1a550b8d2cd4e07f92f6925927cf8a4d71aa5a2591e3ed41d86c4952",
+    "reviewer/offline.py": "959f7cd3c57d9a046de4970f1eab2ee8a4eff34c168ad2a6e52a945115b8bf17",
+    "reviewer/publication.py": "3187048955967937c7c208d6277c259f49900f5ff792d0818e0eade31a0fd42c",
+    "reviewer/runner.py": "269f8328ff0f74aa9e52d68e27ae8b971166e8a8d5254e17197e10ec08b5f03b",
+    "reviewer/__init__.py": "a849eb7783871c77471247e1fd4dff80e65f2ddeebe4b62c6678b3ee1a53e551",
+    "reviewer/agents/base.py": "bbff794a92709a1319b4cd4faab44b09698e49ac1d5f3940144e5718ac76f10f",
+    "reviewer/agents/correctness.py": "0c75ca2b7ed2f9c138f7201ba44b869d07ae4353fff77d9f2c5993027039c2d3",
+    "reviewer/agents/docs.py": "ab96fe84821503048cfa3855057c66590f8290c3a02a28b595766a2cac56fa76",
+    "reviewer/agents/evidence.py": "f96d671ba5fb735f89aad6ce10c5525655294de34f9a5a7d5d2aa90a4c62400c",
+    "reviewer/agents/judge.py": "308a81c2091c2dc5a3291f6bd934c9fc72d8aac8acb2f0dcdb62cfc7fecf8bbb",
+    "reviewer/agents/quality.py": "ef9607050dc0c9efbbe37721d0a7a1a583753b67609de9bee02a94fa871d1748",
+    "reviewer/agents/security.py": "d3fb11ed556ba9168b429610d53632baa0cc08904784a68e3b7d4acc31670238",
+    "reviewer/agents/test_mapping.py": "f9a58d9135457a1c241b44ebfdc0c60a43f2ea2f483f7f4e0c5a8b603aebcf43",
+    "reviewer/agents/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviewer/graph/aggregator.py": "84a873f468d16fe1acb7bb3b4f6f3fa9aa19458762835083b524a53e869d2756",
+    "reviewer/graph/builder.py": "9bfaf06a6aac3d13eca7cbfbc792af760949f9f21aa36fdd2302048e2eb8ac03",
+    "reviewer/graph/planner.py": "fa24d8b946420758e89fa942b45193306328f1f955b155a342e1829abd0072c0",
+    "reviewer/graph/state.py": "22c898d06e093c937ab741a7392bcf18686405b117e3e7f00487122c4690089b",
+    "reviewer/graph/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviewer/models/findings.py": "1b8f074e27193ef76ed8829cd42c5b7030086fbb88d70c96f8633f05631b048d",
+    "reviewer/models/inputs.py": "3105921823f55173ac37211fe9ff25d2cdd515c0141389d8b556389cef1e49cc",
+    "reviewer/models/plan.py": "fd9cc16ee0438f74c4358b5f01d43d29720a91ba455e268e5f9a46f1c94a7244",
+    "reviewer/models/report.py": "fcce923eee9767e1f2fbbff34c7b3b91878c9c251fbd4525e892efea6dad0352",
+    "reviewer/models/verification.py": "1408ca38fd6db152c4514308775d3e91807fd2f57298ab0a696ff6ecf48c26d7",
+    "reviewer/models/__init__.py": "d598b381af9c117483443f61220bbb8a177ec499d5173c7dfdebad1bd5e86e1c",
+    "reviewer/observability/langsmith_setup.py": "ca3996941a32c39d539e0fc37ee4ba2e8e63da5b2a8a34b7f362330204b6c8ef",
+    "reviewer/observability/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviewer/reliability/circuit_breaker.py": "78792370d93bd520772a868a611231e7ad77aa95bf077068762182444d503908",
+    "reviewer/reliability/harness.py": "02405123fda605912e431b3d91317287998257ecde8381dbfb593d67d462b643",
+    "reviewer/reliability/retry.py": "77fa2cdb8eea35e0b5abaad160704adcde92af42fdfe91d727a3f74ffdb98a3f",
+    "reviewer/reliability/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "reviewer/tools/ast_inspector.py": "77f47f7f221ab53b3767a62ecbf0c41a15eec980f0d930aae1ae43d5d8e4f519",
+    "reviewer/tools/context.py": "8efe3912ef6084d2053af40ae9c39791b824bf4a030b53407d4971fdc9d7542e",
+    "reviewer/tools/diff_input.py": "74130899490e09cb2ee69b8162258dfc1f6757f0d26a096a37fe98f85bf16a0a",
+    "reviewer/tools/github_client.py": "3780c92e9dfcd573b690139cada03463671e2cf23861625ff2ccd0978e42a662",
+    "reviewer/tools/ruff_runner.py": "c09cab99b559922fab8184a1aa67d390b062bc74c22a38e108b9060dc2cae1e8",
+    "reviewer/tools/semgrep_runner.py": "aa80f0b8bed70aab06c1167ef88afe900b21c028a6c4e9893d40fb443904e1f9",
+    "reviewer/tools/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "evals/build_dataset.py": "d95911b898f86310e20b7da1064bd9fb919063c46d9d825eac4a8d71a4e90ec1",
+    "evals/metrics.py": "24705c8f85ac1a8f0c9b849a769eb91c598e56290e274bfd33a93bcac9d9f022",
+    "evals/run.py": "6f79e5253e8f20e2223966abb82cc80c896c4bd9456e51145ba57e67fa87b9eb",
+    "evals/schema.py": "db979b709dea707c2c502865aa1072e0b09989ff76910fe212e9d095ef995bf3",
+    "evals/score_report.py": "0cf06aa189fc41f49abbf6a33c4a7b7fea3a84d9deb4d6ea03d5f94dd1e6755c",
+    "evals/__init__.py": "0f8842962aecf48395e7eb2819d9d5972bf685dd92e26ecc27484c2fc16fc8d0"
+  },
+  "python": "3.12.7",
+  "packages": {
+    "pydantic": "2.14.1",
+    "langchain-openai": "0.3.35",
+    "langgraph": "0.6.11"
+  },
+  "tools": {
+    "ruff": "ruff 0.17.2",
+    "semgrep": "not invoked",
+    "semgrep_rules": "p/python (registry ruleset; not content-pinned)"
+  },
+  "notes": [
+    "A and B emit unjudged findings; they are not auto-confirmed.",
+    "A receives the diff through the existing general-reviewer baseline; it has no retrieval tools.",
+    "All variants receive identical repository files and diff through run_case.",
+    "Test-split input contains no gold labels or external probe assertions.",
+    "No hypothetical cost; missing usage remains null."
+  ],
+  "started_at": "2026-10-27T07:16:56.323170+00:00"
+}

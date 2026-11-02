@@ -19,12 +19,22 @@ from openai import APIStatusError, BadRequestError
 from reviewer import config
 from reviewer import runner as runner_mod
 from reviewer.agents import base
+from reviewer.agents import evidence as evidence_mod
 from reviewer.agents import quality as quality_mod
 from reviewer.agents import security as security_mod
-from reviewer.agents.base import FindingList, StructuredOutputError, analyze_with_schema, get_llm
+from reviewer.agents.base import (
+    FindingList,
+    ModelQuotaExhaustedError,
+    StructuredOutputError,
+    analyze_with_schema,
+    get_llm,
+)
+from reviewer.config import UnsupportedReviewModelError
 from reviewer.graph.aggregator import _SummaryResponse
 from reviewer.models.verification import JudgeDecision
 from reviewer.reliability.circuit_breaker import CircuitBreaker, CircuitState
+from reviewer.reliability.harness import ReviewBudget, RunHarness, current_run
+from reviewer.tools.diff_input import make_input
 from reviewer.tools.github_client import PRBundle, PRFile, PRMetadata
 from scripts import smoke_qwen
 
@@ -37,6 +47,7 @@ def isolated_settings(monkeypatch):
         "DASHSCOPE_MODEL",
         "DASHSCOPE_API_KEY",
         "DASHSCOPE_BASE_URL",
+        "DASHSCOPE_FALLBACK_MODELS",
         "REVIEWER_JSON_REPAIR_RETRIES",
     ):
         monkeypatch.delenv(key, raising=False)
@@ -118,6 +129,28 @@ def test_explicit_qwen_overrides_provider_and_model(qwen_settings, monkeypatch):
     monkeypatch.setenv("LLM_PROVIDER", "anthropic")
     monkeypatch.delenv("DASHSCOPE_MODEL")
     assert get_llm(provider="QWEN", model="explicit-model").model_name == "explicit-model"
+
+
+def test_ocr_model_is_rejected_before_request_without_leaking_key(qwen_settings, monkeypatch):
+    monkeypatch.setenv("DASHSCOPE_MODEL", "qwen-vl-ocr-2025-11-20")
+    with pytest.raises(UnsupportedReviewModelError, match="Function Calling") as caught:
+        get_llm()
+    assert "dummy-dashscope-secret" not in str(caught.value)
+
+
+def test_configured_qwen_fallbacks_are_ordered_and_validated(qwen_settings, monkeypatch):
+    monkeypatch.setenv(
+        "DASHSCOPE_FALLBACK_MODELS", "qwen3-coder-flash-2025-07-28, qwen3.5-27b, qwen3.5-27b"
+    )
+    assert config.qwen_model_candidates() == (
+        "configured-qwen-model", "qwen3-coder-flash-2025-07-28", "qwen3.5-27b"
+    )
+    monkeypatch.setenv("DASHSCOPE_FALLBACK_MODELS", "qwen-vl-ocr-2025-11-20")
+    with pytest.raises(UnsupportedReviewModelError):
+        config.qwen_model_candidates()
+    monkeypatch.setenv("DASHSCOPE_FALLBACK_MODELS", "a,b,c,d,e")
+    with pytest.raises(ValueError, match="at most four"):
+        config.qwen_model_candidates()
 
 
 @pytest.mark.parametrize("key", ["DASHSCOPE_API_KEY", "DASHSCOPE_BASE_URL", "DASHSCOPE_MODEL"])
@@ -312,25 +345,186 @@ async def test_operational_errors_never_enable_fallback_or_retry(status, body):
     assert llm.raw_calls == []
 
 
-async def test_invalid_native_output_is_repaired_without_fallback():
-    llm = FakeQwen(native=[None, {"findings": []}])
+async def test_free_tier_exhaustion_switches_model_once_and_shares_choice(
+    qwen_settings, monkeypatch, caplog
+):
+    monkeypatch.setenv("DASHSCOPE_FALLBACK_MODELS", "qwen3.5-27b")
+    primary = FakeQwen(native=[status_error(403, {
+        "error": {"code": "AllocationQuota.FreeTierOnly", "message": "quota exhausted"}
+    })])
+    backup = FakeQwen(native=[{"findings": []}, {"findings": []}])
+    monkeypatch.setattr(
+        base, "get_llm", lambda **kwargs: {
+            "configured-qwen-model": primary, "qwen3.5-27b": backup
+        }[kwargs["model"]],
+    )
+    runtime = RunHarness(ReviewBudget())
+    token = current_run.set(runtime)
+    try:
+        assert (await analyze_with_schema("PRIVATE-DIFF", FindingList)).findings == []
+        assert (await analyze_with_schema("PRIVATE-DIFF", FindingList)).findings == []
+    finally:
+        current_run.reset(token)
+    assert len(primary.native_calls) == 1
+    assert len(backup.native_calls) == 2
+    assert runtime.summary({})["models_used"] == ["configured-qwen-model", "qwen3.5-27b"]
+    assert runtime.summary({})["model_failovers"] == 1
+    assert "PRIVATE-DIFF" not in caplog.text
+    assert "dummy-dashscope-secret" not in caplog.text
+
+
+async def test_bound_tool_call_shares_qwen_free_quota_failover(qwen_settings, monkeypatch):
+    monkeypatch.setenv("DASHSCOPE_FALLBACK_MODELS", "qwen3.5-27b")
+    quota = status_error(403, {
+        "error": {"code": "AllocationQuota.FreeTierOnly", "message": "quota exhausted"}
+    })
+
+    class ToolClient:
+        def __init__(self, replies):
+            self.replies = list(replies)
+            self.calls = 0
+
+        def bind_tools(self, tools, *, tool_choice):
+            assert tools and tool_choice == "auto"
+            return self
+
+        async def ainvoke(self, _messages):
+            self.calls += 1
+            reply = self.replies.pop(0)
+            if isinstance(reply, Exception):
+                raise reply
+            return reply
+
+    primary = ToolClient([quota])
+    backup = ToolClient([AIMessage(content="Done.")])
+    monkeypatch.setattr(
+        base, "get_llm", lambda **kwargs: {
+            "configured-qwen-model": primary, "qwen3.5-27b": backup
+        }[kwargs["model"]],
+    )
+    runtime = RunHarness(ReviewBudget())
+    token = current_run.set(runtime)
+    try:
+        reply = await base.invoke_bound_tools([("human", "diff")], [{"name": "read_file"}])
+    finally:
+        current_run.reset(token)
+    assert reply.content == "Done."
+    assert primary.calls == backup.calls == 1
+    assert runtime.summary({})["model_failovers"] == 1
+
+
+async def test_free_allocated_quota_429_switches_without_retry(qwen_settings, monkeypatch):
+    monkeypatch.setenv("DASHSCOPE_FALLBACK_MODELS", "qwen3.5-27b")
+    primary = FakeQwen(native=[status_error(429, {
+        "error": {"code": "Throttling.AllocationQuota", "message": "Free allocated quota exceeded."}
+    })])
+    backup = FakeQwen(native=[{"findings": []}])
+    monkeypatch.setattr(
+        base, "get_llm", lambda **kwargs: {
+            "configured-qwen-model": primary, "qwen3.5-27b": backup
+        }[kwargs["model"]],
+    )
+    assert (await analyze_with_schema("diff", FindingList)).findings == []
+    assert len(primary.native_calls) == len(backup.native_calls) == 1
+
+
+async def test_all_configured_free_quotas_exhausted_preserves_failure(qwen_settings, monkeypatch):
+    monkeypatch.setenv("DASHSCOPE_FALLBACK_MODELS", "qwen3.5-27b")
+    quota = status_error(403, {"error": {"code": "AllocationQuota.FreeTierOnly"}})
+    primary, backup = FakeQwen(native=[quota]), FakeQwen(native=[quota])
+    monkeypatch.setattr(
+        base, "get_llm", lambda **kwargs: {
+            "configured-qwen-model": primary, "qwen3.5-27b": backup
+        }[kwargs["model"]],
+    )
+    with pytest.raises(ModelQuotaExhaustedError, match="All configured Qwen models"):
+        await analyze_with_schema("diff", FindingList)
+    assert len(primary.native_calls) == len(backup.native_calls) == 1
+
+
+async def test_temporary_429_does_not_switch_models(qwen_settings, monkeypatch):
+    monkeypatch.setenv("DASHSCOPE_FALLBACK_MODELS", "qwen3.5-27b")
+    error = status_error(429, {
+        "error": {"code": "Throttling.AllocationQuota", "message": "Token per minute limit"}
+    })
+    primary, backup = FakeQwen(native=[error] * 3), FakeQwen(native=[{"findings": []}])
+    monkeypatch.setattr(
+        base, "get_llm", lambda **kwargs: {
+            "configured-qwen-model": primary, "qwen3.5-27b": backup
+        }[kwargs["model"]],
+    )
+    async def no_sleep(_delay):
+        return None
+
+    monkeypatch.setattr(asyncio, "sleep", no_sleep)
+    with pytest.raises(APIStatusError):
+        await analyze_with_schema("diff", FindingList)
+    assert len(primary.native_calls) == 3
+    assert backup.native_calls == []
+
+
+async def test_access_denied_does_not_switch_models(qwen_settings, monkeypatch):
+    monkeypatch.setenv("DASHSCOPE_FALLBACK_MODELS", "qwen3.5-27b")
+    error = status_error(403, {
+        "error": {"code": "access_denied", "message": "Model access denied"}
+    })
+    primary, backup = FakeQwen(native=[error]), FakeQwen(native=[{"findings": []}])
+    monkeypatch.setattr(
+        base, "get_llm", lambda **kwargs: {
+            "configured-qwen-model": primary, "qwen3.5-27b": backup
+        }[kwargs["model"]],
+    )
+    with pytest.raises(APIStatusError):
+        await analyze_with_schema("diff", FindingList)
+    assert len(primary.native_calls) == 1
+    assert backup.native_calls == []
+
+
+async def test_invalid_native_finding_list_uses_validated_json_fallback(caplog):
+    llm = FakeQwen(native=[None], raw=['{"findings": []}'])
     assert (await analyze_with_schema("diff", FindingList, llm=llm)).findings == []
-    assert len(llm.native_calls) == 2
-    assert llm.raw_calls == []
+    assert len(llm.native_calls) == len(llm.raw_calls) == 1
+    assert "structured_output_fallback schema=FindingList reason=invalid_native" in caplog.text
+
+
+async def test_invalid_native_finding_enum_is_repaired_with_same_schema(caplog):
+    finding = {
+        "id": "doc-1",
+        "agent": "docs",
+        "category": "documentation",
+        "severity": "LOW",
+        "file_path": "sample.py",
+        "title": "Missing docstring",
+        "explanation": "The public function has no docstring.",
+        "suggestion": "Add a short docstring.",
+        "confidence": 0.8,
+    }
+    repaired = {**finding, "severity": "low"}
+    llm = FakeQwen(
+        native=[{"findings": [finding]}],
+        raw=[json.dumps({"findings": [repaired]})],
+    )
+    result = await analyze_with_schema("PRIVATE-CODE", FindingList, llm=llm)
+    assert result.findings[0].severity.value == "low"
+    assert len(llm.native_calls) == len(llm.raw_calls) == 1
+    assert "PRIVATE-CODE" not in caplog.text
+    assert "sample.py" not in caplog.text
 
 
 async def test_structured_missing_findings_is_not_fake_success():
-    llm = FakeQwen(native=[{}, {}, {}])
+    llm = FakeQwen(native=[{}], raw=["{}", "{}"])
     with pytest.raises(StructuredOutputError, match="budget exhausted"):
         await analyze_with_schema("diff", FindingList, llm=llm)
-    assert len(llm.native_calls) == 3
+    assert len(llm.native_calls) == 1
+    assert len(llm.raw_calls) == 2
 
 
 async def test_native_parser_default_is_not_accepted_as_model_output():
-    llm = FakeQwen(native=[FindingList(), FindingList(), FindingList()])
+    llm = FakeQwen(native=[FindingList()], raw=["{}", "{}"])
     with pytest.raises(StructuredOutputError):
         await analyze_with_schema("diff", FindingList, llm=llm)
-    assert len(llm.native_calls) == 3
+    assert len(llm.native_calls) == 1
+    assert len(llm.raw_calls) == 2
 
 
 @pytest.mark.parametrize(
@@ -360,10 +554,10 @@ async def test_json_repair_can_succeed_and_does_not_log_content(caplog):
 
 
 async def test_repair_budget_shared_across_modes():
-    llm = FakeQwen(native=[{}, NotImplementedError()], raw=["bad JSON", '{"findings": []}'])
+    llm = FakeQwen(native=[{}], raw=["bad JSON", '{"findings": []}'])
     result = await analyze_with_schema("diff", FindingList, llm=llm)
     assert result.findings == []
-    assert len(llm.native_calls) + len(llm.raw_calls) == 4
+    assert len(llm.native_calls) + len(llm.raw_calls) == 3
 
 
 async def test_zero_repairs(monkeypatch):
@@ -592,10 +786,23 @@ async def test_qwen_runner_end_to_end_with_mock_http_and_fixture(monkeypatch):
     def respond(request):
         payload = json.loads(request.content)
         name = payload["tools"][0]["function"]["name"]
+        if name == "read_file":
+            assert {tool["function"]["name"] for tool in payload["tools"]} == {
+                "read_file", "search_symbol", "search_references", "get_changed_hunks"
+            }
+            calls.append("BoundEvidenceTools")
+            return httpx.Response(200, json={
+                "id": "mock", "object": "chat.completion", "model": "mock", "created": 0,
+                "choices": [{
+                    "index": 0, "finish_reason": "stop",
+                    "message": {
+                        "role": "assistant", "content": "Enough evidence.", "tool_calls": [],
+                    },
+                }],
+            })
         calls.append(name)
         value = {
             "FindingList": {"findings": []},
-            "EvidenceTurn": {"requests": []},
             "_SummaryResponse": {"summary": "Offline mock report."},
         }[name]
         return httpx.Response(
@@ -654,7 +861,65 @@ async def test_qwen_runner_end_to_end_with_mock_http_and_fixture(monkeypatch):
     assert report["findings"] == []
     assert calls.count("FindingList") == 5
     assert calls.count("_SummaryResponse") == 0
-    assert calls.count("EvidenceTurn") == 2
+    assert calls.count("BoundEvidenceTools") == 2
+
+
+async def test_qwen_bound_evidence_uses_native_tool_calls_and_tool_messages(monkeypatch):
+    fixture = Path(__file__).parent / "fixtures" / "sample_repo"
+    diff = (
+        "diff --git a/app/auth.py b/app/auth.py\n"
+        "--- a/app/auth.py\n+++ b/app/auth.py\n"
+        "@@ -1 +1 @@\n-old\n+new\n"
+    )
+    value, diff = make_input(diff, mode="diff")
+    requests = []
+
+    def respond(request):
+        payload = json.loads(request.content)
+        requests.append(payload)
+        assert {tool["function"]["name"] for tool in payload["tools"]} == {
+            "read_file", "search_symbol", "search_references", "get_changed_hunks"
+        }
+        if len(requests) == 1:
+            message = {
+                "role": "assistant", "content": "", "tool_calls": [{
+                    "id": "call_read", "type": "function",
+                    "function": {
+                        "name": "read_file",
+                        "arguments": json.dumps({
+                            "path": "app/auth.py", "start_line": 1, "end_line": 2,
+                        }),
+                    },
+                }],
+            }
+            finish_reason = "tool_calls"
+        else:
+            assert any(
+                msg.get("role") == "tool" and msg.get("tool_call_id") == "call_read"
+                for msg in payload["messages"]
+            )
+            message = {"role": "assistant", "content": "Evidence complete."}
+            finish_reason = "stop"
+        return httpx.Response(200, json={
+            "id": "mock", "object": "chat.completion", "model": "mock", "created": 0,
+            "choices": [{"index": 0, "finish_reason": finish_reason, "message": message}],
+        })
+
+    async with httpx.AsyncClient(transport=httpx.MockTransport(respond)) as transport:
+        llm = ChatOpenAI(
+            model="mock", api_key="dummy", base_url="https://example.test/v1",
+            http_async_client=transport, max_retries=0,
+            metadata={"reviewer_provider": "qwen"},
+        )
+        monkeypatch.setattr(base, "get_llm", lambda: llm)
+        records, events = await evidence_mod.collect_evidence({
+            "repo_path": str(fixture), "pr_diff": diff,
+            "review_input": value.model_dump(), "context_tools_enabled": True,
+        }, "correctness")
+    assert len(requests) == 2
+    assert len(records) == 1 and records[0]["tool"] == "read_file"
+    assert records[0]["ok"] is True
+    assert events == []
 
 
 def test_smoke_without_live_never_constructs_client(monkeypatch, capsys, tmp_path):

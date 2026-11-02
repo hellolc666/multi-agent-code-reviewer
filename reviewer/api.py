@@ -4,7 +4,7 @@
 
     uvicorn reviewer.api:app --host 0.0.0.0 --port 8000
 
-    POST /review   — run the review pipeline; returns the ReviewReport JSON.
+    POST /review   — run the review pipeline; JSON by default, Markdown optional.
     GET  /health   — liveness probe.
 
 Native async — reuses ``reviewer.runner.run_review`` so behavior is identical
@@ -15,11 +15,13 @@ from __future__ import annotations
 
 import logging
 import os
-from typing import Any
+from typing import Any, Literal
 
 from fastapi import FastAPI, HTTPException, status
+from fastapi.responses import PlainTextResponse
 from pydantic import BaseModel, Field
 
+from reviewer.reporting import render_markdown
 from reviewer.runner import run_review
 
 log = logging.getLogger(__name__)
@@ -30,6 +32,7 @@ class ReviewRequest(BaseModel):
 
     pr_url: str = Field(..., description="GitHub PR URL.")
     live: bool = False
+    response_format: Literal["json", "markdown"] = "json"
     options: dict | None = None
     agents: list[str] | None = Field(
         default=None,
@@ -65,7 +68,7 @@ async def health() -> HealthResponse:
 
 
 @app.post("/review")
-async def review(request: ReviewRequest) -> dict[str, Any]:
+async def review(request: ReviewRequest) -> Any:
     if request.post_comments:
         raise HTTPException(
             status_code=403,
@@ -98,4 +101,6 @@ async def review(request: ReviewRequest) -> dict[str, Any]:
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="review pipeline returned an empty report",
         )
+    if request.response_format == "markdown":
+        return PlainTextResponse(render_markdown(report), media_type="text/markdown")
     return report

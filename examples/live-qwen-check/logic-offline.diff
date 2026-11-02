@@ -1,0 +1,7 @@
+diff --git a/pages.py b/pages.py
+--- a/pages.py
++++ b/pages.py
+@@ -1,2 +1,2 @@
+ def pages(total, size):
+-    return (total + size - 1) // size
++    return total // size

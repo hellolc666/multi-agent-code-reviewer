@@ -164,12 +164,20 @@ async def _run(state: ReviewState) -> dict[str, Any]:
     repo_path = Path(state["repo_path"])
 
     try:
-        ruff_findings = await run_ruff(repo_path, targets)
+        ruff_findings = (
+            await run_ruff(repo_path, targets)
+            if state.get("review_options", {}).get("static_tools_enabled", True)
+            else []
+        )
     except Exception as e:  # noqa: BLE001
         log.warning("ruff failed; continuing with LLM-only analysis: %s", type(e).__name__)
         ruff_findings = []
 
-    table = _complexity_table(state)
+    table = (
+        _complexity_table(state)
+        if state.get("review_options", {}).get("static_tools_enabled", True)
+        else "(static analysis disabled for ablation)"
+    )
     prompt = _build_quality_prompt(state.get("pr_diff", ""), ruff_findings, table)
 
     try:

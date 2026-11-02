@@ -66,6 +66,23 @@ async def test_usage_is_real_metadata_or_unknown():
     assert summary["estimated_cost"] == pytest.approx(58 / 1_000_000)
 
 
+def test_mixed_model_usage_does_not_apply_one_price_to_all_models():
+    runtime = RunHarness(ReviewBudget())
+    runtime.event("model", "selected", model="primary")
+    runtime.event("model", "selected", model="fallback")
+    runtime.event("llm", "completed", usage={"input_tokens": 7, "output_tokens": 11})
+    summary = runtime.summary({"price_per_million_tokens": {"input": 2, "output": 4}})
+    assert summary["estimated_cost"] is None
+    assert summary["cost_method"] == "unknown: mixed models require per-model prices"
+
+
+async def test_parallel_quota_errors_advance_to_one_shared_backup():
+    runtime = RunHarness(ReviewBudget())
+    positions = await asyncio.gather(*(runtime.advance_qwen_model(0, 3) for _ in range(3)))
+    assert positions == [1, 1, 1]
+    assert runtime.qwen_model_index == 1
+
+
 async def test_llm_failure_cannot_be_hidden_by_legacy_seed_fallback(caplog, tmp_path):
     runtime = RunHarness(ReviewBudget())
 

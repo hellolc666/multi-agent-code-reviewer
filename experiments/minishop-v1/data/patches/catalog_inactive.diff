@@ -1,0 +1,11 @@
+diff --git a/minishop/catalog.py b/minishop/catalog.py
+--- a/minishop/catalog.py
++++ b/minishop/catalog.py
+@@ -27,6 +27,6 @@
+ 
+     def purchasable(self, sku: str) -> Product:
+         product = self._products.get(sku)
+-        if product is None or not product.active:
++        if product is None:
+             raise ValueError("product is unavailable")
+         return product

@@ -1,0 +1,33 @@
+diff --git a/minishop/catalog.py b/minishop/catalog.py
+--- a/minishop/catalog.py
++++ b/minishop/catalog.py
+@@ -27,6 +27,6 @@
+ 
+     def purchasable(self, sku: str) -> Product:
+         product = self._products.get(sku)
+-        if product is None or not product.active:
++        if product is None:
+             raise ValueError("product is unavailable")
+         return product
+diff --git a/minishop/orders.py b/minishop/orders.py
+--- a/minishop/orders.py
++++ b/minishop/orders.py
+@@ -26,7 +26,7 @@
+ 
+         # Validate every line using checkout's business rule on a temporary copy.
+         # The real inventory changes only after all lines pass.
+-        staged = Inventory(self._inventory.snapshot())
++        staged = self._inventory
+         for line in lines:
+             checkout(staged, line.sku, line.quantity)
+         self._inventory.reserve_many({line.sku: line.quantity for line in lines})
+diff --git a/minishop/pricing.py b/minishop/pricing.py
+--- a/minishop/pricing.py
++++ b/minishop/pricing.py
+@@ -47,4 +47,5 @@
+             raise ValueError("coupon minimum not met")
+         discount = subtotal * coupon.percent_off // 100
+     shipping = 0 if subtotal >= free_shipping_at_cents else shipping_cents
+-    return Quote(subtotal, discount, shipping, subtotal - discount + shipping)
++    net_cents = subtotal - discount
++    return Quote(subtotal, discount, shipping, net_cents + shipping)

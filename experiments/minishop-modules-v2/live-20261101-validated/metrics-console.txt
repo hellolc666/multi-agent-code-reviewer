@@ -1,0 +1,253 @@
+{
+  "A": {
+    "tp": 6,
+    "fp": 0,
+    "fn": 2,
+    "semantic_pairs": 6,
+    "located_pairs": 6,
+    "precision": 1.0,
+    "recall": 0.75,
+    "f1": 0.8571428571428571,
+    "false_positives_per_pr": 0.0,
+    "location_accuracy": 1.0,
+    "runs": 6,
+    "completed": 5,
+    "skipped": 0,
+    "latency_p50_seconds": 15.481370599998627,
+    "latency_p95_seconds": 151.85612480004784,
+    "llm_requests": 20,
+    "completion_rate": 0.8333333333333334,
+    "input_tokens": null,
+    "output_tokens": null,
+    "estimated_cost": null,
+    "clean_false_alarm_rate": 0.0,
+    "statuses": {
+      "completed": 5,
+      "failed": 1
+    },
+    "models_used": [
+      "qwen3.5-27b"
+    ],
+    "agent_failures": 4
+  },
+  "B": {
+    "tp": 6,
+    "fp": 87,
+    "fn": 2,
+    "semantic_pairs": 6,
+    "located_pairs": 6,
+    "precision": 0.06451612903225806,
+    "recall": 0.75,
+    "f1": 0.1188118811881188,
+    "false_positives_per_pr": 14.5,
+    "location_accuracy": 1.0,
+    "runs": 6,
+    "completed": 4,
+    "skipped": 0,
+    "latency_p50_seconds": 66.63503355000285,
+    "latency_p95_seconds": 180.03430110000772,
+    "llm_requests": null,
+    "completion_rate": 0.6666666666666666,
+    "input_tokens": null,
+    "output_tokens": null,
+    "estimated_cost": null,
+    "clean_false_alarm_rate": 1.0,
+    "statuses": {
+      "completed": 4,
+      "failed": 1,
+      "partial": 1
+    },
+    "models_used": [
+      "qwen3.5-27b"
+    ],
+    "agent_failures": 2
+  },
+  "C": {
+    "tp": 7,
+    "fp": 3,
+    "fn": 1,
+    "semantic_pairs": 7,
+    "located_pairs": 7,
+    "precision": 0.7,
+    "recall": 0.875,
+    "f1": 0.7777777777777778,
+    "false_positives_per_pr": 0.5,
+    "location_accuracy": 1.0,
+    "runs": 6,
+    "completed": 4,
+    "skipped": 0,
+    "latency_p50_seconds": 79.41113125000265,
+    "latency_p95_seconds": 159.31168260000413,
+    "llm_requests": 59,
+    "completion_rate": 0.6666666666666666,
+    "input_tokens": null,
+    "output_tokens": null,
+    "estimated_cost": null,
+    "clean_false_alarm_rate": 0.0,
+    "statuses": {
+      "completed": 4,
+      "partial": 2
+    },
+    "models_used": [
+      "qwen3.5-27b"
+    ],
+    "agent_failures": 2
+  },
+  "D": {
+    "tp": 8,
+    "fp": 0,
+    "fn": 0,
+    "semantic_pairs": 8,
+    "located_pairs": 8,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1": 1.0,
+    "false_positives_per_pr": 0.0,
+    "location_accuracy": 1.0,
+    "runs": 6,
+    "completed": 2,
+    "skipped": 0,
+    "latency_p50_seconds": 94.0865294499963,
+    "latency_p95_seconds": 123.54522530001123,
+    "llm_requests": 65,
+    "completion_rate": 0.3333333333333333,
+    "input_tokens": null,
+    "output_tokens": null,
+    "estimated_cost": null,
+    "clean_false_alarm_rate": 0.0,
+    "statuses": {
+      "completed": 2,
+      "partial": 4
+    },
+    "models_used": [
+      "qwen3.5-27b"
+    ],
+    "agent_failures": 9
+  },
+  "D_no_judge": {
+    "tp": 8,
+    "fp": 95,
+    "fn": 0,
+    "semantic_pairs": 8,
+    "located_pairs": 8,
+    "precision": 0.07766990291262135,
+    "recall": 1.0,
+    "f1": 0.14414414414414414,
+    "false_positives_per_pr": 15.833333333333334,
+    "location_accuracy": 1.0,
+    "runs": 6,
+    "completed": 3,
+    "skipped": 0,
+    "latency_p50_seconds": 51.285723849985516,
+    "latency_p95_seconds": 95.64912489999551,
+    "llm_requests": 47,
+    "completion_rate": 0.5,
+    "input_tokens": null,
+    "output_tokens": null,
+    "estimated_cost": null,
+    "clean_false_alarm_rate": 1.0,
+    "statuses": {
+      "completed": 3,
+      "partial": 2,
+      "failed": 1
+    },
+    "models_used": [
+      "qwen3.5-27b"
+    ],
+    "agent_failures": 12
+  },
+  "D_no_evidence": {
+    "tp": 7,
+    "fp": 0,
+    "fn": 1,
+    "semantic_pairs": 7,
+    "located_pairs": 7,
+    "precision": 1.0,
+    "recall": 0.875,
+    "f1": 0.9333333333333333,
+    "false_positives_per_pr": 0.0,
+    "location_accuracy": 1.0,
+    "runs": 6,
+    "completed": 4,
+    "skipped": 0,
+    "latency_p50_seconds": 103.58780979999574,
+    "latency_p95_seconds": 140.14542010001605,
+    "llm_requests": 54,
+    "completion_rate": 0.6666666666666666,
+    "input_tokens": null,
+    "output_tokens": null,
+    "estimated_cost": null,
+    "clean_false_alarm_rate": 0.0,
+    "statuses": {
+      "partial": 2,
+      "completed": 4
+    },
+    "models_used": [
+      "qwen3.5-27b"
+    ],
+    "agent_failures": 3
+  },
+  "D_no_routing": {
+    "tp": 6,
+    "fp": 4,
+    "fn": 2,
+    "semantic_pairs": 6,
+    "located_pairs": 6,
+    "precision": 0.6,
+    "recall": 0.75,
+    "f1": 0.6666666666666666,
+    "false_positives_per_pr": 0.6666666666666666,
+    "location_accuracy": 1.0,
+    "runs": 6,
+    "completed": 1,
+    "skipped": 0,
+    "latency_p50_seconds": 119.25730170001043,
+    "latency_p95_seconds": 180.03358439996373,
+    "llm_requests": 86,
+    "completion_rate": 0.16666666666666666,
+    "input_tokens": null,
+    "output_tokens": null,
+    "estimated_cost": null,
+    "clean_false_alarm_rate": 0.0,
+    "statuses": {
+      "completed": 1,
+      "partial": 5
+    },
+    "models_used": [
+      "qwen3.5-27b"
+    ],
+    "agent_failures": 2
+  },
+  "D_no_static": {
+    "tp": 6,
+    "fp": 1,
+    "fn": 2,
+    "semantic_pairs": 6,
+    "located_pairs": 6,
+    "precision": 0.8571428571428571,
+    "recall": 0.75,
+    "f1": 0.8,
+    "false_positives_per_pr": 0.16666666666666666,
+    "location_accuracy": 1.0,
+    "runs": 6,
+    "completed": 1,
+    "skipped": 0,
+    "latency_p50_seconds": 87.27402109999093,
+    "latency_p95_seconds": 103.65700710000237,
+    "llm_requests": 60,
+    "completion_rate": 0.16666666666666666,
+    "input_tokens": null,
+    "output_tokens": null,
+    "estimated_cost": null,
+    "clean_false_alarm_rate": 0.0,
+    "statuses": {
+      "completed": 1,
+      "partial": 4,
+      "failed": 1
+    },
+    "models_used": [
+      "qwen3.5-27b"
+    ],
+    "agent_failures": 9
+  }
+}

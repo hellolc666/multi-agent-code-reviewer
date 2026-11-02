@@ -63,7 +63,8 @@
     .notice { border: 1px solid #664b32; border-radius: 10px; background: #2a211d; color: #f0c6a3; padding: 12px; margin-top: 12px; font-size: 12px; line-height: 1.55; }
     .error { color: #ffb4b9; border-color: #6b3841; background: #301e28; }
     .muted { color: #98acbb; font-size: 13px; line-height: 1.6; }
-    #download { display: none; }
+    .report-markdown { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 580px; overflow-y: auto; margin: 0; padding: 17px; border: 1px solid #2c4953; border-radius: 12px; background: #0b1520; color: #d9e6ed; font: 12px/1.65 Consolas, "Cascadia Code", monospace; }
+    #download, #download-md { display: none; }
     @media (max-width: 850px) { .grid { grid-template-columns: 1fr; } header { flex-direction: column; } .shell { padding: 25px 15px 48px; } }
     @media (max-width: 480px) { .choices { grid-template-columns: 1fr; } .stats { grid-template-columns: 1fr 1fr; } }
   </style>
@@ -86,7 +87,7 @@
         </div>
       </section>
       <section class="panel" aria-labelledby="result-title">
-        <div class="panel-head"><h2 id="result-title">审查结果</h2><button type="button" id="download">下载 JSON 报告</button></div>
+        <div class="panel-head"><h2 id="result-title">审查报告</h2><div class="actions"><button type="button" id="download-md">下载 Markdown 报告</button><button type="button" id="download">下载 JSON 数据</button></div></div>
         <div class="panel-body" id="results" aria-live="polite"><div class="result-empty"><div><div class="icon">⌘</div><strong>等待审查输入</strong><p>可以先载入内置的页数计算示例，点击“开始离线审查”查看完整流程。</p></div></div></div>
       </section>
     </div>
@@ -126,9 +127,9 @@
       if (report.usage?.elapsed_seconds != null) add(header, node('span', 'meta', `${Math.round(report.usage.elapsed_seconds)} 秒`));
       add(root, header, node('p', 'summary', report.summary || '没有返回摘要。'));
       const stats = node('div', 'stats');
-      [['确认问题', report.findings?.length || 0], ['原始候选', report.raw_findings?.length || 0], ['待复核', (report.verified_findings || []).filter(x => x.status === 'uncertain').length]].forEach(([label, count]) => add(stats, add(node('div', 'stat'), node('span', 'meta', label), node('b', '', count))));
-      add(root, stats, node('div', 'section-title', '已确认的问题'));
-      if (!report.findings?.length) add(root, node('p', 'muted', '没有已确认的问题。离线 Mock 不用于判断代码是否正确。'));
+      [[report.judge_enabled === false ? '报告问题' : '确认问题', report.findings?.length || 0], ['原始候选', report.raw_findings?.length || 0], ['待复核', (report.verified_findings || []).filter(x => x.status === 'uncertain').length]].forEach(([label, count]) => add(stats, add(node('div', 'stat'), node('span', 'meta', label), node('b', '', count))));
+      add(root, stats, node('div', 'section-title', report.judge_enabled === false ? '未经 Judge 复核的问题' : '已确认的问题'));
+      if (!report.findings?.length) add(root, node('p', 'muted', '没有报告的问题。离线 Mock 不用于判断代码是否正确。'));
       for (const finding of report.findings || []) {
         const card = node('article', 'finding');
         const heading = add(node('div', 'finding-head'), add(node('div'), node('h3', '', finding.title || '未命名问题'), node('span', 'location', `${finding.file_path || '?'}:${finding.line_start || '?'}`)), node('span', 'severity', finding.severity || ''));
@@ -140,7 +141,9 @@
       if (report.verification_incomplete) add(root, notice('Judge 复核未完成，请查看原始候选和失败原因。'));
       if (report.budget_events?.length) add(root, notice(`预算事件：${report.budget_events.map(x => x.reason || x.status).join('、')}`));
       if (report.agents_failed?.length) add(root, notice(`失败阶段：${report.agents_failed.map(x => `${x.agent} (${x.error})`).join('、')}`, true));
+      if (report.markdown_report) add(root, node('div', 'section-title', '完整报告'), node('pre', 'report-markdown', report.markdown_report));
       $('download').style.display = 'inline-block';
+      $('download-md').style.display = report.markdown_report ? 'inline-block' : 'none';
     }
 
     $('run').addEventListener('click', async () => {
@@ -151,6 +154,7 @@
       const agents = [...document.querySelectorAll('#agents input:checked')].map(x => x.value);
       const button = $('run'); button.disabled = true; button.textContent = '正在审查…';
       $('download').style.display = 'none';
+      $('download-md').style.display = 'none';
       $('results').replaceChildren(add(node('div', 'result-empty'), add(node('div'), node('div', 'icon', '◌'), node('strong', '', '审查进行中'), node('p', '', live ? '正在调用真实模型。请保持此页面打开。' : '正在运行离线流程。'))));
       try {
         const response = await fetch('/api/review', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ diff_text, repo_path, live, agents }) });
@@ -162,8 +166,15 @@
     });
     $('download').addEventListener('click', () => {
       if (!lastReport) return;
-      const url = URL.createObjectURL(new Blob([JSON.stringify(lastReport, null, 2)], { type: 'application/json' }));
+      const { markdown_report, ...jsonReport } = lastReport;
+      const url = URL.createObjectURL(new Blob([JSON.stringify(jsonReport, null, 2)], { type: 'application/json' }));
       const link = document.createElement('a'); link.href = url; link.download = 'review-report.json'; link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
+    $('download-md').addEventListener('click', () => {
+      if (!lastReport?.markdown_report) return;
+      const url = URL.createObjectURL(new Blob([lastReport.markdown_report], { type: 'text/markdown;charset=utf-8' }));
+      const link = document.createElement('a'); link.href = url; link.download = 'review-report.md'; link.click();
       setTimeout(() => URL.revokeObjectURL(url), 1000);
     });
   </script>

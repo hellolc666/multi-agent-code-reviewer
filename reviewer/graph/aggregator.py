@@ -92,6 +92,47 @@ def sort_findings(findings: list[Finding]) -> list[Finding]:
     return sorted(findings, key=_sort_key)
 
 
+def _same_correctness_quality_defect(left: dict, right: dict) -> bool:
+    """Merge only cross-dimension claims anchored to the same changed line."""
+    a, b = left["finding"], right["finding"]
+    snippet = str(a.get("evidence_snippet") or "").strip()
+    return (
+        {a.get("category"), b.get("category")} == {"correctness", "quality"}
+        and a.get("file_path") == b.get("file_path")
+        and isinstance(a.get("line_start"), int)
+        and a["line_start"] > 0
+        and a["line_start"] == b.get("line_start")
+        and bool(snippet)
+        and snippet == str(b.get("evidence_snippet") or "").strip()
+    )
+
+
+def _unique_confirmed(records: list[dict]) -> tuple[list[Finding], list[dict]]:
+    """Preserve Judge decisions while suppressing duplicate quality bug reports."""
+    annotated = [dict(record) for record in records]
+    selected: list[int] = []
+    for index, record in enumerate(annotated):
+        if record.get("status") != "confirmed":
+            continue
+        duplicate = next(
+            (
+                prior for prior in selected
+                if _same_correctness_quality_defect(annotated[prior], record)
+            ),
+            None,
+        )
+        if duplicate is None:
+            selected.append(index)
+            continue
+        if record["finding"]["category"] == "correctness":
+            annotated[duplicate]["duplicate_of"] = record["finding"]["id"]
+            selected[selected.index(duplicate)] = index
+        else:
+            annotated[index]["duplicate_of"] = annotated[duplicate]["finding"]["id"]
+    findings = [Finding.model_validate(annotated[index]["finding"]) for index in selected]
+    return findings, annotated
+
+
 # --------------------------------------------------------------------------- #
 # Summary                                                                     #
 # --------------------------------------------------------------------------- #
@@ -176,14 +217,10 @@ async def aggregate_findings_node(state: ReviewState) -> dict[str, Any]:
     raw = list(state.get("findings", []))
     deduped = deduplicate(raw)
     ordered = sort_findings(deduped)
+    verified = list(state.get("verified_findings", []))
     if "verified_findings" in state and state.get("judge_enabled", True):
-        ordered = sort_findings(
-            [
-                Finding.model_validate(record["finding"])
-                for record in state["verified_findings"]
-                if record["status"] == "confirmed"
-            ]
-        )
+        unique, verified = _unique_confirmed(verified)
+        ordered = sort_findings(unique)
 
     agents_failed = list(state.get("agents_failed", []))
     agents_succeeded = list(state.get("agents_succeeded", []))
@@ -192,7 +229,7 @@ async def aggregate_findings_node(state: ReviewState) -> dict[str, Any]:
     if not agents_to_run and not agents_succeeded and not agents_failed:
         summary = _no_agents_summary(state.get("changed_files", []))
     elif "verified_findings" in state and not ordered and raw:
-        counts = Counter(r["status"] for r in state["verified_findings"])
+        counts = Counter(r["status"] for r in verified)
         summary = (
             "No confirmed findings. "
             f"{counts['uncertain']} uncertain; {counts['rejected']} rejected. "
@@ -231,7 +268,7 @@ async def aggregate_findings_node(state: ReviewState) -> dict[str, Any]:
         review_plan=state.get("review_plan", {}),
         planner_errors=state.get("planner_errors", []),
         raw_findings=state.get("raw_findings", raw),
-        verified_findings=state.get("verified_findings", []),
+        verified_findings=verified,
         verification_incomplete=state.get("verification_incomplete", False),
         judge_enabled=state.get("judge_enabled", True),
         verification_conflicts=state.get("verification_conflicts", []),

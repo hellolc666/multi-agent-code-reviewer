@@ -1,0 +1,12 @@
+diff --git a/minishop/cart.py b/minishop/cart.py
+--- a/minishop/cart.py
++++ b/minishop/cart.py
+@@ -18,7 +18,7 @@
+             raise ValueError("sku is required")
+         if quantity <= 0:
+             raise ValueError("quantity must be positive")
+-        self._quantities[sku] = self._quantities.get(sku, 0) + quantity
++        self._quantities[sku] = quantity
+ 
+     def remove(self, sku: str) -> None:
+         self._quantities.pop(sku, None)

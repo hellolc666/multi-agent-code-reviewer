@@ -1,0 +1,86 @@
+{
+  "atomic_coupon": {
+    "inventory_partial_reserve": {
+      "code": "from minishop.inventory import Inventory\ni=Inventory({'book':2,'pen':0})\ntry: i.reserve_many({'book':1,'pen':1})\nexcept ValueError: pass\nassert i.available('book') == 2",
+      "candidate_should_pass": false
+    },
+    "dev_coupon_minimum": {
+      "code": "from minishop.cart import Cart\nfrom minishop.catalog import Catalog,Product\nfrom minishop.pricing import quote,Coupon\nc=Cart(); c.add('book')\nassert quote(c,Catalog([Product('book','Book',2000)]),Coupon('X',10,2000)).discount_cents == 200",
+      "candidate_should_pass": false
+    },
+    "clean_orders_named_quantities": {
+      "code": "pass",
+      "candidate_should_pass": true
+    }
+  },
+  "cart_shipping": {
+    "cart_overwrite": {
+      "code": "from minishop.cart import Cart\nc=Cart(); c.add('book',2); c.add('book')\nassert c.lines()[0].quantity == 3",
+      "candidate_should_pass": false
+    },
+    "pricing_shipping_equal": {
+      "code": "from minishop.cart import Cart\nfrom minishop.catalog import Catalog,Product\nfrom minishop.pricing import quote\nc=Cart(); c.add('book',2)\nassert quote(c,Catalog([Product('book','Book',2500)])).shipping_cents == 0",
+      "candidate_should_pass": false
+    },
+    "clean_restock_named_total": {
+      "code": "from minishop.inventory import Inventory\ni=Inventory({}); i.restock('x',2); i.restock('x',1); assert i.available('x') == 3",
+      "candidate_should_pass": true
+    }
+  },
+  "order_catalog": {
+    "orders_live_staging": {
+      "code": "from minishop.cart import Cart\nfrom minishop.catalog import Catalog,Product\nfrom minishop.inventory import Inventory\nfrom minishop.orders import OrderService\nc=Cart(); c.add('book'); i=Inventory({'book':3})\nOrderService(Catalog([Product('book','Book',2000)]),i).place(c)\nassert i.available('book') == 2",
+      "candidate_should_pass": false
+    },
+    "catalog_inactive": {
+      "code": "from minishop.catalog import Catalog,Product\nc=Catalog([Product('x','X',100,active=False)])\ntry: c.purchasable('x')\nexcept ValueError: pass\nelse: raise AssertionError('inactive product accepted')",
+      "candidate_should_pass": false
+    },
+    "clean_pricing_named_net": {
+      "code": "pass",
+      "candidate_should_pass": true
+    }
+  },
+  "snapshot_quantity": {
+    "inventory_snapshot_alias": {
+      "code": "from minishop.inventory import Inventory\ni=Inventory({'book':2}); s=i.snapshot(); s['book']=0\nassert i.available('book') == 2",
+      "candidate_should_pass": false
+    },
+    "pricing_quantity": {
+      "code": "from minishop.cart import Cart\nfrom minishop.catalog import Catalog,Product\nfrom minishop.pricing import quote\nc=Cart(); c.add('book',2)\nassert quote(c,Catalog([Product('book','Book',2000)])).subtotal_cents == 4000",
+      "candidate_should_pass": false
+    },
+    "clean_cart_setdefault": {
+      "code": "from minishop.cart import Cart\nc=Cart(); c.add('x',2); c.add('x'); assert c.lines()[0].quantity == 3",
+      "candidate_should_pass": true
+    }
+  },
+  "clean_checkout": {
+    "clean_cart_setdefault": {
+      "code": "from minishop.cart import Cart\nc=Cart(); c.add('x',2); c.add('x'); assert c.lines()[0].quantity == 3",
+      "candidate_should_pass": true
+    },
+    "clean_pricing_named_net": {
+      "code": "pass",
+      "candidate_should_pass": true
+    },
+    "clean_orders_named_quantities": {
+      "code": "pass",
+      "candidate_should_pass": true
+    }
+  },
+  "clean_catalog_stock": {
+    "clean_catalog_guard": {
+      "code": "from minishop.catalog import Catalog,Product\nc=Catalog([Product('x','X',0)]); assert c.purchasable('x').price_cents == 0",
+      "candidate_should_pass": true
+    },
+    "clean_restock_named_total": {
+      "code": "from minishop.inventory import Inventory\ni=Inventory({}); i.restock('x',2); i.restock('x',1); assert i.available('x') == 3",
+      "candidate_should_pass": true
+    },
+    "clean_cart_total_feature": {
+      "code": "pass",
+      "candidate_should_pass": true
+    }
+  }
+}

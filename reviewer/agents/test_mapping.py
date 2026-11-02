@@ -63,8 +63,9 @@ TEST_MAPPING_SYSTEM_PROMPT = (
     "Write findings ONLY for entries that are uncovered or partially_covered. "
     "For each, suggest what test should be added (e.g. 'add a unit test for "
     "the X case'). Use FindingList; ``category`` is \"test_coverage\"; "
-    "``agent`` is \"test_mapping\"; severity LOW for partial, MEDIUM for "
-    "uncovered. Use the file_path of the source entity, not the test file."
+    "``agent`` is \"test_mapping\"; ``severity`` must be the lowercase "
+    "enum value \"low\" for partially_covered or \"medium\" for uncovered. "
+    "Use the file_path of the source entity, not the test file."
 )
 
 

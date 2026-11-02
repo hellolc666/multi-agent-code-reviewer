@@ -1,0 +1,37 @@
+diff --git a/minishop/cart.py b/minishop/cart.py
+--- a/minishop/cart.py
++++ b/minishop/cart.py
+@@ -18,7 +18,8 @@
+             raise ValueError("sku is required")
+         if quantity <= 0:
+             raise ValueError("quantity must be positive")
+-        self._quantities[sku] = self._quantities.get(sku, 0) + quantity
++        self._quantities.setdefault(sku, 0)
++        self._quantities[sku] += quantity
+ 
+     def remove(self, sku: str) -> None:
+         self._quantities.pop(sku, None)
+diff --git a/minishop/inventory.py b/minishop/inventory.py
+--- a/minishop/inventory.py
++++ b/minishop/inventory.py
+@@ -11,7 +11,7 @@
+         return self._stock.get(sku, 0)
+ 
+     def snapshot(self) -> dict[str, int]:
+-        return dict(self._stock)
++        return self._stock
+ 
+     def restock(self, sku: str, quantity: int) -> None:
+         if quantity <= 0:
+diff --git a/minishop/pricing.py b/minishop/pricing.py
+--- a/minishop/pricing.py
++++ b/minishop/pricing.py
+@@ -40,7 +40,7 @@
+     lines = cart.lines()
+     if not lines:
+         raise ValueError("cart is empty")
+-    subtotal = sum(catalog.purchasable(line.sku).price_cents * line.quantity for line in lines)
++    subtotal = sum(catalog.purchasable(line.sku).price_cents for line in lines)
+     discount = 0
+     if coupon is not None:
+         if subtotal < coupon.minimum_cents:

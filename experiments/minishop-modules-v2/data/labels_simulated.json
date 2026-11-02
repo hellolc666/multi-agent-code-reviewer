@@ -1,0 +1,148 @@
+[
+  {
+    "id": "atomic_coupon",
+    "split": "test",
+    "source": "https://github.com/hellolc666/code-review-demo paired composition",
+    "annotation_status": "curated_pending_human_signoff",
+    "reviewed_by": "Codex simulated annotation; not independent human review",
+    "review_note": "批量库存预留失去原子性，后续商品缺货时前面的库存已经扣除 + 金额恰好达到优惠券门槛时仍被拒绝 + Extracts the same mapping after staging; validation and mutation order are unchanged.",
+    "gold_labels": [
+      {
+        "id": "inventory_partial_reserve_g1",
+        "file_path": "minishop/inventory.py",
+        "line": 32,
+        "title": "批量库存预留失去原子性，后续商品缺货时前面的库存已经扣除",
+        "defect": "批量库存预留失去原子性，后续商品缺货时前面的库存已经扣除",
+        "trigger": "stock book=2 pen=0；reserve_many({'book':1,'pen':1}) 抛错后 book 应仍为2",
+        "severity": "medium",
+        "evidence": "            if self.available(sku) < quantity:",
+        "category": "logic"
+      },
+      {
+        "id": "dev_coupon_minimum_g1",
+        "file_path": "minishop/pricing.py",
+        "line": 46,
+        "title": "金额恰好达到优惠券门槛时仍被拒绝",
+        "defect": "金额恰好达到优惠券门槛时仍被拒绝",
+        "trigger": "2000 分小计配 minimum_cents=2000 的优惠券",
+        "severity": "medium",
+        "evidence": "        if subtotal <= coupon.minimum_cents:",
+        "category": "logic"
+      }
+    ]
+  },
+  {
+    "id": "cart_shipping",
+    "split": "test",
+    "source": "https://github.com/hellolc666/code-review-demo paired composition",
+    "annotation_status": "curated_pending_human_signoff",
+    "reviewed_by": "Codex simulated annotation; not independent human review",
+    "review_note": "重复添加同一商品覆盖旧数量，订单少买少计价 + 小计恰好达到免邮门槛时仍收取运费 + Names the new stock total without changing positive-quantity validation or missing-SKU behavior.",
+    "gold_labels": [
+      {
+        "id": "cart_overwrite_g1",
+        "file_path": "minishop/cart.py",
+        "line": 21,
+        "title": "重复添加同一商品覆盖旧数量，订单少买少计价",
+        "defect": "重复添加同一商品覆盖旧数量，订单少买少计价",
+        "trigger": "add('book',2) 后 add('book',1)，应为3却为1",
+        "severity": "medium",
+        "evidence": "        self._quantities[sku] = quantity",
+        "category": "logic"
+      },
+      {
+        "id": "pricing_shipping_equal_g1",
+        "file_path": "minishop/pricing.py",
+        "line": 49,
+        "title": "小计恰好达到免邮门槛时仍收取运费",
+        "defect": "小计恰好达到免邮门槛时仍收取运费",
+        "trigger": "subtotal=5000、默认门槛5000，应免邮却收500分",
+        "severity": "medium",
+        "evidence": "    shipping = 0 if subtotal > free_shipping_at_cents else shipping_cents",
+        "category": "logic"
+      }
+    ]
+  },
+  {
+    "id": "order_catalog",
+    "split": "test",
+    "source": "https://github.com/hellolc666/code-review-demo paired composition",
+    "annotation_status": "curated_pending_human_signoff",
+    "reviewed_by": "Codex simulated annotation; not independent human review",
+    "review_note": "预校验直接扣真实库存，成功订单重复扣减，后续失败也无法回滚 + 已下架商品通过 purchasable 校验，可继续被订单购买 + Introduces a name for an unchanged integer expression; coupon and shipping behavior is preserved.",
+    "gold_labels": [
+      {
+        "id": "orders_live_staging_g1",
+        "file_path": "minishop/orders.py",
+        "line": 29,
+        "title": "预校验直接扣真实库存，成功订单重复扣减，后续失败也无法回滚",
+        "defect": "预校验直接扣真实库存，成功订单重复扣减，后续失败也无法回滚",
+        "trigger": "库存3购买1，checkout 和 reserve_many 各扣1，剩1而非2；后续缺货也会留下前项扣减",
+        "severity": "medium",
+        "evidence": "        staged = self._inventory",
+        "category": "logic"
+      },
+      {
+        "id": "catalog_inactive_g1",
+        "file_path": "minishop/catalog.py",
+        "line": 30,
+        "title": "已下架商品通过 purchasable 校验，可继续被订单购买",
+        "defect": "已下架商品通过 purchasable 校验，可继续被订单购买",
+        "trigger": "active=False 的商品传给 Catalog.purchasable 或 OrderService.place",
+        "severity": "medium",
+        "evidence": "        if product is None:",
+        "category": "logic"
+      }
+    ]
+  },
+  {
+    "id": "snapshot_quantity",
+    "split": "test",
+    "source": "https://github.com/hellolc666/code-review-demo paired composition",
+    "annotation_status": "curated_pending_human_signoff",
+    "reviewed_by": "Codex simulated annotation; not independent human review",
+    "review_note": "库存快照暴露内部可变字典，调用者能绕过库存校验修改真实库存 + 小计忽略商品数量，多个同类商品只收取一个的价格 + Equivalent aggregation after unchanged input validation; missing and repeated SKUs retain behavior.",
+    "gold_labels": [
+      {
+        "id": "inventory_snapshot_alias_g1",
+        "file_path": "minishop/inventory.py",
+        "line": 14,
+        "title": "库存快照暴露内部可变字典，调用者能绕过库存校验修改真实库存",
+        "defect": "库存快照暴露内部可变字典，调用者能绕过库存校验修改真实库存",
+        "trigger": "snapshot()['book']=0 改变原库存；快照也随后续补货变化",
+        "severity": "medium",
+        "evidence": "        return self._stock",
+        "category": "logic"
+      },
+      {
+        "id": "pricing_quantity_g1",
+        "file_path": "minishop/pricing.py",
+        "line": 43,
+        "title": "小计忽略商品数量，多个同类商品只收取一个的价格",
+        "defect": "小计忽略商品数量，多个同类商品只收取一个的价格",
+        "trigger": "单价2000分、数量2，应得到4000分小计",
+        "severity": "medium",
+        "evidence": "    subtotal = sum(catalog.purchasable(line.sku).price_cents for line in lines)",
+        "category": "logic"
+      }
+    ]
+  },
+  {
+    "id": "clean_checkout",
+    "split": "test",
+    "source": "https://github.com/hellolc666/code-review-demo paired composition",
+    "annotation_status": "curated_pending_human_signoff",
+    "reviewed_by": "Codex simulated annotation; not independent human review",
+    "review_note": "Equivalent aggregation after unchanged input validation; missing and repeated SKUs retain behavior. + Introduces a name for an unchanged integer expression; coupon and shipping behavior is preserved. + Extracts the same mapping after staging; validation and mutation order are unchanged.",
+    "gold_labels": []
+  },
+  {
+    "id": "clean_catalog_stock",
+    "split": "test",
+    "source": "https://github.com/hellolc666/code-review-demo paired composition",
+    "annotation_status": "curated_pending_human_signoff",
+    "reviewed_by": "Codex simulated annotation; not independent human review",
+    "review_note": "Product has no custom falsy behavior; None and inactive checks are equivalent. + Names the new stock total without changing positive-quantity validation or missing-SKU behavior. + Adds a total-unit-count method and an empty/multi-SKU test; no existing contract changes.",
+    "gold_labels": []
+  }
+]

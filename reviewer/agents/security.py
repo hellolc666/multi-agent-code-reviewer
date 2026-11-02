@@ -140,7 +140,11 @@ async def _run(state: ReviewState) -> dict[str, Any]:
 
     # Step 1: deterministic scan.
     try:
-        semgrep_findings = await run_semgrep(repo_path, targets)
+        semgrep_findings = (
+            await run_semgrep(repo_path, targets)
+            if state.get("review_options", {}).get("static_tools_enabled", True)
+            else []
+        )
     except Exception as e:  # noqa: BLE001
         log.warning("semgrep failed; continuing with LLM-only analysis: %s", type(e).__name__)
         semgrep_findings = []

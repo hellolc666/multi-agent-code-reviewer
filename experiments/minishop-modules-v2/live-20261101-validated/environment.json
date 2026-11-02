@@ -1,0 +1,18 @@
+{
+  "python": "3.12.7",
+  "packages": {
+    "pydantic": "2.14.1",
+    "langchain-openai": "0.3.35",
+    "langgraph": "0.6.11",
+    "ruff": "0.17.2"
+  },
+  "semgrep": "1.182.1",
+  "semgrep_rules": "p/python (registry; not content pinned)",
+  "static_preflight": "semgrep success outside sandbox; Windows certificate store denied in sandbox",
+  "tests": {
+    "full_suite_passed": 476,
+    "skipped": 4,
+    "scorer_tests_passed": 4
+  },
+  "ruff": "PASS"
+}

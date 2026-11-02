@@ -21,7 +21,8 @@ from pathlib import Path
 import typer
 from dotenv import load_dotenv
 
-from reviewer import __version__
+from reviewer import __version__, config
+from reviewer.reporting import render_markdown
 from reviewer.runner import run_review, run_review_diff
 
 CLI_HELP = """\
@@ -29,7 +30,8 @@ Multi-agent code reviewer for GitHub pull requests and local diffs.
 
 Routes up to five specialist agents — security, correctness, quality,
 test mapping and documentation — then independently verifies candidates.
-Returns an auditable JSON ReviewReport. Default mode is offline mock.
+Returns an auditable JSON ReviewReport and a readable Markdown report.
+Default mode is offline mock.
 
 Run ``reviewer review --help`` for the full review-command options.
 
@@ -37,6 +39,7 @@ EXAMPLES
 
   reviewer review https://github.com/owner/repo/pull/42
   reviewer review-diff --diff review.diff --repo-path . --output report.json
+  reviewer render-report --report report.json --output report.md
   reviewer review <PR_URL> --live --output report.json
   reviewer publish --report report.json --post-comments
   reviewer review <PR_URL> --only security,quality
@@ -58,7 +61,7 @@ DOCS
 """
 
 REVIEW_HELP = """\
-Review a GitHub Pull Request and emit a structured JSON report.
+Review a GitHub Pull Request and emit JSON plus a readable Markdown report.
 
 The pipeline:
   1. Fetch PR diff + changed files; shallow-clone the head branch.
@@ -84,6 +87,33 @@ app = typer.Typer(
     no_args_is_help=True,
     context_settings={"help_option_names": ["-h", "--help"]},
 )
+
+
+def _write_review_outputs(
+    report: dict, output: Path | None, markdown_output: Path | None = None
+) -> None:
+    """Keep JSON for machine consumers and emit Markdown from the same result."""
+    markdown = render_markdown(report)
+    if output and output.suffix.lower() == ".md":
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(markdown, encoding="utf-8")
+        typer.echo(f"wrote {output}", err=True)
+        return
+    if output and markdown_output and output.resolve() == markdown_output.resolve():
+        typer.echo("error: JSON and Markdown output paths must differ", err=True)
+        raise typer.Exit(code=2)
+    payload = json.dumps(report, indent=2, ensure_ascii=False)
+    if output:
+        output.parent.mkdir(parents=True, exist_ok=True)
+        output.write_text(payload, encoding="utf-8")
+        typer.echo(f"wrote {output}", err=True)
+    else:
+        typer.echo(payload)
+    target = markdown_output or (output.with_suffix(".md") if output else None)
+    if target:
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(markdown, encoding="utf-8")
+        typer.echo(f"wrote {target}", err=True)
 
 
 def _version_callback(value: bool) -> None:
@@ -143,8 +173,11 @@ def review(
         "--output",
         "-o",
         metavar="PATH",
-        help="Write the JSON report to this path. Defaults to stdout.",
+        help="Write JSON and a sibling .md report; a .md path writes Markdown only.",
         show_default=False,
+    ),
+    markdown_output: Path | None = typer.Option(  # noqa: B008
+        None, "--markdown-output", metavar="PATH", help="Custom Markdown report path."
     ),
     post_comments: bool = typer.Option(
         False,
@@ -199,17 +232,14 @@ def review(
     except KeyboardInterrupt:
         typer.echo("Interrupted.", err=True)
         raise typer.Exit(code=130) from None
+    except config.UnsupportedReviewModelError as exc:
+        typer.echo(f"error: {exc}", err=True)
+        raise typer.Exit(code=1) from None
     except Exception as e:  # noqa: BLE001
         typer.echo(f"error: {type(e).__name__}", err=True)
         raise typer.Exit(code=1) from e
 
-    payload = json.dumps(report, indent=2, ensure_ascii=False)
-    if output:
-        output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_text(payload, encoding="utf-8")
-        typer.echo(f"wrote {output}", err=True)
-    else:
-        typer.echo(payload)
+    _write_review_outputs(report, output, markdown_output)
 
 
 @app.command("publish")
@@ -241,6 +271,7 @@ def review_diff(
     diff: Path = typer.Option(..., "--diff", exists=True, dir_okay=False),  # noqa: B008
     repo_path: Path = typer.Option(..., "--repo-path", exists=True, file_okay=False),  # noqa: B008
     output: Path | None = typer.Option(None, "--output", "-o"),  # noqa: B008
+    markdown_output: Path | None = typer.Option(None, "--markdown-output"),  # noqa: B008
     live: bool = typer.Option(False, "--live", help="Allow paid API requests."),
     only: str | None = typer.Option(None, "--only"),
 ):
@@ -254,15 +285,35 @@ def review_diff(
                 live=live,
             )
         )
+    except config.UnsupportedReviewModelError as exc:
+        typer.echo(f"error: {exc}", err=True)
+        raise typer.Exit(1) from None
     except (ValueError, OSError) as exc:
         typer.echo(f"error: {type(exc).__name__}: invalid diff/repository", err=True)
         raise typer.Exit(1) from None
-    payload = json.dumps(result, indent=2, ensure_ascii=False)
+    _write_review_outputs(result, output, markdown_output)
+
+
+@app.command("render-report")
+def render_report_command(
+    report: Path = typer.Option(..., "--report", exists=True, dir_okay=False),  # noqa: B008
+    output: Path | None = typer.Option(None, "--output", "-o"),  # noqa: B008
+):
+    """Convert a saved JSON review to readable Markdown without a model call."""
+    try:
+        value = json.loads(report.read_text(encoding="utf-8"))
+        if not isinstance(value, dict):
+            raise ValueError("report root must be an object")
+        markdown = render_markdown(value)
+    except (OSError, UnicodeError, json.JSONDecodeError, ValueError) as exc:
+        typer.echo(f"error: invalid report ({type(exc).__name__})", err=True)
+        raise typer.Exit(code=1) from None
     if output:
         output.parent.mkdir(parents=True, exist_ok=True)
-        output.write_text(payload, encoding="utf-8")
+        output.write_text(markdown, encoding="utf-8")
+        typer.echo(f"wrote {output}", err=True)
     else:
-        typer.echo(payload)
+        typer.echo(markdown)
 
 
 if __name__ == "__main__":

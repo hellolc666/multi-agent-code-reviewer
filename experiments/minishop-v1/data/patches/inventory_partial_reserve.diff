@@ -1,0 +1,13 @@
+diff --git a/minishop/inventory.py b/minishop/inventory.py
+--- a/minishop/inventory.py
++++ b/minishop/inventory.py
+@@ -28,7 +28,7 @@
+     def reserve_many(self, quantities: dict[str, int]) -> None:
+         if any(quantity <= 0 for quantity in quantities.values()):
+             raise ValueError("quantity must be positive")
+-        if any(self.available(sku) < quantity for sku, quantity in quantities.items()):
+-            raise ValueError("not enough stock")
+         for sku, quantity in quantities.items():
++            if self.available(sku) < quantity:
++                raise ValueError("not enough stock")
+             self._stock[sku] -= quantity

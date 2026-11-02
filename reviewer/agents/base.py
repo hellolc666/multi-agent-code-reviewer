@@ -1,8 +1,9 @@
 """Shared provider construction and validated structured responses.
 
 Qwen reuses ChatOpenAI with explicit DashScope settings. Try tool-based
-structured output first; only explicit unsupported-capability errors allow
-plain JSON fallback. Invalid output has bounded repair, never empty success.
+structured output first; unsupported capabilities and invalid native FindingList
+or JudgeDecision output can fall back to validated plain JSON. Invalid output
+has bounded repair, never empty success.
 SDK imports remain lazy. Retries/breaker cover transient transport/429/5xx
 errors; configuration, authentication and missing models fail immediately.
 """
@@ -156,7 +157,7 @@ def get_llm(
 # ---------------------------------------------------------------------------
 
 
-async def _analyze_with_schema(
+async def _analyze_with_schema_once(
     prompt: str,
     schema: type[_T],
     *,
@@ -247,10 +248,10 @@ async def _analyze_with_schema(
                 ) from None
             remaining -= 1
             repair = True
-            # Qwen's native tool parser can repeatedly reject a valid decision
-            # shape. Spend the remaining bounded attempts on plain JSON, still
-            # validating against the exact same JudgeDecision schema.
-            if qwen and schema is JudgeDecision and not json_mode:
+            # Qwen's native tool parser can reject nested Finding enums as well
+            # as Judge decisions. Spend the remaining bounded attempts on plain
+            # JSON, still validating against the exact same schema.
+            if qwen and schema in (JudgeDecision, FindingList) and not json_mode:
                 json_mode = True
                 log.warning(
                     "structured_output_fallback schema=%s reason=invalid_native",
@@ -260,6 +261,102 @@ async def _analyze_with_schema(
             log.warning(
                 "structured_output_repair schema=%s remaining=%d", schema.__name__, remaining
             )
+
+
+class ModelQuotaExhaustedError(RuntimeError):
+    """All configured models reached a confirmed free-quota boundary."""
+
+
+def _free_quota_exhausted(exc: Exception) -> bool:
+    """Match only provider responses that explicitly say free quota is gone."""
+    status = getattr(exc, "status_code", None)
+    if status not in (403, 429):
+        return False
+    body = getattr(exc, "body", None)
+    if not isinstance(body, dict):
+        return False
+    error = body.get("error", body)
+    if not isinstance(error, dict):
+        return False
+    code = str(error.get("code") or "").strip().lower()
+    message = str(error.get("message") or "").strip().lower()
+    return code == "allocationquota.freetieronly" or (
+        status == 429 and "free allocated quota exceeded" in message
+    )
+
+
+def _safe_model_label(model: str) -> str:
+    """Expose model identity in traces without ever echoing a misplaced key."""
+    if model.lower().startswith(("sk-", "sk_", "api_")) or not re.fullmatch(
+        r"[A-Za-z0-9][A-Za-z0-9._/-]{0,79}", model
+    ):
+        return "redacted-model"
+    return model
+
+
+async def _with_qwen_candidates(call, *, llm=None):
+    """Apply the same bounded Qwen free-quota failover to schema and tool calls."""
+    if llm is not None or model_override.get() is not None or config.llm_provider() != "qwen":
+        return await call(llm or get_llm())
+    candidates = config.qwen_model_candidates()
+    runtime = current_run.get()
+    index = runtime.qwen_model_index if runtime else 0
+    while index < len(candidates):
+        model = candidates[index]
+        label = _safe_model_label(model)
+        if runtime:
+            runtime.event("model", "selected", model=label)
+        try:
+            return await call(get_llm(model=model))
+        except Exception as exc:
+            if not _free_quota_exhausted(exc):
+                raise
+            next_index = (
+                await runtime.advance_qwen_model(index, len(candidates))
+                if runtime
+                else index + 1
+            )
+            if next_index >= len(candidates):
+                raise ModelQuotaExhaustedError(
+                    "All configured Qwen models exhausted their free quota"
+                ) from None
+            next_label = _safe_model_label(candidates[next_index])
+            if runtime:
+                runtime.event(
+                    "model", "failover", from_model=label, to_model=next_label,
+                    reason="free_quota_exhausted",
+                )
+            log.warning("qwen_model_failover from=%s to=%s", label, next_label)
+            index = next_index
+    raise ModelQuotaExhaustedError("All configured Qwen models exhausted their free quota")
+
+
+async def _analyze_with_schema(
+    prompt: str,
+    schema: type[_T],
+    *,
+    llm: BaseChatModel | None = None,
+    system: str | None = None,
+) -> _T:
+    async def call(client):
+        return await _analyze_with_schema_once(prompt, schema, llm=client, system=system)
+
+    return await _with_qwen_candidates(call, llm=llm)
+
+
+async def invoke_bound_tools(messages, tools, *, llm=None):
+    """Request native model tool calls through the shared budget/retry/failover path."""
+    async def call(client):
+        bound = client.bind_tools(tools, tool_choice="auto")
+        return await _resilient_invoke(bound, messages)
+
+    try:
+        return await _with_qwen_candidates(call, llm=llm)
+    except Exception as exc:
+        runtime = current_run.get()
+        if runtime:
+            runtime.fail("llm", exc)
+        raise
 
 
 async def analyze_with_schema(prompt, schema, *, llm=None, system=None):
@@ -397,6 +494,8 @@ def _is_transient(exc: Exception) -> bool:
     from openai import APIConnectionError as OpenAIConnectionError
 
     status = getattr(exc, "status_code", None)
+    if _free_quota_exhausted(exc):
+        return False
     return (
         isinstance(
             exc,

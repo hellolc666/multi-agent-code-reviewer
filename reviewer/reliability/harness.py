@@ -42,6 +42,7 @@ class RunHarness:
         self.semaphore = asyncio.Semaphore(budget.max_concurrent)
         self.lock = asyncio.Lock()
         self.requests = 0
+        self.qwen_model_index = 0
         self.tool_calls = {}
         self.events = []
         self.failures = []
@@ -50,6 +51,13 @@ class RunHarness:
 
     def remaining(self):
         return max(0.0, self.budget.total_seconds - (time.perf_counter() - self.started))
+
+    async def advance_qwen_model(self, failed_index: int, model_count: int) -> int:
+        """Share quota-driven model changes across concurrent reviewer agents."""
+        async with self.lock:
+            if self.qwen_model_index <= failed_index:
+                self.qwen_model_index = failed_index + 1
+            return min(self.qwen_model_index, model_count)
 
     def event(self, kind, status, *, agent=None, duration=None, usage=None, **metadata):
         value = {
@@ -119,13 +127,18 @@ class RunHarness:
 
     def summary(self, options):
         calls = [e for e in self.events if e["kind"] == "llm"]
+        models_used = list(dict.fromkeys(
+            event["model"]
+            for event in self.events
+            if event["kind"] == "model" and event["status"] == "selected"
+        ))
         known = [e["usage"] for e in calls if e.get("usage") is not None]
         complete = bool(calls) and len(known) == len(calls)
         inputs = sum(u["input_tokens"] for u in known) if complete else None
         outputs = sum(u["output_tokens"] for u in known) if complete else None
         prices = options.get("price_per_million_tokens", {})
         cost = None
-        if complete and all(
+        if len(models_used) <= 1 and complete and all(
             isinstance(prices.get(k), (int, float)) and prices[k] >= 0 for k in ("input", "output")
         ):
             cost = (inputs * prices["input"] + outputs * prices["output"]) / 1_000_000
@@ -135,10 +148,19 @@ class RunHarness:
             "output_tokens": outputs,
             "unknown_usage_requests": len(calls) - len(known),
             "estimated_cost": cost,
-            "cost_method": "actual tokens * configured per-million rates"
-            if cost is not None
-            else "unknown: missing real usage or configured prices",
+            "cost_method": (
+                "actual tokens * configured per-million rates"
+                if cost is not None
+                else "unknown: mixed models require per-model prices"
+                if len(models_used) > 1
+                else "unknown: missing real usage or configured prices"
+            ),
             "elapsed_seconds": round(time.perf_counter() - self.started, 6),
+            "models_used": models_used,
+            "model_failovers": sum(
+                event["kind"] == "model" and event["status"] == "failover"
+                for event in self.events
+            ),
         }
 
     def capture(self, patch):

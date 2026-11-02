@@ -15,6 +15,7 @@ from pathlib import Path
 
 import pytest
 
+from reviewer.tools import ruff_runner
 from reviewer.tools.ruff_runner import (
     RuffError,
     RuffFinding,
@@ -24,6 +25,14 @@ from reviewer.tools.ruff_runner import (
 )
 
 FIXTURE_REPO = Path(__file__).parent / "fixtures" / "sample_repo"
+
+
+def test_resolve_ruff_next_to_interpreter_without_activated_path(monkeypatch, tmp_path):
+    sibling = tmp_path / ("ruff.exe" if ruff_runner.sys.platform == "win32" else "ruff")
+    sibling.touch()
+    monkeypatch.setattr(ruff_runner.sys, "executable", str(tmp_path / "python.exe"))
+    monkeypatch.setattr(ruff_runner.shutil, "which", lambda _name: None)
+    assert ruff_runner._resolve_executable("ruff") == str(sibling)
 
 
 class _FakeProc:

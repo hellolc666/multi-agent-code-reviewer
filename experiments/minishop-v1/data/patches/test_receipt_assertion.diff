@@ -1,0 +1,12 @@
+diff --git a/tests/test_checkout.py b/tests/test_checkout.py
+--- a/tests/test_checkout.py
++++ b/tests/test_checkout.py
+@@ -7,7 +7,7 @@
+ class CheckoutTests(unittest.TestCase):
+     def test_exact_stock_can_be_purchased(self):
+         inventory = Inventory({"book": 2})
+-        self.assertEqual(checkout(inventory, "book", 2), {"sku": "book", "quantity": 2})
++        self.assertTrue(checkout(inventory, "book", 2))
+         self.assertEqual(inventory.available("book"), 0)
+ 
+     def test_insufficient_stock_is_rejected_without_mutation(self):

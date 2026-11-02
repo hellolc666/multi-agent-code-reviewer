@@ -19,6 +19,7 @@ from __future__ import annotations
 import asyncio
 import json
 import shutil
+import sys
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
@@ -94,12 +95,16 @@ def _parse_ruff_json(payload: str) -> list[RuffFinding]:
 
 
 def _resolve_executable(executable: str) -> str:
-    """Locate ``ruff`` on PATH; fall through to the literal name otherwise.
+    """Locate Ruff next to the running interpreter, then on PATH.
 
-    ``shutil.which`` respects the current ``PATH``; venvs activated implicitly
-    via ``.venv/bin/python`` don't always export ``PATH`` correctly, so we
-    fall back to the bare name and let ``create_subprocess_exec`` raise.
+    Launching ``.venv/Scripts/reviewer.exe`` does not activate the venv or
+    add its Scripts directory to PATH on Windows.
     """
+    if executable == RUFF_BIN:
+        suffix = ".exe" if sys.platform == "win32" else ""
+        sibling = Path(sys.executable).with_name(RUFF_BIN + suffix)
+        if sibling.is_file():
+            return str(sibling)
     found = shutil.which(executable)
     return found or executable
 

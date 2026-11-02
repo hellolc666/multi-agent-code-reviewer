@@ -38,7 +38,8 @@ DOCS_SYSTEM_PROMPT = (
     "entities (functions, methods, classes) that are missing docstrings. "
     "For each, write a finding suggesting a brief docstring (one sentence) "
     "based on the name and arguments. Use FindingList schema. ``category`` "
-    "is \"documentation\". ``agent`` is \"docs\". Severity is always LOW "
+    "is exactly \"documentation\". ``agent`` is exactly \"docs\". "
+    "``severity`` is exactly the lowercase enum value \"low\" "
     "(missing docstring is informational, never blocks a merge)."
 )
 

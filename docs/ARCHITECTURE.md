@@ -24,6 +24,10 @@ flowchart TD
 上游四节点、Send 路由、静态工具和聚合仍被调用。新增 Correctness 节点使用相同的
 `FindingList`/`analyze_with_schema` 适配器。规则 Planner 给安全风险确定性路由底座；
 hybrid 的模型建议经 Pydantic 与白名单校验，无法删除规则底座。空路由为 `skipped`。
+取证节点用 `bind_tools` 暴露 `read_file`、`search_symbol`、`search_references` 和
+`get_changed_hunks` 的只读定义；模型返回原生 `tool_calls`，程序校验参数、路径与预算后
+执行，并用对应 `tool_call_id` 回传结果。Ruff、Semgrep 仍由程序确定性调用；
+Reviewer 和 Judge 的最终决定继续走 `analyze_with_schema` 与 Pydantic 校验。
 
 图的 `ReviewState` 保存 `review_input`、`pr_diff`、`changed_files`、`review_plan`、
 `agents_to_run`、`findings`（候选）、`raw_findings`、`verified_findings`、
@@ -31,12 +35,18 @@ hybrid 的模型建议经 Pydantic 与白名单校验，无法删除规则底座
 多分支的候选/成功/失败/证据字段使用 `add` reducer。Judge 先检查路径、RIGHT 行、
 原文片段和 checkout 一致，再给独立模型局部证据请求反证；输出
 `confirmed/rejected/uncertain` 和理由。Judge 失败将候选保留为 uncertain。
+若多行证据在声称的范围内只对应一条新增行，Judge 将锚点收敛到该行；
+聚合器仅合并同文件、同新增行、同证据片段的 correctness/quality 重复确认，
+并在 `verified_findings` 保留原始判断及 `duplicate_of`，供人工追溯。
 
 `RunHarness` 在图运行外独立持有共享请求锁与并发 Semaphore；ContextVar 使并发运行
 互不污染。每个节点 wrapper 保存增量快照和脱敏 trace，整体超时可返回 partial。
+取证轮次达到配置上限时，已执行的工具结果照常交给 Reviewer，trace 记录上限；
+只有工具请求被截断、失败或其他阶段未完成才把报告标为 partial。
 真实 usage 只有模型返回时计数，未知为 null。默认 Mock 模式不访问付费模型，
 静态子进程也被跳过。LLM prompt 包裹为不可信 JSON，模型不能授权新工具或发布。
 
-HTTP 只返回 JSON，不允许客户端直接发表评论。CLI 的单独 `publish` 是人工发布点。
+HTTP 默认返回 JSON；请求中设置 `response_format=markdown` 可返回可读报告。
+HTTP 不允许客户端直接发表评论。CLI 的单独 `publish` 是人工发布点。
 报告带 `input_mode/head_sha/diff_sha256/reviewed_files/coverage`，发布前必须检验
 GitHub head 与审查版本；远端 marker 防止顺序重复评论。工程限制见 HARNESS.md。

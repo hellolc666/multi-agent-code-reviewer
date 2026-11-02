@@ -1,0 +1,12 @@
+diff --git a/minishop/pricing.py b/minishop/pricing.py
+--- a/minishop/pricing.py
++++ b/minishop/pricing.py
+@@ -43,7 +43,7 @@
+     subtotal = sum(catalog.purchasable(line.sku).price_cents * line.quantity for line in lines)
+     discount = 0
+     if coupon is not None:
+-        if subtotal < coupon.minimum_cents:
++        if subtotal <= coupon.minimum_cents:
+             raise ValueError("coupon minimum not met")
+         discount = subtotal * coupon.percent_off // 100
+     shipping = 0 if subtotal >= free_shipping_at_cents else shipping_cents

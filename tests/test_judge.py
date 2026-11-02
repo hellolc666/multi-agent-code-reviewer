@@ -67,6 +67,68 @@ async def test_valid_evidence_is_confirmed_and_raw_preserved(review, confirmed):
     assert result["raw_findings"][0].verification_status == "candidate"
 
 
+async def test_unique_added_diff_line_repairs_model_anchor_before_judging(review, confirmed):
+    original = review["findings"][0].model_copy(
+        update={
+            "line_start": 1,
+            "line_end": 1,
+            "evidence_snippet": "-    return 1\n+    return helper()",
+        }
+    )
+    review["findings"] = [original]
+    result = await judge.judge_findings_node(review)
+    record = result["verified_findings"][0]
+    assert record["status"] == "confirmed"
+    assert record["finding"]["line_start"] == record["finding"]["line_end"] == 2
+    assert record["finding"]["evidence_snippet"] == "    return helper()"
+    assert result["raw_findings"][0].line_start == 1
+    assert result["raw_findings"][0].evidence_snippet.startswith("-")
+
+
+async def test_multiline_context_evidence_anchors_unique_added_line(review, confirmed):
+    review["findings"] = [review["findings"][0].model_copy(update={
+        "line_start": 1,
+        "line_end": 2,
+        "evidence_snippet": "def answer():\n    return helper()",
+    })]
+    result = await judge.judge_findings_node(review)
+    record = result["verified_findings"][0]
+    assert record["status"] == "confirmed"
+    assert record["finding"]["line_start"] == record["finding"]["line_end"] == 2
+    assert record["finding"]["evidence_snippet"] == "    return helper()"
+    assert record["can_comment"] is True
+    assert result["raw_findings"][0].line_start == 1
+
+
+def test_multiline_anchor_stays_unchanged_when_multiple_added_lines_match(review):
+    patch = (
+        "diff --git a/app.py b/app.py\n--- a/app.py\n+++ b/app.py\n"
+        "@@ -1,2 +1,3 @@\n def answer():\n-    return 1\n"
+        "+    first()\n+    second()\n"
+    )
+    value, _ = make_input(patch, mode="diff")
+    finding = review["findings"][0].model_copy(update={
+        "line_start": 1, "line_end": 3,
+        "evidence_snippet": "    first()\n    second()",
+    })
+    assert judge._normalize_added_line_anchor(finding, value) == finding
+
+
+async def test_unmatched_diff_snippet_does_not_gain_evidence(review, monkeypatch):
+    async def forbidden(*_args, **_kwargs):
+        pytest.fail("unmatched evidence must not call Judge LLM")
+
+    monkeypatch.setattr(judge, "analyze_with_schema", forbidden)
+    review["findings"] = [
+        review["findings"][0].model_copy(
+            update={"evidence_snippet": "+    return imaginary()"}
+        )
+    ]
+    record = (await judge.judge_findings_node(review))["verified_findings"][0]
+    assert record["status"] == "rejected"
+    assert record["reason"] == "evidence_snippet_not_at_anchor"
+
+
 @pytest.mark.parametrize(
     "update,reason",
     [

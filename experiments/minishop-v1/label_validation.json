@@ -1,0 +1,412 @@
+{
+  "dataset_sha256": "0e818f8320ebf41aab870dec46c8b0a653da5b40bf9cfe28960d3808c7405e27",
+  "baseline_tests": {
+    "returncode": 0,
+    "stdout": "",
+    "stderr": "test_exact_stock_can_be_purchased (test_checkout.CheckoutTests.test_exact_stock_can_be_purchased) ... ok\ntest_insufficient_stock_is_rejected_without_mutation (test_checkout.CheckoutTests.test_insufficient_stock_is_rejected_without_mutation) ... ok\ntest_nonpositive_quantity_is_rejected (test_checkout.CheckoutTests.test_nonpositive_quantity_is_rejected) ... ok\ntest_rejects_nonpositive_quantity (test_store.CartTests.test_rejects_nonpositive_quantity) ... ok\ntest_repeated_additions_merge_and_remove_clears_line (test_store.CartTests.test_repeated_additions_merge_and_remove_clears_line) ... ok\ntest_rejects_duplicate_sku_and_negative_price (test_store.CatalogTests.test_rejects_duplicate_sku_and_negative_price) ... ok\ntest_rejects_unknown_and_inactive_products (test_store.CatalogTests.test_rejects_unknown_and_inactive_products) ... ok\ntest_batch_reservation_is_all_or_nothing (test_store.InventoryTests.test_batch_reservation_is_all_or_nothing) ... ok\ntest_restock_and_snapshot_are_independent (test_store.InventoryTests.test_restock_and_snapshot_are_independent) ... ok\ntest_exact_stock_order_is_valid (test_store.OrderTests.test_exact_stock_order_is_valid) ... ok\ntest_later_item_failure_keeps_all_stock (test_store.OrderTests.test_later_item_failure_keeps_all_stock) ... ok\ntest_multiline_order_prices_and_reserves_all_items (test_store.OrderTests.test_multiline_order_prices_and_reserves_all_items) ... ok\ntest_pricing_failure_keeps_stock (test_store.OrderTests.test_pricing_failure_keeps_stock) ... ok\ntest_coupon_and_shipping_below_threshold (test_store.PricingTests.test_coupon_and_shipping_below_threshold) ... ok\ntest_coupon_minimum_is_checked_before_discount (test_store.PricingTests.test_coupon_minimum_is_checked_before_discount) ... ok\ntest_empty_cart_and_unavailable_product_are_rejected (test_store.PricingTests.test_empty_cart_and_unavailable_product_are_rejected) ... ok\ntest_free_shipping_at_threshold (test_store.PricingTests.test_free_shipping_at_threshold) ... ok\n\n----------------------------------------------------------------------\nRan 17 tests in 0.002s\n\nOK\n"
+  },
+  "status": "all_20_labels_validated_by_authored_oracles",
+  "records": [
+    {
+      "case_id": "dev_exact_stock",
+      "split": "dev",
+      "base_probe": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "candidate_probe": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 4, in <module>\n  File \"C:\\Users\\dafd\\Documents\\Codex\\2026-10-24\\new-chat\\work\\minishop-ablation-v1\\tmp\\tmp5nwmrs7j\\minishop\\checkout.py\", line 10, in checkout\n    raise ValueError(\"not enough stock\")\nValueError: not enough stock\n"
+      },
+      "candidate_tests": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "test_exact_stock_can_be_purchased (test_checkout.CheckoutTests.test_exact_stock_can_be_purchased) ... ERROR\ntest_insufficient_stock_is_rejected_without_mutation (test_checkout.CheckoutTests.test_insufficient_stock_is_rejected_without_mutation) ... ok\ntest_nonpositive_quantity_is_rejected (test_checkout.CheckoutTests.test_nonpositive_quantity_is_rejected) ... ok\ntest_rejects_nonpositive_quantity (test_store.CartTests.test_rejects_nonpositive_quantity) ... ok\ntest_repeated_additions_merge_and_remove_clears_line (test_store.CartTests.test_repeated_additions_merge_and_remove_clears_line) ... ok\ntest_rejects_duplicate_sku_and_negative_price (test_store.CatalogTests.test_rejects_duplicate_sku_and_negative_price) ... ok\ntest_rejects_unknown_and_inactive_products (test_store.CatalogTests.test_rejects_unknown_and_inactive_products) ... ok\ntest_batch_reservation_is_all_or_nothing (test_store.InventoryTests.test_batch_reservation_is_all_or_nothing) ... ok\ntest_restock_and_snapshot_are_independent (test_store.InventoryTests.test_restock_and_snapshot_are_independent) ... ok\ntest_exact_stock_order_is_valid (test_store.OrderTests.test_exact_stock_order_is_valid) ... ERROR\ntest_later_item_failure_keeps_all_stock (test_store.OrderTests.test_later_item_failure_keeps_all_stock) ... ok\ntest_multiline_order_prices_and_reserves_all_items (test_store.OrderTests.test_multiline_order_prices_and_reserves_all_items) ... ok\ntest_pricing_failure_keeps_stock (test_store.OrderTests.test_pricing_failure_keeps_stock) ... ok\ntest_coupon_and_shipping_below_threshold (test_store.PricingTests.test_coupon_and_shipping_below_threshold) ... ok\ntest_coupon_minimum_is_checked_before_discount (test_store.PricingTests.test_coupon_minimum_is_checked_before_discount) ... ok\ntest_empty_cart_and_unavailable_product_are_rejected (test_store.PricingTests.test_empty_cart_and_unavailable_product_are_rejected) ... ok\ntest_free_shipping_at_threshold (test_store.PricingTests.test_free_shipping_at_threshold) ... ok\n\n======================================================================\nERROR: test_exact_stock_can_be_purchased (test_checkout.CheckoutTests.test_exact_stock_can_be_purchased)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\dafd\\Documents\\Codex\\2026-10-24\\new-chat\\work\\minishop-ablation-v1\\tmp\\tmp5nwmrs7j\\tests\\test_checkout.py\", line 10, in test_exact_stock_can_be_purchased\n    self.assertEqual(checkout(inventory, \"book\", 2), {\"sku\": \"book\", \"quantity\": 2})\n                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\dafd\\Documents\\Codex\\2026-10-24\\new-chat\\work\\minishop-ablation-v1\\tmp\\tmp5nwmrs7j\\minishop\\checkout.py\", line 10, in checkout\n    raise ValueError(\"not enough stock\")\nValueError: not enough stock\n\n======================================================================\nERROR: test_exact_stock_order_is_valid (test_store.OrderTests.test_exact_stock_order_is_valid)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\dafd\\Documents\\Codex\\2026-10-24\\new-chat\\work\\minishop-ablation-v1\\tmp\\tmp5nwmrs7j\\tests\\test_store.py\", line 117, in test_exact_stock_order_is_valid\n    order = OrderService(catalog(), inventory).place(cart)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\dafd\\Documents\\Codex\\2026-10-24\\new-chat\\work\\minishop-ablation-v1\\tmp\\tmp5nwmrs7j\\minishop\\orders.py\", line 31, in place\n    checkout(staged, line.sku, line.quantity)\n  File \"C:\\Users\\dafd\\Documents\\Codex\\2026-10-24\\new-chat\\work\\minishop-ablation-v1\\tmp\\tmp5nwmrs7j\\minishop\\checkout.py\", line 10, in checkout\n    raise ValueError(\"not enough stock\")\nValueError: not enough stock\n\n----------------------------------------------------------------------\nRan 17 tests in 0.005s\n\nFAILED (errors=2)\n"
+      },
+      "expected_candidate_pass": false
+    },
+    {
+      "case_id": "dev_coupon_minimum",
+      "split": "dev",
+      "base_probe": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "candidate_probe": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 5, in <module>\n  File \"C:\\Users\\dafd\\Documents\\Codex\\2026-10-24\\new-chat\\work\\minishop-ablation-v1\\tmp\\tmptq62wgw3\\minishop\\pricing.py\", line 47, in quote\n    raise ValueError(\"coupon minimum not met\")\nValueError: coupon minimum not met\n"
+      },
+      "candidate_tests": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "test_exact_stock_can_be_purchased (test_checkout.CheckoutTests.test_exact_stock_can_be_purchased) ... ok\ntest_insufficient_stock_is_rejected_without_mutation (test_checkout.CheckoutTests.test_insufficient_stock_is_rejected_without_mutation) ... ok\ntest_nonpositive_quantity_is_rejected (test_checkout.CheckoutTests.test_nonpositive_quantity_is_rejected) ... ok\ntest_rejects_nonpositive_quantity (test_store.CartTests.test_rejects_nonpositive_quantity) ... ok\ntest_repeated_additions_merge_and_remove_clears_line (test_store.CartTests.test_repeated_additions_merge_and_remove_clears_line) ... ok\ntest_rejects_duplicate_sku_and_negative_price (test_store.CatalogTests.test_rejects_duplicate_sku_and_negative_price) ... ok\ntest_rejects_unknown_and_inactive_products (test_store.CatalogTests.test_rejects_unknown_and_inactive_products) ... ok\ntest_batch_reservation_is_all_or_nothing (test_store.InventoryTests.test_batch_reservation_is_all_or_nothing) ... ok\ntest_restock_and_snapshot_are_independent (test_store.InventoryTests.test_restock_and_snapshot_are_independent) ... ok\ntest_exact_stock_order_is_valid (test_store.OrderTests.test_exact_stock_order_is_valid) ... ok\ntest_later_item_failure_keeps_all_stock (test_store.OrderTests.test_later_item_failure_keeps_all_stock) ... ok\ntest_multiline_order_prices_and_reserves_all_items (test_store.OrderTests.test_multiline_order_prices_and_reserves_all_items) ... ok\ntest_pricing_failure_keeps_stock (test_store.OrderTests.test_pricing_failure_keeps_stock) ... ok\ntest_coupon_and_shipping_below_threshold (test_store.PricingTests.test_coupon_and_shipping_below_threshold) ... ok\ntest_coupon_minimum_is_checked_before_discount (test_store.PricingTests.test_coupon_minimum_is_checked_before_discount) ... ok\ntest_empty_cart_and_unavailable_product_are_rejected (test_store.PricingTests.test_empty_cart_and_unavailable_product_are_rejected) ... ok\ntest_free_shipping_at_threshold (test_store.PricingTests.test_free_shipping_at_threshold) ... ok\n\n----------------------------------------------------------------------\nRan 17 tests in 0.002s\n\nOK\n"
+      },
+      "expected_candidate_pass": false
+    },
+    {
+      "case_id": "dev_readme",
+      "split": "dev",
+      "base_probe": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "candidate_probe": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "candidate_tests": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "test_exact_stock_can_be_purchased (test_checkout.CheckoutTests.test_exact_stock_can_be_purchased) ... ok\ntest_insufficient_stock_is_rejected_without_mutation (test_checkout.CheckoutTests.test_insufficient_stock_is_rejected_without_mutation) ... ok\ntest_nonpositive_quantity_is_rejected (test_checkout.CheckoutTests.test_nonpositive_quantity_is_rejected) ... ok\ntest_rejects_nonpositive_quantity (test_store.CartTests.test_rejects_nonpositive_quantity) ... ok\ntest_repeated_additions_merge_and_remove_clears_line (test_store.CartTests.test_repeated_additions_merge_and_remove_clears_line) ... ok\ntest_rejects_duplicate_sku_and_negative_price (test_store.CatalogTests.test_rejects_duplicate_sku_and_negative_price) ... ok\ntest_rejects_unknown_and_inactive_products (test_store.CatalogTests.test_rejects_unknown_and_inactive_products) ... ok\ntest_batch_reservation_is_all_or_nothing (test_store.InventoryTests.test_batch_reservation_is_all_or_nothing) ... ok\ntest_restock_and_snapshot_are_independent (test_store.InventoryTests.test_restock_and_snapshot_are_independent) ... ok\ntest_exact_stock_order_is_valid (test_store.OrderTests.test_exact_stock_order_is_valid) ... ok\ntest_later_item_failure_keeps_all_stock (test_store.OrderTests.test_later_item_failure_keeps_all_stock) ... ok\ntest_multiline_order_prices_and_reserves_all_items (test_store.OrderTests.test_multiline_order_prices_and_reserves_all_items) ... ok\ntest_pricing_failure_keeps_stock (test_store.OrderTests.test_pricing_failure_keeps_stock) ... ok\ntest_coupon_and_shipping_below_threshold (test_store.PricingTests.test_coupon_and_shipping_below_threshold) ... ok\ntest_coupon_minimum_is_checked_before_discount (test_store.PricingTests.test_coupon_minimum_is_checked_before_discount) ... ok\ntest_empty_cart_and_unavailable_product_are_rejected (test_store.PricingTests.test_empty_cart_and_unavailable_product_are_rejected) ... ok\ntest_free_shipping_at_threshold (test_store.PricingTests.test_free_shipping_at_threshold) ... ok\n\n----------------------------------------------------------------------\nRan 17 tests in 0.003s\n\nOK\n"
+      },
+      "expected_candidate_pass": true
+    },
+    {
+      "case_id": "dev_inventory_compare",
+      "split": "dev",
+      "base_probe": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "candidate_probe": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "candidate_tests": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "test_exact_stock_can_be_purchased (test_checkout.CheckoutTests.test_exact_stock_can_be_purchased) ... ok\ntest_insufficient_stock_is_rejected_without_mutation (test_checkout.CheckoutTests.test_insufficient_stock_is_rejected_without_mutation) ... ok\ntest_nonpositive_quantity_is_rejected (test_checkout.CheckoutTests.test_nonpositive_quantity_is_rejected) ... ok\ntest_rejects_nonpositive_quantity (test_store.CartTests.test_rejects_nonpositive_quantity) ... ok\ntest_repeated_additions_merge_and_remove_clears_line (test_store.CartTests.test_repeated_additions_merge_and_remove_clears_line) ... ok\ntest_rejects_duplicate_sku_and_negative_price (test_store.CatalogTests.test_rejects_duplicate_sku_and_negative_price) ... ok\ntest_rejects_unknown_and_inactive_products (test_store.CatalogTests.test_rejects_unknown_and_inactive_products) ... ok\ntest_batch_reservation_is_all_or_nothing (test_store.InventoryTests.test_batch_reservation_is_all_or_nothing) ... ok\ntest_restock_and_snapshot_are_independent (test_store.InventoryTests.test_restock_and_snapshot_are_independent) ... ok\ntest_exact_stock_order_is_valid (test_store.OrderTests.test_exact_stock_order_is_valid) ... ok\ntest_later_item_failure_keeps_all_stock (test_store.OrderTests.test_later_item_failure_keeps_all_stock) ... ok\ntest_multiline_order_prices_and_reserves_all_items (test_store.OrderTests.test_multiline_order_prices_and_reserves_all_items) ... ok\ntest_pricing_failure_keeps_stock (test_store.OrderTests.test_pricing_failure_keeps_stock) ... ok\ntest_coupon_and_shipping_below_threshold (test_store.PricingTests.test_coupon_and_shipping_below_threshold) ... ok\ntest_coupon_minimum_is_checked_before_discount (test_store.PricingTests.test_coupon_minimum_is_checked_before_discount) ... ok\ntest_empty_cart_and_unavailable_product_are_rejected (test_store.PricingTests.test_empty_cart_and_unavailable_product_are_rejected) ... ok\ntest_free_shipping_at_threshold (test_store.PricingTests.test_free_shipping_at_threshold) ... ok\n\n----------------------------------------------------------------------\nRan 17 tests in 0.002s\n\nOK\n"
+      },
+      "expected_candidate_pass": true
+    },
+    {
+      "case_id": "cart_overwrite",
+      "split": "test",
+      "base_probe": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "candidate_probe": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 3, in <module>\nAssertionError\n"
+      },
+      "candidate_tests": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "test_exact_stock_can_be_purchased (test_checkout.CheckoutTests.test_exact_stock_can_be_purchased) ... ok\ntest_insufficient_stock_is_rejected_without_mutation (test_checkout.CheckoutTests.test_insufficient_stock_is_rejected_without_mutation) ... ok\ntest_nonpositive_quantity_is_rejected (test_checkout.CheckoutTests.test_nonpositive_quantity_is_rejected) ... ok\ntest_rejects_nonpositive_quantity (test_store.CartTests.test_rejects_nonpositive_quantity) ... ok\ntest_repeated_additions_merge_and_remove_clears_line (test_store.CartTests.test_repeated_additions_merge_and_remove_clears_line) ... FAIL\ntest_rejects_duplicate_sku_and_negative_price (test_store.CatalogTests.test_rejects_duplicate_sku_and_negative_price) ... ok\ntest_rejects_unknown_and_inactive_products (test_store.CatalogTests.test_rejects_unknown_and_inactive_products) ... ok\ntest_batch_reservation_is_all_or_nothing (test_store.InventoryTests.test_batch_reservation_is_all_or_nothing) ... ok\ntest_restock_and_snapshot_are_independent (test_store.InventoryTests.test_restock_and_snapshot_are_independent) ... ok\ntest_exact_stock_order_is_valid (test_store.OrderTests.test_exact_stock_order_is_valid) ... ok\ntest_later_item_failure_keeps_all_stock (test_store.OrderTests.test_later_item_failure_keeps_all_stock) ... ok\ntest_multiline_order_prices_and_reserves_all_items (test_store.OrderTests.test_multiline_order_prices_and_reserves_all_items) ... ok\ntest_pricing_failure_keeps_stock (test_store.OrderTests.test_pricing_failure_keeps_stock) ... ok\ntest_coupon_and_shipping_below_threshold (test_store.PricingTests.test_coupon_and_shipping_below_threshold) ... ok\ntest_coupon_minimum_is_checked_before_discount (test_store.PricingTests.test_coupon_minimum_is_checked_before_discount) ... ok\ntest_empty_cart_and_unavailable_product_are_rejected (test_store.PricingTests.test_empty_cart_and_unavailable_product_are_rejected) ... ok\ntest_free_shipping_at_threshold (test_store.PricingTests.test_free_shipping_at_threshold) ... ok\n\n======================================================================\nFAIL: test_repeated_additions_merge_and_remove_clears_line (test_store.CartTests.test_repeated_additions_merge_and_remove_clears_line)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\dafd\\Documents\\Codex\\2026-10-24\\new-chat\\work\\minishop-ablation-v1\\tmp\\tmpighu3f41\\tests\\test_store.py\", line 41, in test_repeated_additions_merge_and_remove_clears_line\n    self.assertEqual(cart.lines(), (CartLine(\"book\", 3), CartLine(\"pen\", 1)))\nAssertionError: Tuples differ: (CartLine(sku='book', quantity=1), CartLine(sku='pen', quantity=1)) != (CartLine(sku='book', quantity=3), CartLine(sku='pen', quantity=1))\n\nFirst differing element 0:\nCartLine(sku='book', quantity=1)\nCartLine(sku='book', quantity=3)\n\n- (CartLine(sku='book', quantity=1), CartLine(sku='pen', quantity=1))\n?                                ^\n\n+ (CartLine(sku='book', quantity=3), CartLine(sku='pen', quantity=1))\n?                                ^\n\n\n----------------------------------------------------------------------\nRan 17 tests in 0.005s\n\nFAILED (failures=1)\n"
+      },
+      "expected_candidate_pass": false
+    },
+    {
+      "case_id": "catalog_inactive",
+      "split": "test",
+      "base_probe": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "candidate_probe": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 5, in <module>\nAssertionError: inactive product accepted\n"
+      },
+      "candidate_tests": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "test_exact_stock_can_be_purchased (test_checkout.CheckoutTests.test_exact_stock_can_be_purchased) ... ok\ntest_insufficient_stock_is_rejected_without_mutation (test_checkout.CheckoutTests.test_insufficient_stock_is_rejected_without_mutation) ... ok\ntest_nonpositive_quantity_is_rejected (test_checkout.CheckoutTests.test_nonpositive_quantity_is_rejected) ... ok\ntest_rejects_nonpositive_quantity (test_store.CartTests.test_rejects_nonpositive_quantity) ... ok\ntest_repeated_additions_merge_and_remove_clears_line (test_store.CartTests.test_repeated_additions_merge_and_remove_clears_line) ... ok\ntest_rejects_duplicate_sku_and_negative_price (test_store.CatalogTests.test_rejects_duplicate_sku_and_negative_price) ... ok\ntest_rejects_unknown_and_inactive_products (test_store.CatalogTests.test_rejects_unknown_and_inactive_products) ... \n  test_rejects_unknown_and_inactive_products (test_store.CatalogTests.test_rejects_unknown_and_inactive_products) (sku='retired') ... FAIL\ntest_batch_reservation_is_all_or_nothing (test_store.InventoryTests.test_batch_reservation_is_all_or_nothing) ... ok\ntest_restock_and_snapshot_are_independent (test_store.InventoryTests.test_restock_and_snapshot_are_independent) ... ok\ntest_exact_stock_order_is_valid (test_store.OrderTests.test_exact_stock_order_is_valid) ... ok\ntest_later_item_failure_keeps_all_stock (test_store.OrderTests.test_later_item_failure_keeps_all_stock) ... ok\ntest_multiline_order_prices_and_reserves_all_items (test_store.OrderTests.test_multiline_order_prices_and_reserves_all_items) ... ok\ntest_pricing_failure_keeps_stock (test_store.OrderTests.test_pricing_failure_keeps_stock) ... ok\ntest_coupon_and_shipping_below_threshold (test_store.PricingTests.test_coupon_and_shipping_below_threshold) ... ok\ntest_coupon_minimum_is_checked_before_discount (test_store.PricingTests.test_coupon_minimum_is_checked_before_discount) ... ok\ntest_empty_cart_and_unavailable_product_are_rejected (test_store.PricingTests.test_empty_cart_and_unavailable_product_are_rejected) ... FAIL\ntest_free_shipping_at_threshold (test_store.PricingTests.test_free_shipping_at_threshold) ... ok\n\n======================================================================\nFAIL: test_rejects_unknown_and_inactive_products (test_store.CatalogTests.test_rejects_unknown_and_inactive_products) (sku='retired')\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\dafd\\Documents\\Codex\\2026-10-24\\new-chat\\work\\minishop-ablation-v1\\tmp\\tmp_ikw3kmk\\tests\\test_store.py\", line 31, in test_rejects_unknown_and_inactive_products\n    with self.subTest(sku=sku), self.assertRaisesRegex(ValueError, \"unavailable\"):\n                                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: ValueError not raised\n\n======================================================================\nFAIL: test_empty_cart_and_unavailable_product_are_rejected (test_store.PricingTests.test_empty_cart_and_unavailable_product_are_rejected)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\dafd\\Documents\\Codex\\2026-10-24\\new-chat\\work\\minishop-ablation-v1\\tmp\\tmp_ikw3kmk\\tests\\test_store.py\", line 91, in test_empty_cart_and_unavailable_product_are_rejected\n    with self.assertRaisesRegex(ValueError, \"unavailable\"):\n         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: ValueError not raised\n\n----------------------------------------------------------------------\nRan 17 tests in 0.003s\n\nFAILED (failures=2)\n"
+      },
+      "expected_candidate_pass": false
+    },
+    {
+      "case_id": "inventory_snapshot_alias",
+      "split": "test",
+      "base_probe": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "candidate_probe": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 3, in <module>\nAssertionError\n"
+      },
+      "candidate_tests": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "test_exact_stock_can_be_purchased (test_checkout.CheckoutTests.test_exact_stock_can_be_purchased) ... ok\ntest_insufficient_stock_is_rejected_without_mutation (test_checkout.CheckoutTests.test_insufficient_stock_is_rejected_without_mutation) ... ok\ntest_nonpositive_quantity_is_rejected (test_checkout.CheckoutTests.test_nonpositive_quantity_is_rejected) ... ok\ntest_rejects_nonpositive_quantity (test_store.CartTests.test_rejects_nonpositive_quantity) ... ok\ntest_repeated_additions_merge_and_remove_clears_line (test_store.CartTests.test_repeated_additions_merge_and_remove_clears_line) ... ok\ntest_rejects_duplicate_sku_and_negative_price (test_store.CatalogTests.test_rejects_duplicate_sku_and_negative_price) ... ok\ntest_rejects_unknown_and_inactive_products (test_store.CatalogTests.test_rejects_unknown_and_inactive_products) ... ok\ntest_batch_reservation_is_all_or_nothing (test_store.InventoryTests.test_batch_reservation_is_all_or_nothing) ... ok\ntest_restock_and_snapshot_are_independent (test_store.InventoryTests.test_restock_and_snapshot_are_independent) ... FAIL\ntest_exact_stock_order_is_valid (test_store.OrderTests.test_exact_stock_order_is_valid) ... ok\ntest_later_item_failure_keeps_all_stock (test_store.OrderTests.test_later_item_failure_keeps_all_stock) ... ok\ntest_multiline_order_prices_and_reserves_all_items (test_store.OrderTests.test_multiline_order_prices_and_reserves_all_items) ... ok\ntest_pricing_failure_keeps_stock (test_store.OrderTests.test_pricing_failure_keeps_stock) ... ok\ntest_coupon_and_shipping_below_threshold (test_store.PricingTests.test_coupon_and_shipping_below_threshold) ... ok\ntest_coupon_minimum_is_checked_before_discount (test_store.PricingTests.test_coupon_minimum_is_checked_before_discount) ... ok\ntest_empty_cart_and_unavailable_product_are_rejected (test_store.PricingTests.test_empty_cart_and_unavailable_product_are_rejected) ... ok\ntest_free_shipping_at_threshold (test_store.PricingTests.test_free_shipping_at_threshold) ... ok\n\n======================================================================\nFAIL: test_restock_and_snapshot_are_independent (test_store.InventoryTests.test_restock_and_snapshot_are_independent)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\dafd\\Documents\\Codex\\2026-10-24\\new-chat\\work\\minishop-ablation-v1\\tmp\\tmph2hk3nct\\tests\\test_store.py\", line 58, in test_restock_and_snapshot_are_independent\n    self.assertEqual(snapshot, {\"book\": 1})\nAssertionError: {'book': 3, 'pen': 1} != {'book': 1}\n- {'book': 3, 'pen': 1}\n+ {'book': 1}\n\n----------------------------------------------------------------------\nRan 17 tests in 0.004s\n\nFAILED (failures=1)\n"
+      },
+      "expected_candidate_pass": false
+    },
+    {
+      "case_id": "inventory_partial_reserve",
+      "split": "test",
+      "base_probe": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "candidate_probe": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 5, in <module>\nAssertionError\n"
+      },
+      "candidate_tests": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "test_exact_stock_can_be_purchased (test_checkout.CheckoutTests.test_exact_stock_can_be_purchased) ... ok\ntest_insufficient_stock_is_rejected_without_mutation (test_checkout.CheckoutTests.test_insufficient_stock_is_rejected_without_mutation) ... ok\ntest_nonpositive_quantity_is_rejected (test_checkout.CheckoutTests.test_nonpositive_quantity_is_rejected) ... ok\ntest_rejects_nonpositive_quantity (test_store.CartTests.test_rejects_nonpositive_quantity) ... ok\ntest_repeated_additions_merge_and_remove_clears_line (test_store.CartTests.test_repeated_additions_merge_and_remove_clears_line) ... ok\ntest_rejects_duplicate_sku_and_negative_price (test_store.CatalogTests.test_rejects_duplicate_sku_and_negative_price) ... ok\ntest_rejects_unknown_and_inactive_products (test_store.CatalogTests.test_rejects_unknown_and_inactive_products) ... ok\ntest_batch_reservation_is_all_or_nothing (test_store.InventoryTests.test_batch_reservation_is_all_or_nothing) ... FAIL\ntest_restock_and_snapshot_are_independent (test_store.InventoryTests.test_restock_and_snapshot_are_independent) ... ok\ntest_exact_stock_order_is_valid (test_store.OrderTests.test_exact_stock_order_is_valid) ... ok\ntest_later_item_failure_keeps_all_stock (test_store.OrderTests.test_later_item_failure_keeps_all_stock) ... ok\ntest_multiline_order_prices_and_reserves_all_items (test_store.OrderTests.test_multiline_order_prices_and_reserves_all_items) ... ok\ntest_pricing_failure_keeps_stock (test_store.OrderTests.test_pricing_failure_keeps_stock) ... ok\ntest_coupon_and_shipping_below_threshold (test_store.PricingTests.test_coupon_and_shipping_below_threshold) ... ok\ntest_coupon_minimum_is_checked_before_discount (test_store.PricingTests.test_coupon_minimum_is_checked_before_discount) ... ok\ntest_empty_cart_and_unavailable_product_are_rejected (test_store.PricingTests.test_empty_cart_and_unavailable_product_are_rejected) ... ok\ntest_free_shipping_at_threshold (test_store.PricingTests.test_free_shipping_at_threshold) ... ok\n\n======================================================================\nFAIL: test_batch_reservation_is_all_or_nothing (test_store.InventoryTests.test_batch_reservation_is_all_or_nothing)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\dafd\\Documents\\Codex\\2026-10-24\\new-chat\\work\\minishop-ablation-v1\\tmp\\tmprhplwxpi\\tests\\test_store.py\", line 65, in test_batch_reservation_is_all_or_nothing\n    self.assertEqual(inventory.snapshot(), {\"book\": 2, \"pen\": 1})\nAssertionError: {'book': 0, 'pen': 1} != {'book': 2, 'pen': 1}\n- {'book': 0, 'pen': 1}\n?          ^\n\n+ {'book': 2, 'pen': 1}\n?          ^\n\n\n----------------------------------------------------------------------\nRan 17 tests in 0.004s\n\nFAILED (failures=1)\n"
+      },
+      "expected_candidate_pass": false
+    },
+    {
+      "case_id": "pricing_quantity",
+      "split": "test",
+      "base_probe": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "candidate_probe": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 5, in <module>\nAssertionError\n"
+      },
+      "candidate_tests": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "test_exact_stock_can_be_purchased (test_checkout.CheckoutTests.test_exact_stock_can_be_purchased) ... ok\ntest_insufficient_stock_is_rejected_without_mutation (test_checkout.CheckoutTests.test_insufficient_stock_is_rejected_without_mutation) ... ok\ntest_nonpositive_quantity_is_rejected (test_checkout.CheckoutTests.test_nonpositive_quantity_is_rejected) ... ok\ntest_rejects_nonpositive_quantity (test_store.CartTests.test_rejects_nonpositive_quantity) ... ok\ntest_repeated_additions_merge_and_remove_clears_line (test_store.CartTests.test_repeated_additions_merge_and_remove_clears_line) ... ok\ntest_rejects_duplicate_sku_and_negative_price (test_store.CatalogTests.test_rejects_duplicate_sku_and_negative_price) ... ok\ntest_rejects_unknown_and_inactive_products (test_store.CatalogTests.test_rejects_unknown_and_inactive_products) ... ok\ntest_batch_reservation_is_all_or_nothing (test_store.InventoryTests.test_batch_reservation_is_all_or_nothing) ... ok\ntest_restock_and_snapshot_are_independent (test_store.InventoryTests.test_restock_and_snapshot_are_independent) ... ok\ntest_exact_stock_order_is_valid (test_store.OrderTests.test_exact_stock_order_is_valid) ... FAIL\ntest_later_item_failure_keeps_all_stock (test_store.OrderTests.test_later_item_failure_keeps_all_stock) ... ok\ntest_multiline_order_prices_and_reserves_all_items (test_store.OrderTests.test_multiline_order_prices_and_reserves_all_items) ... FAIL\ntest_pricing_failure_keeps_stock (test_store.OrderTests.test_pricing_failure_keeps_stock) ... ok\ntest_coupon_and_shipping_below_threshold (test_store.PricingTests.test_coupon_and_shipping_below_threshold) ... FAIL\ntest_coupon_minimum_is_checked_before_discount (test_store.PricingTests.test_coupon_minimum_is_checked_before_discount) ... ok\ntest_empty_cart_and_unavailable_product_are_rejected (test_store.PricingTests.test_empty_cart_and_unavailable_product_are_rejected) ... ok\ntest_free_shipping_at_threshold (test_store.PricingTests.test_free_shipping_at_threshold) ... FAIL\n\n======================================================================\nFAIL: test_exact_stock_order_is_valid (test_store.OrderTests.test_exact_stock_order_is_valid)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\dafd\\Documents\\Codex\\2026-10-24\\new-chat\\work\\minishop-ablation-v1\\tmp\\tmp4kou12r9\\tests\\test_store.py\", line 118, in test_exact_stock_order_is_valid\n    self.assertEqual(order.price.total_cents, 4800)\nAssertionError: 2800 != 4800\n\n======================================================================\nFAIL: test_multiline_order_prices_and_reserves_all_items (test_store.OrderTests.test_multiline_order_prices_and_reserves_all_items)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\dafd\\Documents\\Codex\\2026-10-24\\new-chat\\work\\minishop-ablation-v1\\tmp\\tmp4kou12r9\\tests\\test_store.py\", line 109, in test_multiline_order_prices_and_reserves_all_items\n    self.assertEqual(order.price, Quote(4600, 460, 500, 4640))\nAssertionError: Quote(subtotal_cents=2300, discount_cents=230, shipping_cents=[17 chars]2570) != Quote(subtotal_cents=4600, discount_cents=460, shipping_cents=[17 chars]4640)\n\n======================================================================\nFAIL: test_coupon_and_shipping_below_threshold (test_store.PricingTests.test_coupon_and_shipping_below_threshold)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\dafd\\Documents\\Codex\\2026-10-24\\new-chat\\work\\minishop-ablation-v1\\tmp\\tmp4kou12r9\\tests\\test_store.py\", line 75, in test_coupon_and_shipping_below_threshold\n    self.assertEqual(\nAssertionError: Quote(subtotal_cents=2300, discount_cents=230, shipping_cents=5[16 chars]2570) != Quote(subtotal_cents=2600, discount_cents=260, shipping_cents=5[16 chars]2840)\n\n======================================================================\nFAIL: test_free_shipping_at_threshold (test_store.PricingTests.test_free_shipping_at_threshold)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\dafd\\Documents\\Codex\\2026-10-24\\new-chat\\work\\minishop-ablation-v1\\tmp\\tmp4kou12r9\\tests\\test_store.py\", line 84, in test_free_shipping_at_threshold\n    self.assertEqual(quote(cart, catalog()), Quote(5200, 0, 0, 5200))\nAssertionError: Quote(subtotal_cents=2300, discount_cents=0, shipping_cents=50[15 chars]2800) != Quote(subtotal_cents=5200, discount_cents=0, shipping_cents=0,[13 chars]5200)\n\n----------------------------------------------------------------------\nRan 17 tests in 0.006s\n\nFAILED (failures=4)\n"
+      },
+      "expected_candidate_pass": false
+    },
+    {
+      "case_id": "pricing_shipping_equal",
+      "split": "test",
+      "base_probe": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "candidate_probe": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 5, in <module>\nAssertionError\n"
+      },
+      "candidate_tests": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "test_exact_stock_can_be_purchased (test_checkout.CheckoutTests.test_exact_stock_can_be_purchased) ... ok\ntest_insufficient_stock_is_rejected_without_mutation (test_checkout.CheckoutTests.test_insufficient_stock_is_rejected_without_mutation) ... ok\ntest_nonpositive_quantity_is_rejected (test_checkout.CheckoutTests.test_nonpositive_quantity_is_rejected) ... ok\ntest_rejects_nonpositive_quantity (test_store.CartTests.test_rejects_nonpositive_quantity) ... ok\ntest_repeated_additions_merge_and_remove_clears_line (test_store.CartTests.test_repeated_additions_merge_and_remove_clears_line) ... ok\ntest_rejects_duplicate_sku_and_negative_price (test_store.CatalogTests.test_rejects_duplicate_sku_and_negative_price) ... ok\ntest_rejects_unknown_and_inactive_products (test_store.CatalogTests.test_rejects_unknown_and_inactive_products) ... ok\ntest_batch_reservation_is_all_or_nothing (test_store.InventoryTests.test_batch_reservation_is_all_or_nothing) ... ok\ntest_restock_and_snapshot_are_independent (test_store.InventoryTests.test_restock_and_snapshot_are_independent) ... ok\ntest_exact_stock_order_is_valid (test_store.OrderTests.test_exact_stock_order_is_valid) ... ok\ntest_later_item_failure_keeps_all_stock (test_store.OrderTests.test_later_item_failure_keeps_all_stock) ... ok\ntest_multiline_order_prices_and_reserves_all_items (test_store.OrderTests.test_multiline_order_prices_and_reserves_all_items) ... ok\ntest_pricing_failure_keeps_stock (test_store.OrderTests.test_pricing_failure_keeps_stock) ... ok\ntest_coupon_and_shipping_below_threshold (test_store.PricingTests.test_coupon_and_shipping_below_threshold) ... ok\ntest_coupon_minimum_is_checked_before_discount (test_store.PricingTests.test_coupon_minimum_is_checked_before_discount) ... ok\ntest_empty_cart_and_unavailable_product_are_rejected (test_store.PricingTests.test_empty_cart_and_unavailable_product_are_rejected) ... ok\ntest_free_shipping_at_threshold (test_store.PricingTests.test_free_shipping_at_threshold) ... ok\n\n----------------------------------------------------------------------\nRan 17 tests in 0.002s\n\nOK\n"
+      },
+      "expected_candidate_pass": false
+    },
+    {
+      "case_id": "pricing_discount_fraction",
+      "split": "test",
+      "base_probe": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "candidate_probe": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 6, in <module>\nAssertionError\n"
+      },
+      "candidate_tests": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "test_exact_stock_can_be_purchased (test_checkout.CheckoutTests.test_exact_stock_can_be_purchased) ... ok\ntest_insufficient_stock_is_rejected_without_mutation (test_checkout.CheckoutTests.test_insufficient_stock_is_rejected_without_mutation) ... ok\ntest_nonpositive_quantity_is_rejected (test_checkout.CheckoutTests.test_nonpositive_quantity_is_rejected) ... ok\ntest_rejects_nonpositive_quantity (test_store.CartTests.test_rejects_nonpositive_quantity) ... ok\ntest_repeated_additions_merge_and_remove_clears_line (test_store.CartTests.test_repeated_additions_merge_and_remove_clears_line) ... ok\ntest_rejects_duplicate_sku_and_negative_price (test_store.CatalogTests.test_rejects_duplicate_sku_and_negative_price) ... ok\ntest_rejects_unknown_and_inactive_products (test_store.CatalogTests.test_rejects_unknown_and_inactive_products) ... ok\ntest_batch_reservation_is_all_or_nothing (test_store.InventoryTests.test_batch_reservation_is_all_or_nothing) ... ok\ntest_restock_and_snapshot_are_independent (test_store.InventoryTests.test_restock_and_snapshot_are_independent) ... ok\ntest_exact_stock_order_is_valid (test_store.OrderTests.test_exact_stock_order_is_valid) ... ok\ntest_later_item_failure_keeps_all_stock (test_store.OrderTests.test_later_item_failure_keeps_all_stock) ... ok\ntest_multiline_order_prices_and_reserves_all_items (test_store.OrderTests.test_multiline_order_prices_and_reserves_all_items) ... ok\ntest_pricing_failure_keeps_stock (test_store.OrderTests.test_pricing_failure_keeps_stock) ... ok\ntest_coupon_and_shipping_below_threshold (test_store.PricingTests.test_coupon_and_shipping_below_threshold) ... ok\ntest_coupon_minimum_is_checked_before_discount (test_store.PricingTests.test_coupon_minimum_is_checked_before_discount) ... ok\ntest_empty_cart_and_unavailable_product_are_rejected (test_store.PricingTests.test_empty_cart_and_unavailable_product_are_rejected) ... ok\ntest_free_shipping_at_threshold (test_store.PricingTests.test_free_shipping_at_threshold) ... ok\n\n----------------------------------------------------------------------\nRan 17 tests in 0.003s\n\nOK\n"
+      },
+      "expected_candidate_pass": false
+    },
+    {
+      "case_id": "orders_reserve_before_price",
+      "split": "test",
+      "base_probe": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "candidate_probe": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 9, in <module>\nAssertionError\n"
+      },
+      "candidate_tests": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "test_exact_stock_can_be_purchased (test_checkout.CheckoutTests.test_exact_stock_can_be_purchased) ... ok\ntest_insufficient_stock_is_rejected_without_mutation (test_checkout.CheckoutTests.test_insufficient_stock_is_rejected_without_mutation) ... ok\ntest_nonpositive_quantity_is_rejected (test_checkout.CheckoutTests.test_nonpositive_quantity_is_rejected) ... ok\ntest_rejects_nonpositive_quantity (test_store.CartTests.test_rejects_nonpositive_quantity) ... ok\ntest_repeated_additions_merge_and_remove_clears_line (test_store.CartTests.test_repeated_additions_merge_and_remove_clears_line) ... ok\ntest_rejects_duplicate_sku_and_negative_price (test_store.CatalogTests.test_rejects_duplicate_sku_and_negative_price) ... ok\ntest_rejects_unknown_and_inactive_products (test_store.CatalogTests.test_rejects_unknown_and_inactive_products) ... ok\ntest_batch_reservation_is_all_or_nothing (test_store.InventoryTests.test_batch_reservation_is_all_or_nothing) ... ok\ntest_restock_and_snapshot_are_independent (test_store.InventoryTests.test_restock_and_snapshot_are_independent) ... ok\ntest_exact_stock_order_is_valid (test_store.OrderTests.test_exact_stock_order_is_valid) ... ok\ntest_later_item_failure_keeps_all_stock (test_store.OrderTests.test_later_item_failure_keeps_all_stock) ... ok\ntest_multiline_order_prices_and_reserves_all_items (test_store.OrderTests.test_multiline_order_prices_and_reserves_all_items) ... ok\ntest_pricing_failure_keeps_stock (test_store.OrderTests.test_pricing_failure_keeps_stock) ... FAIL\ntest_coupon_and_shipping_below_threshold (test_store.PricingTests.test_coupon_and_shipping_below_threshold) ... ok\ntest_coupon_minimum_is_checked_before_discount (test_store.PricingTests.test_coupon_minimum_is_checked_before_discount) ... ok\ntest_empty_cart_and_unavailable_product_are_rejected (test_store.PricingTests.test_empty_cart_and_unavailable_product_are_rejected) ... ok\ntest_free_shipping_at_threshold (test_store.PricingTests.test_free_shipping_at_threshold) ... ok\n\n======================================================================\nFAIL: test_pricing_failure_keeps_stock (test_store.OrderTests.test_pricing_failure_keeps_stock)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\dafd\\Documents\\Codex\\2026-10-24\\new-chat\\work\\minishop-ablation-v1\\tmp\\tmpoyfgrl6q\\tests\\test_store.py\", line 138, in test_pricing_failure_keeps_stock\n    self.assertEqual(inventory.snapshot(), {\"pen\": 2})\nAssertionError: {'pen': 1} != {'pen': 2}\n- {'pen': 1}\n?         ^\n\n+ {'pen': 2}\n?         ^\n\n\n----------------------------------------------------------------------\nRan 17 tests in 0.004s\n\nFAILED (failures=1)\n"
+      },
+      "expected_candidate_pass": false
+    },
+    {
+      "case_id": "orders_live_staging",
+      "split": "test",
+      "base_probe": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "candidate_probe": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 7, in <module>\nAssertionError\n"
+      },
+      "candidate_tests": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "test_exact_stock_can_be_purchased (test_checkout.CheckoutTests.test_exact_stock_can_be_purchased) ... ok\ntest_insufficient_stock_is_rejected_without_mutation (test_checkout.CheckoutTests.test_insufficient_stock_is_rejected_without_mutation) ... ok\ntest_nonpositive_quantity_is_rejected (test_checkout.CheckoutTests.test_nonpositive_quantity_is_rejected) ... ok\ntest_rejects_nonpositive_quantity (test_store.CartTests.test_rejects_nonpositive_quantity) ... ok\ntest_repeated_additions_merge_and_remove_clears_line (test_store.CartTests.test_repeated_additions_merge_and_remove_clears_line) ... ok\ntest_rejects_duplicate_sku_and_negative_price (test_store.CatalogTests.test_rejects_duplicate_sku_and_negative_price) ... ok\ntest_rejects_unknown_and_inactive_products (test_store.CatalogTests.test_rejects_unknown_and_inactive_products) ... ok\ntest_batch_reservation_is_all_or_nothing (test_store.InventoryTests.test_batch_reservation_is_all_or_nothing) ... ok\ntest_restock_and_snapshot_are_independent (test_store.InventoryTests.test_restock_and_snapshot_are_independent) ... ok\ntest_exact_stock_order_is_valid (test_store.OrderTests.test_exact_stock_order_is_valid) ... ERROR\ntest_later_item_failure_keeps_all_stock (test_store.OrderTests.test_later_item_failure_keeps_all_stock) ... FAIL\ntest_multiline_order_prices_and_reserves_all_items (test_store.OrderTests.test_multiline_order_prices_and_reserves_all_items) ... ERROR\ntest_pricing_failure_keeps_stock (test_store.OrderTests.test_pricing_failure_keeps_stock) ... ok\ntest_coupon_and_shipping_below_threshold (test_store.PricingTests.test_coupon_and_shipping_below_threshold) ... ok\ntest_coupon_minimum_is_checked_before_discount (test_store.PricingTests.test_coupon_minimum_is_checked_before_discount) ... ok\ntest_empty_cart_and_unavailable_product_are_rejected (test_store.PricingTests.test_empty_cart_and_unavailable_product_are_rejected) ... ok\ntest_free_shipping_at_threshold (test_store.PricingTests.test_free_shipping_at_threshold) ... ok\n\n======================================================================\nERROR: test_exact_stock_order_is_valid (test_store.OrderTests.test_exact_stock_order_is_valid)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\dafd\\Documents\\Codex\\2026-10-24\\new-chat\\work\\minishop-ablation-v1\\tmp\\tmp6r15g_vk\\tests\\test_store.py\", line 117, in test_exact_stock_order_is_valid\n    order = OrderService(catalog(), inventory).place(cart)\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\dafd\\Documents\\Codex\\2026-10-24\\new-chat\\work\\minishop-ablation-v1\\tmp\\tmp6r15g_vk\\minishop\\orders.py\", line 32, in place\n    self._inventory.reserve_many({line.sku: line.quantity for line in lines})\n  File \"C:\\Users\\dafd\\Documents\\Codex\\2026-10-24\\new-chat\\work\\minishop-ablation-v1\\tmp\\tmp6r15g_vk\\minishop\\inventory.py\", line 32, in reserve_many\n    raise ValueError(\"not enough stock\")\nValueError: not enough stock\n\n======================================================================\nERROR: test_multiline_order_prices_and_reserves_all_items (test_store.OrderTests.test_multiline_order_prices_and_reserves_all_items)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\dafd\\Documents\\Codex\\2026-10-24\\new-chat\\work\\minishop-ablation-v1\\tmp\\tmp6r15g_vk\\tests\\test_store.py\", line 107, in test_multiline_order_prices_and_reserves_all_items\n    order = OrderService(catalog(), inventory).place(cart, Coupon(\"SAVE10\", 10))\n            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"C:\\Users\\dafd\\Documents\\Codex\\2026-10-24\\new-chat\\work\\minishop-ablation-v1\\tmp\\tmp6r15g_vk\\minishop\\orders.py\", line 32, in place\n    self._inventory.reserve_many({line.sku: line.quantity for line in lines})\n  File \"C:\\Users\\dafd\\Documents\\Codex\\2026-10-24\\new-chat\\work\\minishop-ablation-v1\\tmp\\tmp6r15g_vk\\minishop\\inventory.py\", line 32, in reserve_many\n    raise ValueError(\"not enough stock\")\nValueError: not enough stock\n\n======================================================================\nFAIL: test_later_item_failure_keeps_all_stock (test_store.OrderTests.test_later_item_failure_keeps_all_stock)\n----------------------------------------------------------------------\nTraceback (most recent call last):\n  File \"C:\\Users\\dafd\\Documents\\Codex\\2026-10-24\\new-chat\\work\\minishop-ablation-v1\\tmp\\tmp6r15g_vk\\tests\\test_store.py\", line 128, in test_later_item_failure_keeps_all_stock\n    self.assertEqual(inventory.snapshot(), {\"book\": 2, \"pen\": 1})\nAssertionError: {'book': 1, 'pen': 1} != {'book': 2, 'pen': 1}\n- {'book': 1, 'pen': 1}\n?          ^\n\n+ {'book': 2, 'pen': 1}\n?          ^\n\n\n----------------------------------------------------------------------\nRan 17 tests in 0.007s\n\nFAILED (failures=1, errors=2)\n"
+      },
+      "expected_candidate_pass": false
+    },
+    {
+      "case_id": "test_receipt_assertion",
+      "split": "test",
+      "base_probe": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "candidate_probe": {
+        "returncode": 1,
+        "stdout": "",
+        "stderr": "Traceback (most recent call last):\n  File \"<string>\", line 8, in <module>\nAssertionError: broken receipt implementation escaped the test\n"
+      },
+      "candidate_tests": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "test_exact_stock_can_be_purchased (test_checkout.CheckoutTests.test_exact_stock_can_be_purchased) ... ok\ntest_insufficient_stock_is_rejected_without_mutation (test_checkout.CheckoutTests.test_insufficient_stock_is_rejected_without_mutation) ... ok\ntest_nonpositive_quantity_is_rejected (test_checkout.CheckoutTests.test_nonpositive_quantity_is_rejected) ... ok\ntest_rejects_nonpositive_quantity (test_store.CartTests.test_rejects_nonpositive_quantity) ... ok\ntest_repeated_additions_merge_and_remove_clears_line (test_store.CartTests.test_repeated_additions_merge_and_remove_clears_line) ... ok\ntest_rejects_duplicate_sku_and_negative_price (test_store.CatalogTests.test_rejects_duplicate_sku_and_negative_price) ... ok\ntest_rejects_unknown_and_inactive_products (test_store.CatalogTests.test_rejects_unknown_and_inactive_products) ... ok\ntest_batch_reservation_is_all_or_nothing (test_store.InventoryTests.test_batch_reservation_is_all_or_nothing) ... ok\ntest_restock_and_snapshot_are_independent (test_store.InventoryTests.test_restock_and_snapshot_are_independent) ... ok\ntest_exact_stock_order_is_valid (test_store.OrderTests.test_exact_stock_order_is_valid) ... ok\ntest_later_item_failure_keeps_all_stock (test_store.OrderTests.test_later_item_failure_keeps_all_stock) ... ok\ntest_multiline_order_prices_and_reserves_all_items (test_store.OrderTests.test_multiline_order_prices_and_reserves_all_items) ... ok\ntest_pricing_failure_keeps_stock (test_store.OrderTests.test_pricing_failure_keeps_stock) ... ok\ntest_coupon_and_shipping_below_threshold (test_store.PricingTests.test_coupon_and_shipping_below_threshold) ... ok\ntest_coupon_minimum_is_checked_before_discount (test_store.PricingTests.test_coupon_minimum_is_checked_before_discount) ... ok\ntest_empty_cart_and_unavailable_product_are_rejected (test_store.PricingTests.test_empty_cart_and_unavailable_product_are_rejected) ... ok\ntest_free_shipping_at_threshold (test_store.PricingTests.test_free_shipping_at_threshold) ... ok\n\n----------------------------------------------------------------------\nRan 17 tests in 0.003s\n\nOK\n"
+      },
+      "expected_candidate_pass": false
+    },
+    {
+      "case_id": "clean_cart_setdefault",
+      "split": "test",
+      "base_probe": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "candidate_probe": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "candidate_tests": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "test_exact_stock_can_be_purchased (test_checkout.CheckoutTests.test_exact_stock_can_be_purchased) ... ok\ntest_insufficient_stock_is_rejected_without_mutation (test_checkout.CheckoutTests.test_insufficient_stock_is_rejected_without_mutation) ... ok\ntest_nonpositive_quantity_is_rejected (test_checkout.CheckoutTests.test_nonpositive_quantity_is_rejected) ... ok\ntest_rejects_nonpositive_quantity (test_store.CartTests.test_rejects_nonpositive_quantity) ... ok\ntest_repeated_additions_merge_and_remove_clears_line (test_store.CartTests.test_repeated_additions_merge_and_remove_clears_line) ... ok\ntest_rejects_duplicate_sku_and_negative_price (test_store.CatalogTests.test_rejects_duplicate_sku_and_negative_price) ... ok\ntest_rejects_unknown_and_inactive_products (test_store.CatalogTests.test_rejects_unknown_and_inactive_products) ... ok\ntest_batch_reservation_is_all_or_nothing (test_store.InventoryTests.test_batch_reservation_is_all_or_nothing) ... ok\ntest_restock_and_snapshot_are_independent (test_store.InventoryTests.test_restock_and_snapshot_are_independent) ... ok\ntest_exact_stock_order_is_valid (test_store.OrderTests.test_exact_stock_order_is_valid) ... ok\ntest_later_item_failure_keeps_all_stock (test_store.OrderTests.test_later_item_failure_keeps_all_stock) ... ok\ntest_multiline_order_prices_and_reserves_all_items (test_store.OrderTests.test_multiline_order_prices_and_reserves_all_items) ... ok\ntest_pricing_failure_keeps_stock (test_store.OrderTests.test_pricing_failure_keeps_stock) ... ok\ntest_coupon_and_shipping_below_threshold (test_store.PricingTests.test_coupon_and_shipping_below_threshold) ... ok\ntest_coupon_minimum_is_checked_before_discount (test_store.PricingTests.test_coupon_minimum_is_checked_before_discount) ... ok\ntest_empty_cart_and_unavailable_product_are_rejected (test_store.PricingTests.test_empty_cart_and_unavailable_product_are_rejected) ... ok\ntest_free_shipping_at_threshold (test_store.PricingTests.test_free_shipping_at_threshold) ... ok\n\n----------------------------------------------------------------------\nRan 17 tests in 0.003s\n\nOK\n"
+      },
+      "expected_candidate_pass": true
+    },
+    {
+      "case_id": "clean_catalog_guard",
+      "split": "test",
+      "base_probe": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "candidate_probe": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "candidate_tests": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "test_exact_stock_can_be_purchased (test_checkout.CheckoutTests.test_exact_stock_can_be_purchased) ... ok\ntest_insufficient_stock_is_rejected_without_mutation (test_checkout.CheckoutTests.test_insufficient_stock_is_rejected_without_mutation) ... ok\ntest_nonpositive_quantity_is_rejected (test_checkout.CheckoutTests.test_nonpositive_quantity_is_rejected) ... ok\ntest_rejects_nonpositive_quantity (test_store.CartTests.test_rejects_nonpositive_quantity) ... ok\ntest_repeated_additions_merge_and_remove_clears_line (test_store.CartTests.test_repeated_additions_merge_and_remove_clears_line) ... ok\ntest_rejects_duplicate_sku_and_negative_price (test_store.CatalogTests.test_rejects_duplicate_sku_and_negative_price) ... ok\ntest_rejects_unknown_and_inactive_products (test_store.CatalogTests.test_rejects_unknown_and_inactive_products) ... ok\ntest_batch_reservation_is_all_or_nothing (test_store.InventoryTests.test_batch_reservation_is_all_or_nothing) ... ok\ntest_restock_and_snapshot_are_independent (test_store.InventoryTests.test_restock_and_snapshot_are_independent) ... ok\ntest_exact_stock_order_is_valid (test_store.OrderTests.test_exact_stock_order_is_valid) ... ok\ntest_later_item_failure_keeps_all_stock (test_store.OrderTests.test_later_item_failure_keeps_all_stock) ... ok\ntest_multiline_order_prices_and_reserves_all_items (test_store.OrderTests.test_multiline_order_prices_and_reserves_all_items) ... ok\ntest_pricing_failure_keeps_stock (test_store.OrderTests.test_pricing_failure_keeps_stock) ... ok\ntest_coupon_and_shipping_below_threshold (test_store.PricingTests.test_coupon_and_shipping_below_threshold) ... ok\ntest_coupon_minimum_is_checked_before_discount (test_store.PricingTests.test_coupon_minimum_is_checked_before_discount) ... ok\ntest_empty_cart_and_unavailable_product_are_rejected (test_store.PricingTests.test_empty_cart_and_unavailable_product_are_rejected) ... ok\ntest_free_shipping_at_threshold (test_store.PricingTests.test_free_shipping_at_threshold) ... ok\n\n----------------------------------------------------------------------\nRan 17 tests in 0.002s\n\nOK\n"
+      },
+      "expected_candidate_pass": true
+    },
+    {
+      "case_id": "clean_pricing_named_net",
+      "split": "test",
+      "base_probe": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "candidate_probe": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "candidate_tests": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "test_exact_stock_can_be_purchased (test_checkout.CheckoutTests.test_exact_stock_can_be_purchased) ... ok\ntest_insufficient_stock_is_rejected_without_mutation (test_checkout.CheckoutTests.test_insufficient_stock_is_rejected_without_mutation) ... ok\ntest_nonpositive_quantity_is_rejected (test_checkout.CheckoutTests.test_nonpositive_quantity_is_rejected) ... ok\ntest_rejects_nonpositive_quantity (test_store.CartTests.test_rejects_nonpositive_quantity) ... ok\ntest_repeated_additions_merge_and_remove_clears_line (test_store.CartTests.test_repeated_additions_merge_and_remove_clears_line) ... ok\ntest_rejects_duplicate_sku_and_negative_price (test_store.CatalogTests.test_rejects_duplicate_sku_and_negative_price) ... ok\ntest_rejects_unknown_and_inactive_products (test_store.CatalogTests.test_rejects_unknown_and_inactive_products) ... ok\ntest_batch_reservation_is_all_or_nothing (test_store.InventoryTests.test_batch_reservation_is_all_or_nothing) ... ok\ntest_restock_and_snapshot_are_independent (test_store.InventoryTests.test_restock_and_snapshot_are_independent) ... ok\ntest_exact_stock_order_is_valid (test_store.OrderTests.test_exact_stock_order_is_valid) ... ok\ntest_later_item_failure_keeps_all_stock (test_store.OrderTests.test_later_item_failure_keeps_all_stock) ... ok\ntest_multiline_order_prices_and_reserves_all_items (test_store.OrderTests.test_multiline_order_prices_and_reserves_all_items) ... ok\ntest_pricing_failure_keeps_stock (test_store.OrderTests.test_pricing_failure_keeps_stock) ... ok\ntest_coupon_and_shipping_below_threshold (test_store.PricingTests.test_coupon_and_shipping_below_threshold) ... ok\ntest_coupon_minimum_is_checked_before_discount (test_store.PricingTests.test_coupon_minimum_is_checked_before_discount) ... ok\ntest_empty_cart_and_unavailable_product_are_rejected (test_store.PricingTests.test_empty_cart_and_unavailable_product_are_rejected) ... ok\ntest_free_shipping_at_threshold (test_store.PricingTests.test_free_shipping_at_threshold) ... ok\n\n----------------------------------------------------------------------\nRan 17 tests in 0.002s\n\nOK\n"
+      },
+      "expected_candidate_pass": true
+    },
+    {
+      "case_id": "clean_orders_named_quantities",
+      "split": "test",
+      "base_probe": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "candidate_probe": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "candidate_tests": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "test_exact_stock_can_be_purchased (test_checkout.CheckoutTests.test_exact_stock_can_be_purchased) ... ok\ntest_insufficient_stock_is_rejected_without_mutation (test_checkout.CheckoutTests.test_insufficient_stock_is_rejected_without_mutation) ... ok\ntest_nonpositive_quantity_is_rejected (test_checkout.CheckoutTests.test_nonpositive_quantity_is_rejected) ... ok\ntest_rejects_nonpositive_quantity (test_store.CartTests.test_rejects_nonpositive_quantity) ... ok\ntest_repeated_additions_merge_and_remove_clears_line (test_store.CartTests.test_repeated_additions_merge_and_remove_clears_line) ... ok\ntest_rejects_duplicate_sku_and_negative_price (test_store.CatalogTests.test_rejects_duplicate_sku_and_negative_price) ... ok\ntest_rejects_unknown_and_inactive_products (test_store.CatalogTests.test_rejects_unknown_and_inactive_products) ... ok\ntest_batch_reservation_is_all_or_nothing (test_store.InventoryTests.test_batch_reservation_is_all_or_nothing) ... ok\ntest_restock_and_snapshot_are_independent (test_store.InventoryTests.test_restock_and_snapshot_are_independent) ... ok\ntest_exact_stock_order_is_valid (test_store.OrderTests.test_exact_stock_order_is_valid) ... ok\ntest_later_item_failure_keeps_all_stock (test_store.OrderTests.test_later_item_failure_keeps_all_stock) ... ok\ntest_multiline_order_prices_and_reserves_all_items (test_store.OrderTests.test_multiline_order_prices_and_reserves_all_items) ... ok\ntest_pricing_failure_keeps_stock (test_store.OrderTests.test_pricing_failure_keeps_stock) ... ok\ntest_coupon_and_shipping_below_threshold (test_store.PricingTests.test_coupon_and_shipping_below_threshold) ... ok\ntest_coupon_minimum_is_checked_before_discount (test_store.PricingTests.test_coupon_minimum_is_checked_before_discount) ... ok\ntest_empty_cart_and_unavailable_product_are_rejected (test_store.PricingTests.test_empty_cart_and_unavailable_product_are_rejected) ... ok\ntest_free_shipping_at_threshold (test_store.PricingTests.test_free_shipping_at_threshold) ... ok\n\n----------------------------------------------------------------------\nRan 17 tests in 0.003s\n\nOK\n"
+      },
+      "expected_candidate_pass": true
+    },
+    {
+      "case_id": "clean_restock_named_total",
+      "split": "test",
+      "base_probe": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "candidate_probe": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "candidate_tests": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "test_exact_stock_can_be_purchased (test_checkout.CheckoutTests.test_exact_stock_can_be_purchased) ... ok\ntest_insufficient_stock_is_rejected_without_mutation (test_checkout.CheckoutTests.test_insufficient_stock_is_rejected_without_mutation) ... ok\ntest_nonpositive_quantity_is_rejected (test_checkout.CheckoutTests.test_nonpositive_quantity_is_rejected) ... ok\ntest_rejects_nonpositive_quantity (test_store.CartTests.test_rejects_nonpositive_quantity) ... ok\ntest_repeated_additions_merge_and_remove_clears_line (test_store.CartTests.test_repeated_additions_merge_and_remove_clears_line) ... ok\ntest_rejects_duplicate_sku_and_negative_price (test_store.CatalogTests.test_rejects_duplicate_sku_and_negative_price) ... ok\ntest_rejects_unknown_and_inactive_products (test_store.CatalogTests.test_rejects_unknown_and_inactive_products) ... ok\ntest_batch_reservation_is_all_or_nothing (test_store.InventoryTests.test_batch_reservation_is_all_or_nothing) ... ok\ntest_restock_and_snapshot_are_independent (test_store.InventoryTests.test_restock_and_snapshot_are_independent) ... ok\ntest_exact_stock_order_is_valid (test_store.OrderTests.test_exact_stock_order_is_valid) ... ok\ntest_later_item_failure_keeps_all_stock (test_store.OrderTests.test_later_item_failure_keeps_all_stock) ... ok\ntest_multiline_order_prices_and_reserves_all_items (test_store.OrderTests.test_multiline_order_prices_and_reserves_all_items) ... ok\ntest_pricing_failure_keeps_stock (test_store.OrderTests.test_pricing_failure_keeps_stock) ... ok\ntest_coupon_and_shipping_below_threshold (test_store.PricingTests.test_coupon_and_shipping_below_threshold) ... ok\ntest_coupon_minimum_is_checked_before_discount (test_store.PricingTests.test_coupon_minimum_is_checked_before_discount) ... ok\ntest_empty_cart_and_unavailable_product_are_rejected (test_store.PricingTests.test_empty_cart_and_unavailable_product_are_rejected) ... ok\ntest_free_shipping_at_threshold (test_store.PricingTests.test_free_shipping_at_threshold) ... ok\n\n----------------------------------------------------------------------\nRan 17 tests in 0.002s\n\nOK\n"
+      },
+      "expected_candidate_pass": true
+    },
+    {
+      "case_id": "clean_cart_total_feature",
+      "split": "test",
+      "base_probe": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "candidate_probe": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "candidate_tests": {
+        "returncode": 0,
+        "stdout": "",
+        "stderr": "test_total_counts_units (test_cart_total.CartTotalTests.test_total_counts_units) ... ok\ntest_exact_stock_can_be_purchased (test_checkout.CheckoutTests.test_exact_stock_can_be_purchased) ... ok\ntest_insufficient_stock_is_rejected_without_mutation (test_checkout.CheckoutTests.test_insufficient_stock_is_rejected_without_mutation) ... ok\ntest_nonpositive_quantity_is_rejected (test_checkout.CheckoutTests.test_nonpositive_quantity_is_rejected) ... ok\ntest_rejects_nonpositive_quantity (test_store.CartTests.test_rejects_nonpositive_quantity) ... ok\ntest_repeated_additions_merge_and_remove_clears_line (test_store.CartTests.test_repeated_additions_merge_and_remove_clears_line) ... ok\ntest_rejects_duplicate_sku_and_negative_price (test_store.CatalogTests.test_rejects_duplicate_sku_and_negative_price) ... ok\ntest_rejects_unknown_and_inactive_products (test_store.CatalogTests.test_rejects_unknown_and_inactive_products) ... ok\ntest_batch_reservation_is_all_or_nothing (test_store.InventoryTests.test_batch_reservation_is_all_or_nothing) ... ok\ntest_restock_and_snapshot_are_independent (test_store.InventoryTests.test_restock_and_snapshot_are_independent) ... ok\ntest_exact_stock_order_is_valid (test_store.OrderTests.test_exact_stock_order_is_valid) ... ok\ntest_later_item_failure_keeps_all_stock (test_store.OrderTests.test_later_item_failure_keeps_all_stock) ... ok\ntest_multiline_order_prices_and_reserves_all_items (test_store.OrderTests.test_multiline_order_prices_and_reserves_all_items) ... ok\ntest_pricing_failure_keeps_stock (test_store.OrderTests.test_pricing_failure_keeps_stock) ... ok\ntest_coupon_and_shipping_below_threshold (test_store.PricingTests.test_coupon_and_shipping_below_threshold) ... ok\ntest_coupon_minimum_is_checked_before_discount (test_store.PricingTests.test_coupon_minimum_is_checked_before_discount) ... ok\ntest_empty_cart_and_unavailable_product_are_rejected (test_store.PricingTests.test_empty_cart_and_unavailable_product_are_rejected) ... ok\ntest_free_shipping_at_threshold (test_store.PricingTests.test_free_shipping_at_threshold) ... ok\n\n----------------------------------------------------------------------\nRan 18 tests in 0.002s\n\nOK\n"
+      },
+      "expected_candidate_pass": true
+    }
+  ],
+  "note": "These assertions support simulated labels; the review pipeline does not execute them."
+}

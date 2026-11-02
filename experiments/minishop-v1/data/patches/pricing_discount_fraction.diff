@@ -1,0 +1,11 @@
+diff --git a/minishop/pricing.py b/minishop/pricing.py
+--- a/minishop/pricing.py
++++ b/minishop/pricing.py
+@@ -45,6 +45,6 @@
+     if coupon is not None:
+         if subtotal < coupon.minimum_cents:
+             raise ValueError("coupon minimum not met")
+-        discount = subtotal * coupon.percent_off // 100
++        discount = subtotal * coupon.percent_off / 100
+     shipping = 0 if subtotal >= free_shipping_at_cents else shipping_cents
+     return Quote(subtotal, discount, shipping, subtotal - discount + shipping)

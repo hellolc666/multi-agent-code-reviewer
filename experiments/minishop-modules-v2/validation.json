@@ -1,0 +1,114 @@
+{
+  "dataset_sha256": "3bc227cf29375a17f6d638cd843c252238bb6e67280e300f8f7c5aa1b953a077",
+  "records": [
+    {
+      "case": "atomic_coupon",
+      "probes": {
+        "inventory_partial_reserve": {
+          "baseline_pass": true,
+          "candidate_pass": false
+        },
+        "dev_coupon_minimum": {
+          "baseline_pass": true,
+          "candidate_pass": false
+        },
+        "clean_orders_named_quantities": {
+          "baseline_pass": true,
+          "candidate_pass": true
+        }
+      },
+      "suite_pass": false
+    },
+    {
+      "case": "cart_shipping",
+      "probes": {
+        "cart_overwrite": {
+          "baseline_pass": true,
+          "candidate_pass": false
+        },
+        "pricing_shipping_equal": {
+          "baseline_pass": true,
+          "candidate_pass": false
+        },
+        "clean_restock_named_total": {
+          "baseline_pass": true,
+          "candidate_pass": true
+        }
+      },
+      "suite_pass": false
+    },
+    {
+      "case": "order_catalog",
+      "probes": {
+        "orders_live_staging": {
+          "baseline_pass": true,
+          "candidate_pass": false
+        },
+        "catalog_inactive": {
+          "baseline_pass": true,
+          "candidate_pass": false
+        },
+        "clean_pricing_named_net": {
+          "baseline_pass": true,
+          "candidate_pass": true
+        }
+      },
+      "suite_pass": false
+    },
+    {
+      "case": "snapshot_quantity",
+      "probes": {
+        "inventory_snapshot_alias": {
+          "baseline_pass": true,
+          "candidate_pass": false
+        },
+        "pricing_quantity": {
+          "baseline_pass": true,
+          "candidate_pass": false
+        },
+        "clean_cart_setdefault": {
+          "baseline_pass": true,
+          "candidate_pass": true
+        }
+      },
+      "suite_pass": false
+    },
+    {
+      "case": "clean_checkout",
+      "probes": {
+        "clean_cart_setdefault": {
+          "baseline_pass": true,
+          "candidate_pass": true
+        },
+        "clean_pricing_named_net": {
+          "baseline_pass": true,
+          "candidate_pass": true
+        },
+        "clean_orders_named_quantities": {
+          "baseline_pass": true,
+          "candidate_pass": true
+        }
+      },
+      "suite_pass": true
+    },
+    {
+      "case": "clean_catalog_stock",
+      "probes": {
+        "clean_catalog_guard": {
+          "baseline_pass": true,
+          "candidate_pass": true
+        },
+        "clean_restock_named_total": {
+          "baseline_pass": true,
+          "candidate_pass": true
+        },
+        "clean_cart_total_feature": {
+          "baseline_pass": true,
+          "candidate_pass": true
+        }
+      },
+      "suite_pass": true
+    }
+  ],
+  "passed": true
+}

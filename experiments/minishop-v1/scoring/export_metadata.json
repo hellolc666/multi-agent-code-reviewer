@@ -1,0 +1,8 @@
+{
+  "seed": 20261027,
+  "dataset_sha256": "0e818f8320ebf41aab870dec46c8b0a653da5b40bf9cfe28960d3808c7405e27",
+  "predictions": 113,
+  "runs_sha256": "9e0b4faa9644b667a39eea7b2eedaed9e8e6ba33b5919c569784f28323defa2a",
+  "blind_sha256": "88128e773750795301191ca2c3e152dd7b3497f40ca3a7f11d62d4c4eb81f7fb",
+  "instruction": "Read blind_predictions only until all semantic decisions are saved; then unblind."
+}

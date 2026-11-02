@@ -75,6 +75,10 @@ class QwenConfig:
     model: str
 
 
+class UnsupportedReviewModelError(ValueError):
+    """Configured model cannot satisfy the review pipeline's output contract."""
+
+
 def qwen_config(*, model: str | None = None) -> QwenConfig:
     """Require an explicit endpoint/model; never use an OpenAI key for DashScope."""
     key = _required_env("DASHSCOPE_API_KEY")
@@ -105,7 +109,25 @@ def qwen_config(*, model: str | None = None) -> QwenConfig:
     resolved_model = model.strip() if model is not None else _required_env("DASHSCOPE_MODEL")
     if not resolved_model or resolved_model.startswith("<"):
         raise ValueError("DASHSCOPE_MODEL must be configured (non-empty, no placeholder)")
+    if resolved_model.lower().startswith("qwen-vl-ocr"):
+        raise UnsupportedReviewModelError(
+            "DASHSCOPE_MODEL is a Qwen OCR model; code review requires a text model "
+            "with Function Calling and structured output support"
+        )
     return QwenConfig(api_key=key, base_url=url.rstrip("/"), model=resolved_model)
+
+
+def qwen_model_candidates() -> tuple[str, ...]:
+    """Ordered, explicitly configured models sharing one DashScope endpoint/key."""
+    primary = qwen_config().model
+    raw = os.environ.get("DASHSCOPE_FALLBACK_MODELS", "")
+    fallbacks = [item.strip() for item in raw.split(",") if item.strip()]
+    if len(fallbacks) > 4:
+        raise ValueError("DASHSCOPE_FALLBACK_MODELS supports at most four models")
+    models = list(dict.fromkeys([primary, *fallbacks]))
+    for candidate in models[1:]:
+        qwen_config(model=candidate)
+    return tuple(models)
 
 
 def structured_output_retries() -> int:

@@ -7,6 +7,7 @@ from pathlib import Path
 from fastapi.testclient import TestClient
 
 from reviewer import local_ui
+from reviewer.config import UnsupportedReviewModelError
 from scripts import run_local_ui
 
 
@@ -21,6 +22,7 @@ def test_workbench_and_example_are_available():
     assert page.status_code == example.status_code == 200
     assert "代码审查工作台" in page.text
     assert "开始离线审查" in page.text
+    assert "下载 Markdown 报告" in page.text
     assert "demo-logic-repo" in example.json()["repo_path"]
     assert "diff --git" in example.json()["diff_text"]
 
@@ -50,6 +52,7 @@ def test_workbench_reuses_diff_runner_and_cleans_temp_file(tmp_path, monkeypatch
         )
     assert result.status_code == 200
     assert result.json()["status"] == "completed"
+    assert result.json()["markdown_report"].startswith("# 代码审查报告")
     assert observed["diff_text"].startswith("diff --git")
     assert observed["repo_path"] == tmp_path
     assert observed["live"] is False
@@ -98,6 +101,21 @@ def test_invalid_workbench_requests_are_sanitized(tmp_path, monkeypatch):
     assert invalid_agent.status_code == missing_repo.status_code == invalid_diff.status_code == 400
     assert too_large.status_code == 413
     assert "PRIVATE-SOURCE-CONTENT" not in invalid_diff.text
+
+
+def test_unsupported_ocr_model_has_actionable_error(tmp_path, monkeypatch):
+    async def unsupported(*_args, **_kwargs):
+        raise UnsupportedReviewModelError("PRIVATE-KEY")
+
+    monkeypatch.setattr(local_ui, "run_review_diff", unsupported)
+    with _client() as client:
+        result = client.post(
+            "/api/review",
+            json={"diff_text": "patch", "repo_path": str(tmp_path), "live": True},
+        )
+    assert result.status_code == 400
+    assert "Function Calling" in result.text
+    assert "PRIVATE-KEY" not in result.text
 
 
 def test_launcher_loads_project_env_and_binds_loopback(monkeypatch):

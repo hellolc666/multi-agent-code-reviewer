@@ -1,0 +1,22 @@
+{
+  "version": "minishop-modules-v2",
+  "cases": 6,
+  "test": 6,
+  "dev": 0,
+  "sha256": "3bc227cf29375a17f6d638cd843c252238bb6e67280e300f8f7c5aa1b953a077",
+  "source": {
+    "version": "minishop-v1-20",
+    "base_commit": "4353804fcf686c04a0ae4345bac223815d82f6b2",
+    "repo_url": "https://github.com/hellolc666/code-review-demo",
+    "sha256": "0e818f8320ebf41aab870dec46c8b0a653da5b40bf9cfe28960d3808c7405e27",
+    "cases": 20,
+    "dev": 4,
+    "test": 16,
+    "annotation_status": "AI_simulated_pending_human_signoff",
+    "human_signed_off": false,
+    "scope": "10 defective + 6 clean test changes; 4 development cases; no security-specific gold"
+  },
+  "human_signed_off": false,
+  "label_method": "AI simulated, executable oracle checked",
+  "scope": "4 dual-defect changes + 2 clean changes; recombined known mutations"
+}

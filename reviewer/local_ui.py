@@ -11,6 +11,8 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel, Field
 
+from reviewer.config import UnsupportedReviewModelError
+from reviewer.reporting import render_markdown
 from reviewer.runner import run_review_diff
 
 log = logging.getLogger(__name__)
@@ -60,9 +62,16 @@ async def review(request: LocalReviewRequest) -> dict:
         with tempfile.TemporaryDirectory(prefix="reviewer-ui-") as temp_dir:
             diff_path = Path(temp_dir) / "input.diff"
             diff_path.write_text(request.diff_text, encoding="utf-8")
-            return await run_review_diff(
+            report = await run_review_diff(
                 diff_path, repo, live=request.live, only=request.agents or None
             )
+            return {**report, "markdown_report": render_markdown(report)}
+    except UnsupportedReviewModelError:
+        raise HTTPException(
+            400,
+            "Configured Qwen OCR model cannot perform structured code review; "
+            "choose a text model with Function Calling support",
+        ) from None
     except (ValueError, UnicodeError, OSError) as exc:
         log.warning("local_ui_invalid_input error_type=%s", type(exc).__name__)
         raise HTTPException(400, "Invalid diff or repository content") from None

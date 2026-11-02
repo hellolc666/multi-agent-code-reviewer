@@ -1,0 +1,2061 @@
+{
+  "label_method": "AI-simulated; not independently human-confirmed",
+  "human_signed_off": false,
+  "dataset": {
+    "version": "minishop-v1-20",
+    "base_commit": "4353804fcf686c04a0ae4345bac223815d82f6b2",
+    "repo_url": "https://github.com/hellolc666/code-review-demo",
+    "sha256": "0e818f8320ebf41aab870dec46c8b0a653da5b40bf9cfe28960d3808c7405e27",
+    "cases": 20,
+    "dev": 4,
+    "test": 16,
+    "annotation_status": "AI_simulated_pending_human_signoff",
+    "human_signed_off": false,
+    "scope": "10 defective + 6 clean test changes; 4 development cases; no security-specific gold"
+  },
+  "scoring_inputs": {
+    "blind_sha256": "88128e773750795301191ca2c3e152dd7b3497f40ca3a7f11d62d4c4eb81f7fb",
+    "decisions_sha256": "d5b51f362036c9e3f073dfb71d295d7fa10651a2f20374618926ecf6dffcc741",
+    "runs_sha256": "9e0b4faa9644b667a39eea7b2eedaed9e8e6ba33b5919c569784f28323defa2a"
+  },
+  "runs": 64,
+  "metrics": {
+    "A": {
+      "quality": {
+        "tp": 8,
+        "fp": 5,
+        "fn": 2,
+        "semantic_pairs": 9,
+        "located_pairs": 8,
+        "precision": 0.6153846153846154,
+        "recall": 0.8,
+        "f1": 0.6956521739130435,
+        "false_positives_per_pr": 0.3125,
+        "location_accuracy": 0.8888888888888888
+      },
+      "operational": {
+        "runs": 16,
+        "completed": 16,
+        "skipped": 0,
+        "latency_p50_seconds": 9.57019814999967,
+        "latency_p95_seconds": 16.47544310000012,
+        "llm_requests": 29,
+        "completion_rate": 1.0,
+        "input_tokens": 20702,
+        "output_tokens": 3998,
+        "estimated_cost": null
+      },
+      "statuses": {
+        "completed": 16
+      },
+      "clean_cases": 6,
+      "clean_cases_with_false_alarm": 3,
+      "clean_false_alarm_rate": 0.5,
+      "judge_enabled_runs": 0,
+      "judge_llm_calls": 0,
+      "llm_trace_statuses": {
+        "completed": 29
+      },
+      "static_tool_trace": {},
+      "evidence_tools": {},
+      "source_errors": [],
+      "agent_failures": []
+    },
+    "B": {
+      "quality": {
+        "tp": 8,
+        "fp": 85,
+        "fn": 2,
+        "semantic_pairs": 9,
+        "located_pairs": 8,
+        "precision": 0.08602150537634409,
+        "recall": 0.8,
+        "f1": 0.1553398058252427,
+        "false_positives_per_pr": 5.3125,
+        "location_accuracy": 0.8888888888888888
+      },
+      "operational": {
+        "runs": 16,
+        "completed": 0,
+        "skipped": 0,
+        "latency_p50_seconds": 50.5296435500004,
+        "latency_p95_seconds": 92.86472399999911,
+        "llm_requests": 157,
+        "completion_rate": 0.0,
+        "input_tokens": null,
+        "output_tokens": null,
+        "estimated_cost": null
+      },
+      "statuses": {
+        "partial": 16
+      },
+      "clean_cases": 6,
+      "clean_cases_with_false_alarm": 6,
+      "clean_false_alarm_rate": 1.0,
+      "judge_enabled_runs": 0,
+      "judge_llm_calls": 0,
+      "llm_trace_statuses": {
+        "completed": 149,
+        "error": 5,
+        "cancelled": 3
+      },
+      "static_tool_trace": {
+        "ruff:completed": 16,
+        "semgrep:completed": 16
+      },
+      "evidence_tools": {},
+      "source_errors": [],
+      "agent_failures": [
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "timeout after 90s",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "timeout after 90s",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "timeout after 90s",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        }
+      ]
+    },
+    "C": {
+      "quality": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 10,
+        "semantic_pairs": 0,
+        "located_pairs": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0,
+        "false_positives_per_pr": 0.0625,
+        "location_accuracy": null
+      },
+      "operational": {
+        "runs": 16,
+        "completed": 0,
+        "skipped": 0,
+        "latency_p50_seconds": 53.488716749999185,
+        "latency_p95_seconds": 90.31512320000002,
+        "llm_requests": 149,
+        "completion_rate": 0.0,
+        "input_tokens": null,
+        "output_tokens": null,
+        "estimated_cost": null
+      },
+      "statuses": {
+        "partial": 16
+      },
+      "clean_cases": 6,
+      "clean_cases_with_false_alarm": 0,
+      "clean_false_alarm_rate": 0.0,
+      "judge_enabled_runs": 16,
+      "judge_llm_calls": 1,
+      "llm_trace_statuses": {
+        "completed": 138,
+        "error": 6,
+        "cancelled": 5
+      },
+      "static_tool_trace": {
+        "ruff:completed": 16,
+        "semgrep:completed": 16
+      },
+      "evidence_tools": {},
+      "source_errors": [],
+      "agent_failures": [
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "timeout after 90s",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "timeout after 90s",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "timeout after 90s",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "timeout after 90s",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "timeout after 90s",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        }
+      ]
+    },
+    "D": {
+      "quality": {
+        "tp": 5,
+        "fp": 1,
+        "fn": 5,
+        "semantic_pairs": 5,
+        "located_pairs": 5,
+        "precision": 0.8333333333333334,
+        "recall": 0.5,
+        "f1": 0.625,
+        "false_positives_per_pr": 0.0625,
+        "location_accuracy": 1.0
+      },
+      "operational": {
+        "runs": 16,
+        "completed": 1,
+        "skipped": 0,
+        "latency_p50_seconds": 52.42890304999946,
+        "latency_p95_seconds": 90.20929590000014,
+        "llm_requests": 171,
+        "completion_rate": 0.0625,
+        "input_tokens": null,
+        "output_tokens": null,
+        "estimated_cost": null
+      },
+      "statuses": {
+        "partial": 15,
+        "completed": 1
+      },
+      "clean_cases": 6,
+      "clean_cases_with_false_alarm": 1,
+      "clean_false_alarm_rate": 0.16666666666666666,
+      "judge_enabled_runs": 16,
+      "judge_llm_calls": 6,
+      "llm_trace_statuses": {
+        "completed": 164,
+        "error": 4,
+        "cancelled": 3
+      },
+      "static_tool_trace": {
+        "ruff:completed": 16,
+        "get_changed_hunks:completed": 17,
+        "search_references:error": 1,
+        "search_references:completed": 1
+      },
+      "evidence_tools": {
+        "get_changed_hunks:True": 17,
+        "search_references:False": 1,
+        "search_references:True": 1
+      },
+      "source_errors": [],
+      "agent_failures": [
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "timeout after 90s",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        },
+        {
+          "agent": "docs",
+          "error": "timeout after 90s",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "error": "StructuredOutputError",
+          "stage": null
+        },
+        {
+          "agent": "docs",
+          "error": "timeout after 90s",
+          "stage": null
+        },
+        {
+          "agent": "test_mapping",
+          "stage": "llm",
+          "error": "StructuredOutputError"
+        }
+      ]
+    }
+  },
+  "case_results": [
+    {
+      "key": "cart_overwrite/A/1",
+      "case_id": "cart_overwrite",
+      "variant": "A",
+      "status": "completed",
+      "clean": false,
+      "prediction_count": 1,
+      "pairs": [
+        {
+          "prediction_index": 0,
+          "gold_id": "cart_overwrite_g1"
+        }
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "semantic_pairs": 1,
+      "located_pairs": 1
+    },
+    {
+      "key": "cart_overwrite/B/1",
+      "case_id": "cart_overwrite",
+      "variant": "B",
+      "status": "partial",
+      "clean": false,
+      "prediction_count": 8,
+      "pairs": [
+        {
+          "prediction_index": 0,
+          "gold_id": "cart_overwrite_g1"
+        }
+      ],
+      "tp": 1,
+      "fp": 7,
+      "fn": 0,
+      "semantic_pairs": 1,
+      "located_pairs": 1
+    },
+    {
+      "key": "cart_overwrite/C/1",
+      "case_id": "cart_overwrite",
+      "variant": "C",
+      "status": "partial",
+      "clean": false,
+      "prediction_count": 0,
+      "pairs": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "cart_overwrite/D/1",
+      "case_id": "cart_overwrite",
+      "variant": "D",
+      "status": "partial",
+      "clean": false,
+      "prediction_count": 1,
+      "pairs": [
+        {
+          "prediction_index": 0,
+          "gold_id": "cart_overwrite_g1"
+        }
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "semantic_pairs": 1,
+      "located_pairs": 1
+    },
+    {
+      "key": "catalog_inactive/B/1",
+      "case_id": "catalog_inactive",
+      "variant": "B",
+      "status": "partial",
+      "clean": false,
+      "prediction_count": 7,
+      "pairs": [
+        {
+          "prediction_index": 0,
+          "gold_id": "catalog_inactive_g1"
+        }
+      ],
+      "tp": 1,
+      "fp": 6,
+      "fn": 0,
+      "semantic_pairs": 1,
+      "located_pairs": 1
+    },
+    {
+      "key": "catalog_inactive/C/1",
+      "case_id": "catalog_inactive",
+      "variant": "C",
+      "status": "partial",
+      "clean": false,
+      "prediction_count": 0,
+      "pairs": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "catalog_inactive/D/1",
+      "case_id": "catalog_inactive",
+      "variant": "D",
+      "status": "partial",
+      "clean": false,
+      "prediction_count": 0,
+      "pairs": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "catalog_inactive/A/1",
+      "case_id": "catalog_inactive",
+      "variant": "A",
+      "status": "completed",
+      "clean": false,
+      "prediction_count": 1,
+      "pairs": [
+        {
+          "prediction_index": 0,
+          "gold_id": "catalog_inactive_g1"
+        }
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "semantic_pairs": 1,
+      "located_pairs": 1
+    },
+    {
+      "key": "inventory_snapshot_alias/C/1",
+      "case_id": "inventory_snapshot_alias",
+      "variant": "C",
+      "status": "partial",
+      "clean": false,
+      "prediction_count": 0,
+      "pairs": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "inventory_snapshot_alias/D/1",
+      "case_id": "inventory_snapshot_alias",
+      "variant": "D",
+      "status": "partial",
+      "clean": false,
+      "prediction_count": 1,
+      "pairs": [
+        {
+          "prediction_index": 0,
+          "gold_id": "inventory_snapshot_alias_g1"
+        }
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "semantic_pairs": 1,
+      "located_pairs": 1
+    },
+    {
+      "key": "inventory_snapshot_alias/A/1",
+      "case_id": "inventory_snapshot_alias",
+      "variant": "A",
+      "status": "completed",
+      "clean": false,
+      "prediction_count": 1,
+      "pairs": [
+        {
+          "prediction_index": 0,
+          "gold_id": "inventory_snapshot_alias_g1"
+        }
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "semantic_pairs": 1,
+      "located_pairs": 1
+    },
+    {
+      "key": "inventory_snapshot_alias/B/1",
+      "case_id": "inventory_snapshot_alias",
+      "variant": "B",
+      "status": "partial",
+      "clean": false,
+      "prediction_count": 9,
+      "pairs": [
+        {
+          "prediction_index": 0,
+          "gold_id": "inventory_snapshot_alias_g1"
+        }
+      ],
+      "tp": 1,
+      "fp": 8,
+      "fn": 0,
+      "semantic_pairs": 1,
+      "located_pairs": 1
+    },
+    {
+      "key": "inventory_partial_reserve/D/1",
+      "case_id": "inventory_partial_reserve",
+      "variant": "D",
+      "status": "partial",
+      "clean": false,
+      "prediction_count": 0,
+      "pairs": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "inventory_partial_reserve/A/1",
+      "case_id": "inventory_partial_reserve",
+      "variant": "A",
+      "status": "completed",
+      "clean": false,
+      "prediction_count": 1,
+      "pairs": [
+        {
+          "prediction_index": 0,
+          "gold_id": "inventory_partial_reserve_g1"
+        }
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "semantic_pairs": 1,
+      "located_pairs": 1
+    },
+    {
+      "key": "inventory_partial_reserve/B/1",
+      "case_id": "inventory_partial_reserve",
+      "variant": "B",
+      "status": "partial",
+      "clean": false,
+      "prediction_count": 9,
+      "pairs": [],
+      "tp": 0,
+      "fp": 9,
+      "fn": 1,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "inventory_partial_reserve/C/1",
+      "case_id": "inventory_partial_reserve",
+      "variant": "C",
+      "status": "partial",
+      "clean": false,
+      "prediction_count": 0,
+      "pairs": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "pricing_quantity/A/1",
+      "case_id": "pricing_quantity",
+      "variant": "A",
+      "status": "completed",
+      "clean": false,
+      "prediction_count": 1,
+      "pairs": [
+        {
+          "prediction_index": 0,
+          "gold_id": "pricing_quantity_g1"
+        }
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "semantic_pairs": 1,
+      "located_pairs": 1
+    },
+    {
+      "key": "pricing_quantity/B/1",
+      "case_id": "pricing_quantity",
+      "variant": "B",
+      "status": "partial",
+      "clean": false,
+      "prediction_count": 7,
+      "pairs": [
+        {
+          "prediction_index": 0,
+          "gold_id": "pricing_quantity_g1"
+        }
+      ],
+      "tp": 1,
+      "fp": 6,
+      "fn": 0,
+      "semantic_pairs": 1,
+      "located_pairs": 1
+    },
+    {
+      "key": "pricing_quantity/C/1",
+      "case_id": "pricing_quantity",
+      "variant": "C",
+      "status": "partial",
+      "clean": false,
+      "prediction_count": 1,
+      "pairs": [],
+      "tp": 0,
+      "fp": 1,
+      "fn": 1,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "pricing_quantity/D/1",
+      "case_id": "pricing_quantity",
+      "variant": "D",
+      "status": "partial",
+      "clean": false,
+      "prediction_count": 1,
+      "pairs": [
+        {
+          "prediction_index": 0,
+          "gold_id": "pricing_quantity_g1"
+        }
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "semantic_pairs": 1,
+      "located_pairs": 1
+    },
+    {
+      "key": "pricing_shipping_equal/B/1",
+      "case_id": "pricing_shipping_equal",
+      "variant": "B",
+      "status": "partial",
+      "clean": false,
+      "prediction_count": 6,
+      "pairs": [
+        {
+          "prediction_index": 1,
+          "gold_id": "pricing_shipping_equal_g1"
+        }
+      ],
+      "tp": 1,
+      "fp": 5,
+      "fn": 0,
+      "semantic_pairs": 1,
+      "located_pairs": 1
+    },
+    {
+      "key": "pricing_shipping_equal/C/1",
+      "case_id": "pricing_shipping_equal",
+      "variant": "C",
+      "status": "partial",
+      "clean": false,
+      "prediction_count": 0,
+      "pairs": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "pricing_shipping_equal/D/1",
+      "case_id": "pricing_shipping_equal",
+      "variant": "D",
+      "status": "partial",
+      "clean": false,
+      "prediction_count": 1,
+      "pairs": [
+        {
+          "prediction_index": 0,
+          "gold_id": "pricing_shipping_equal_g1"
+        }
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "semantic_pairs": 1,
+      "located_pairs": 1
+    },
+    {
+      "key": "pricing_shipping_equal/A/1",
+      "case_id": "pricing_shipping_equal",
+      "variant": "A",
+      "status": "completed",
+      "clean": false,
+      "prediction_count": 1,
+      "pairs": [
+        {
+          "prediction_index": 0,
+          "gold_id": "pricing_shipping_equal_g1"
+        }
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "semantic_pairs": 1,
+      "located_pairs": 1
+    },
+    {
+      "key": "pricing_discount_fraction/C/1",
+      "case_id": "pricing_discount_fraction",
+      "variant": "C",
+      "status": "partial",
+      "clean": false,
+      "prediction_count": 0,
+      "pairs": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "pricing_discount_fraction/D/1",
+      "case_id": "pricing_discount_fraction",
+      "variant": "D",
+      "status": "partial",
+      "clean": false,
+      "prediction_count": 1,
+      "pairs": [
+        {
+          "prediction_index": 0,
+          "gold_id": "pricing_discount_fraction_g1"
+        }
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "semantic_pairs": 1,
+      "located_pairs": 1
+    },
+    {
+      "key": "pricing_discount_fraction/A/1",
+      "case_id": "pricing_discount_fraction",
+      "variant": "A",
+      "status": "completed",
+      "clean": false,
+      "prediction_count": 1,
+      "pairs": [
+        {
+          "prediction_index": 0,
+          "gold_id": "pricing_discount_fraction_g1"
+        }
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "semantic_pairs": 1,
+      "located_pairs": 1
+    },
+    {
+      "key": "pricing_discount_fraction/B/1",
+      "case_id": "pricing_discount_fraction",
+      "variant": "B",
+      "status": "partial",
+      "clean": false,
+      "prediction_count": 6,
+      "pairs": [
+        {
+          "prediction_index": 1,
+          "gold_id": "pricing_discount_fraction_g1"
+        }
+      ],
+      "tp": 1,
+      "fp": 5,
+      "fn": 0,
+      "semantic_pairs": 1,
+      "located_pairs": 1
+    },
+    {
+      "key": "orders_reserve_before_price/D/1",
+      "case_id": "orders_reserve_before_price",
+      "variant": "D",
+      "status": "partial",
+      "clean": false,
+      "prediction_count": 0,
+      "pairs": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "orders_reserve_before_price/A/1",
+      "case_id": "orders_reserve_before_price",
+      "variant": "A",
+      "status": "completed",
+      "clean": false,
+      "prediction_count": 1,
+      "pairs": [],
+      "tp": 0,
+      "fp": 1,
+      "fn": 1,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "orders_reserve_before_price/B/1",
+      "case_id": "orders_reserve_before_price",
+      "variant": "B",
+      "status": "partial",
+      "clean": false,
+      "prediction_count": 7,
+      "pairs": [
+        {
+          "prediction_index": 0,
+          "gold_id": "orders_reserve_before_price_g1"
+        }
+      ],
+      "tp": 0,
+      "fp": 7,
+      "fn": 1,
+      "semantic_pairs": 1,
+      "located_pairs": 0
+    },
+    {
+      "key": "orders_reserve_before_price/C/1",
+      "case_id": "orders_reserve_before_price",
+      "variant": "C",
+      "status": "partial",
+      "clean": false,
+      "prediction_count": 0,
+      "pairs": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "orders_live_staging/A/1",
+      "case_id": "orders_live_staging",
+      "variant": "A",
+      "status": "completed",
+      "clean": false,
+      "prediction_count": 1,
+      "pairs": [
+        {
+          "prediction_index": 0,
+          "gold_id": "orders_live_staging_g1"
+        }
+      ],
+      "tp": 0,
+      "fp": 1,
+      "fn": 1,
+      "semantic_pairs": 1,
+      "located_pairs": 0
+    },
+    {
+      "key": "orders_live_staging/B/1",
+      "case_id": "orders_live_staging",
+      "variant": "B",
+      "status": "partial",
+      "clean": false,
+      "prediction_count": 8,
+      "pairs": [
+        {
+          "prediction_index": 2,
+          "gold_id": "orders_live_staging_g1"
+        }
+      ],
+      "tp": 1,
+      "fp": 7,
+      "fn": 0,
+      "semantic_pairs": 1,
+      "located_pairs": 1
+    },
+    {
+      "key": "orders_live_staging/C/1",
+      "case_id": "orders_live_staging",
+      "variant": "C",
+      "status": "partial",
+      "clean": false,
+      "prediction_count": 0,
+      "pairs": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "orders_live_staging/D/1",
+      "case_id": "orders_live_staging",
+      "variant": "D",
+      "status": "partial",
+      "clean": false,
+      "prediction_count": 0,
+      "pairs": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "test_receipt_assertion/B/1",
+      "case_id": "test_receipt_assertion",
+      "variant": "B",
+      "status": "partial",
+      "clean": false,
+      "prediction_count": 6,
+      "pairs": [
+        {
+          "prediction_index": 0,
+          "gold_id": "test_receipt_assertion_g1"
+        }
+      ],
+      "tp": 1,
+      "fp": 5,
+      "fn": 0,
+      "semantic_pairs": 1,
+      "located_pairs": 1
+    },
+    {
+      "key": "test_receipt_assertion/C/1",
+      "case_id": "test_receipt_assertion",
+      "variant": "C",
+      "status": "partial",
+      "clean": false,
+      "prediction_count": 0,
+      "pairs": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "test_receipt_assertion/D/1",
+      "case_id": "test_receipt_assertion",
+      "variant": "D",
+      "status": "completed",
+      "clean": false,
+      "prediction_count": 0,
+      "pairs": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 1,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "test_receipt_assertion/A/1",
+      "case_id": "test_receipt_assertion",
+      "variant": "A",
+      "status": "completed",
+      "clean": false,
+      "prediction_count": 1,
+      "pairs": [
+        {
+          "prediction_index": 0,
+          "gold_id": "test_receipt_assertion_g1"
+        }
+      ],
+      "tp": 1,
+      "fp": 0,
+      "fn": 0,
+      "semantic_pairs": 1,
+      "located_pairs": 1
+    },
+    {
+      "key": "clean_cart_setdefault/C/1",
+      "case_id": "clean_cart_setdefault",
+      "variant": "C",
+      "status": "partial",
+      "clean": true,
+      "prediction_count": 0,
+      "pairs": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "clean_cart_setdefault/D/1",
+      "case_id": "clean_cart_setdefault",
+      "variant": "D",
+      "status": "partial",
+      "clean": true,
+      "prediction_count": 0,
+      "pairs": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "clean_cart_setdefault/A/1",
+      "case_id": "clean_cart_setdefault",
+      "variant": "A",
+      "status": "completed",
+      "clean": true,
+      "prediction_count": 0,
+      "pairs": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "clean_cart_setdefault/B/1",
+      "case_id": "clean_cart_setdefault",
+      "variant": "B",
+      "status": "partial",
+      "clean": true,
+      "prediction_count": 1,
+      "pairs": [],
+      "tp": 0,
+      "fp": 1,
+      "fn": 0,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "clean_catalog_guard/D/1",
+      "case_id": "clean_catalog_guard",
+      "variant": "D",
+      "status": "partial",
+      "clean": true,
+      "prediction_count": 1,
+      "pairs": [],
+      "tp": 0,
+      "fp": 1,
+      "fn": 0,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "clean_catalog_guard/A/1",
+      "case_id": "clean_catalog_guard",
+      "variant": "A",
+      "status": "completed",
+      "clean": true,
+      "prediction_count": 1,
+      "pairs": [],
+      "tp": 0,
+      "fp": 1,
+      "fn": 0,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "clean_catalog_guard/B/1",
+      "case_id": "clean_catalog_guard",
+      "variant": "B",
+      "status": "partial",
+      "clean": true,
+      "prediction_count": 6,
+      "pairs": [],
+      "tp": 0,
+      "fp": 6,
+      "fn": 0,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "clean_catalog_guard/C/1",
+      "case_id": "clean_catalog_guard",
+      "variant": "C",
+      "status": "partial",
+      "clean": true,
+      "prediction_count": 0,
+      "pairs": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "clean_pricing_named_net/A/1",
+      "case_id": "clean_pricing_named_net",
+      "variant": "A",
+      "status": "completed",
+      "clean": true,
+      "prediction_count": 1,
+      "pairs": [],
+      "tp": 0,
+      "fp": 1,
+      "fn": 0,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "clean_pricing_named_net/B/1",
+      "case_id": "clean_pricing_named_net",
+      "variant": "B",
+      "status": "partial",
+      "clean": true,
+      "prediction_count": 4,
+      "pairs": [],
+      "tp": 0,
+      "fp": 4,
+      "fn": 0,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "clean_pricing_named_net/C/1",
+      "case_id": "clean_pricing_named_net",
+      "variant": "C",
+      "status": "partial",
+      "clean": true,
+      "prediction_count": 0,
+      "pairs": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "clean_pricing_named_net/D/1",
+      "case_id": "clean_pricing_named_net",
+      "variant": "D",
+      "status": "partial",
+      "clean": true,
+      "prediction_count": 0,
+      "pairs": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "clean_orders_named_quantities/B/1",
+      "case_id": "clean_orders_named_quantities",
+      "variant": "B",
+      "status": "partial",
+      "clean": true,
+      "prediction_count": 5,
+      "pairs": [],
+      "tp": 0,
+      "fp": 5,
+      "fn": 0,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "clean_orders_named_quantities/C/1",
+      "case_id": "clean_orders_named_quantities",
+      "variant": "C",
+      "status": "partial",
+      "clean": true,
+      "prediction_count": 0,
+      "pairs": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "clean_orders_named_quantities/D/1",
+      "case_id": "clean_orders_named_quantities",
+      "variant": "D",
+      "status": "partial",
+      "clean": true,
+      "prediction_count": 0,
+      "pairs": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "clean_orders_named_quantities/A/1",
+      "case_id": "clean_orders_named_quantities",
+      "variant": "A",
+      "status": "completed",
+      "clean": true,
+      "prediction_count": 0,
+      "pairs": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "clean_restock_named_total/C/1",
+      "case_id": "clean_restock_named_total",
+      "variant": "C",
+      "status": "partial",
+      "clean": true,
+      "prediction_count": 0,
+      "pairs": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "clean_restock_named_total/D/1",
+      "case_id": "clean_restock_named_total",
+      "variant": "D",
+      "status": "partial",
+      "clean": true,
+      "prediction_count": 0,
+      "pairs": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "clean_restock_named_total/A/1",
+      "case_id": "clean_restock_named_total",
+      "variant": "A",
+      "status": "completed",
+      "clean": true,
+      "prediction_count": 0,
+      "pairs": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "clean_restock_named_total/B/1",
+      "case_id": "clean_restock_named_total",
+      "variant": "B",
+      "status": "partial",
+      "clean": true,
+      "prediction_count": 2,
+      "pairs": [],
+      "tp": 0,
+      "fp": 2,
+      "fn": 0,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "clean_cart_total_feature/D/1",
+      "case_id": "clean_cart_total_feature",
+      "variant": "D",
+      "status": "partial",
+      "clean": true,
+      "prediction_count": 0,
+      "pairs": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "clean_cart_total_feature/A/1",
+      "case_id": "clean_cart_total_feature",
+      "variant": "A",
+      "status": "completed",
+      "clean": true,
+      "prediction_count": 1,
+      "pairs": [],
+      "tp": 0,
+      "fp": 1,
+      "fn": 0,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "clean_cart_total_feature/B/1",
+      "case_id": "clean_cart_total_feature",
+      "variant": "B",
+      "status": "partial",
+      "clean": true,
+      "prediction_count": 2,
+      "pairs": [],
+      "tp": 0,
+      "fp": 2,
+      "fn": 0,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    },
+    {
+      "key": "clean_cart_total_feature/C/1",
+      "case_id": "clean_cart_total_feature",
+      "variant": "C",
+      "status": "partial",
+      "clean": true,
+      "prediction_count": 0,
+      "pairs": [],
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "semantic_pairs": 0,
+      "located_pairs": 0
+    }
+  ]
+}

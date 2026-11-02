@@ -56,7 +56,7 @@ def load_corpus(data=DATA):
     return cases, manifest
 
 
-async def run_case(case, variant, live, budget, prices=None):
+async def run_case(case, variant, live, budget, prices=None, *, variants=None):
     # This projection is the only data crossing into the reviewer checkout.
     payload = case.reviewer_input()
     with tempfile.TemporaryDirectory(prefix="review-eval-") as directory:
@@ -68,7 +68,7 @@ async def run_case(case, variant, live, budget, prices=None):
             path.write_text(content, encoding="utf-8")
         patch = Path(directory) / "input.diff"  # outside reviewer tool root
         patch.write_text(payload["diff"], encoding="utf-8", newline="\n")
-        selected = VARIANTS[variant]
+        selected = (VARIANTS if variants is None else variants)[variant]
         options = {
             **selected["options"],
             "budget": budget,
